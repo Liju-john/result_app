@@ -327,7 +327,12 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
                   child: Text("Previous Status:-"+(data[position].sessionStatus),style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white),),
                 ),
                 Visibility(
-                  visible: data[position].tcMenuVisibility||data[position].tcEditButonVisibility||data[position].gen==null?false:true,
+                  visible: data[position].tcMenuVisibility||data[position]
+                      .tcEditButonVisibility||data[position]
+                      .gen==null||data[position]
+                      .sessionStatus=='Not active'||data[position]
+                      .sessionStatus=='TC'||data[position]
+                      .sessionStatus=='Not active'||data[position].assignButton?false:true,
                   child: Row(
                     children: [
                       saving[position]?CircularProgressIndicator():TextButton(child: Text( data[position].previousSection==""?"Assign":"Update"
@@ -604,7 +609,7 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
                     {
                       data[position].tcreason=tcreasoncontroller[position].text;
                       data[position].tcno=tcnocontroller[position].text;
-                      await uploadTC(position);
+                     // await uploadTC(position);
                     }
 
                   },
@@ -664,12 +669,12 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
         cname=='KGI' || cname=='KGII'|| cname=='NUR')
     {
       url = Uri.parse(
-          'https://kpsbsp.in/result/rollno_assign/nur_v.php');
+          'http://59.94.37.73/app/result/rollno_assign/nur_v.php');
     }
     else if(cname=='VI'||cname=='VII'||cname=='VIII')
     {
       url = Uri.parse(
-          'https://kpsbsp.in/result/rollno_assign/vi_viii.php');
+          'http://59.94.37.73/app/result/rollno_assign/vi_viii.php');
     }
     else if(cname=='IX'||cname=='X')
     {
@@ -687,7 +692,7 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
         'subject6':data[position].subject6
       });
       url = Uri.parse(
-          'https://kpsbsp.in/result/rollno_assign/ix_x.php');
+          'http://59.94.37.73/app/result/rollno_assign/ix_x.php');
       print(url);
     }
     else if(cname=='XI'||cname=='XII')
@@ -707,7 +712,7 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
         'subject6':data[position].subject6
       });
       url = Uri.parse(
-          'https://kpsbsp.in/result/rollno_assign/xi_xii.php');
+          'http://59.94.37.73/app/result/rollno_assign/xi_xii.php');
     }
     var response=await http.post(url,body: postData);
     if(response.statusCode==200)
@@ -722,8 +727,9 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
         ToastWidget.showToast("Error in creating subject", Colors.red);
         await loadData();
       }
-      else
-        ToastWidget.showToast(response.body,Colors.green);
+      else {
+        ToastWidget.showToast(response.body, Colors.green);
+      }
     }
     else
     {
@@ -761,7 +767,7 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
       "tcreason":data[position].tcreason
     };
     url = Uri.parse(
-        'https://kpsbsp.in/result/rollno_assign/tc_assign.php');
+        'http://59.94.37.73/app/result/rollno_assign/tc_assign.php');
     var response=await http.post(url,body: postData);
     if(response.statusCode==200)
     {
@@ -846,19 +852,22 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
             onChanged: (String newValue) async {
               setState(() {
                 data[position].rollno=rollController[position].text;
-                if(newValue=='TC')
+                if(newValue=='TC'||newValue=='Not active')
                   {
-                    data[position].tcMenuVisibility=true;
-                    data[position].rollno="";
+                    //data[position].tcMenuVisibility=true;
+                    //data[position].rollno="";
+                    data[position].assignButton=true;
+                    data[position].tcMenuVisibility=false;
                   }
                 else
                   {
                     data[position].tcMenuVisibility=false;
-                    data[position].sessionStatus="";
-                    if(newValue=='Not active')
+                    //data[position].sessionStatus="";
+                    data[position].assignButton=false;
+                    /*if(newValue=='Not active')
                       {
                         data[position].rollno="";
-                      }
+                      }*/
                   }
                 _selectedSection = newValue;
                 data[position].section = newValue;
@@ -874,7 +883,8 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
                 await subjectSelection(position);
               }
             },
-            items: <String>['A', 'B', 'C', 'D', 'E', 'F', 'TC', 'Not active']
+            items: <String>['A', 'B', 'C', 'D', 'E', 'F','N', 'TC', 'Not '
+                'active']
                 .map<DropdownMenuItem<String>>((String value) {
               return DropdownMenuItem<String>(
                 value: value,
@@ -1045,7 +1055,8 @@ class Data
   String sname,rollno="",section="",rowid,admno="",gen,previousSection="",
       previousRollno="", subject5="",subject6="",mainSubject="",sessionStatus="",cno="";
   String tcno="",tcdate="",tcreason="";
-  bool tcMenuVisibility=false,tcEditButonVisibility=false,nonactive=false,notpromoted=false;
+  bool tcMenuVisibility=false,tcEditButonVisibility=false,nonactive=false,
+      notpromoted=false,assignButton=false;
   Data({this.rowid,this.sname,this.rollno,this.section,this.admno,this.gen,
     this.previousRollno,this.previousSection,this.subject5="",this.subject6="",
     this.mainSubject="",this.sessionStatus,this.tcno,this.tcdate,
@@ -1053,12 +1064,15 @@ class Data
   {
     if(sessionStatus=='TC'||sessionStatus=='TC after term1')
     {
+
       //this.tcMenuVisibility = true;
-      tcEditButonVisibility=true;
+      //tcEditButonVisibility=true;
+      assignButton=true;
       section='TC';
     }
     else if (sessionStatus=='Not active' && section=='')
       {
+        assignButton=true;
         section='Not active';
       }
   }

@@ -509,7 +509,7 @@ class _NominalPanelState extends State<NominalPanel> {
                                             )), //for save data
                                       ),
                                       SizedBox(width: 10,),*/
-                                      Container(
+                                     /* Container(
                                         decoration: BoxDecoration(
                                             border: Border.all(
                                                 color: Colors.blueAccent, width: 2),
@@ -557,7 +557,7 @@ class _NominalPanelState extends State<NominalPanel> {
                                                 : CircularProgressIndicator(
                                                     backgroundColor: Colors.red,
                                                   )), //for save data
-                                      )
+                                      )*/
                                     ],
                                   ),
                                   SizedBox(
@@ -625,7 +625,7 @@ class _NominalPanelState extends State<NominalPanel> {
       "photo": img64,
       "doctype": doctype
     };
-    var url = Uri.parse('https://kpsbsp.in/result/docupload.php');
+    var url = Uri.parse('http://59.94.37.73/app/result/docupload.php');
     var response = await http.post(url, body: postData);
     if (response.statusCode == 200) {
       print(response.body);
@@ -906,7 +906,7 @@ class _NominalPanelState extends State<NominalPanel> {
       "doa":'${data[position].doa}',
       "aadhar":'${data[position].addhar}'
     };
-    var url = Uri.parse('https://kpsbsp.in/result/updateNominal.php');
+    var url = Uri.parse('http://59.94.37.73/app/result/updateNominal.php');
     var response = await http.post(url, body: postData);
     if (response.statusCode == 200) {
       ToastWidget.showToast(response.body, Colors.green);

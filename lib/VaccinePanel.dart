@@ -713,7 +713,7 @@ class _VaccinePanelState extends State<VaccinePanel> {
      List<VaccineData> data=[];
       query = "select `nominal`.rowid,rollno,sname,gen,vname,dov1,dov2,"
           "dov3,reason,"
-          "remark,bid,c1,c2,c3,dob,addhar,eligibility,status "
+          "remark,bid,c1,c2,c3,dob,addhar,eligibility,`kpsbspin_master`.`vaccine_detail`.status "
           "from `$currentdb`.`nominal`,`kpsbspin_master`.`vaccine_detail` "
           "where "
           "cname='$cname' "
@@ -758,17 +758,19 @@ class _VaccinePanelState extends State<VaccinePanel> {
               gencount.add(['M',0]);
             }
         }
-      query="select count(status),cname,section from `$currentdb`.`nominal`,`kpsbspin_master`.`vaccine_detail`"
+      query="select count(`kpsbspin_master`.`vaccine_detail`.status),cname,"
+          "section from `$currentdb`.`nominal`,`kpsbspin_master`.`vaccine_detail`"
           "where cname='$cname' and section='$section' and branch='$branch' "
           "and rollno not in ('',' ') and rollno is not null and `nominal`"
           ".rowid=`vaccine_detail`.rowid"
-          " and status in ('1st dose','2nd dose','booster')";
+          " and `kpsbspin_master`.`vaccine_detail`.status in ('1st dose','2nd dose','booster')";
       results=await connection.query(query);
       for(var rows in results)
       {
         vaccinated=rows[0];
       }
-      query="select count(status),cname,section from `$currentdb`.`nominal`,`kpsbspin_master`.`vaccine_detail`"
+      query="select count(`kpsbspin_master`.`vaccine_detail`.status),cname,"
+          "section from `$currentdb`.`nominal`,`kpsbspin_master`.`vaccine_detail`"
           "where cname='$cname' and section='$section' and branch='$branch' "
           "and rollno not in ('',' ') and rollno is not null and `nominal`"
           ".rowid=`vaccine_detail`.rowid"
@@ -795,6 +797,7 @@ class _VaccinePanelState extends State<VaccinePanel> {
         ToastWidget.showToast(
             "Not able to connect!! Restart the application", Colors.red);
       } else {
+        print(Exception.toString());
         ToastWidget.showToast(
             Exception.runtimeType.toString() + " " + Exception.toString(),
             Colors.red);

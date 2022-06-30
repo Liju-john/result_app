@@ -82,7 +82,6 @@ class _MarksEntryPannelState extends State<MarksEntryPannel> {
         {
           sql="update `$currentdb`.`$updateTab` set $markscolname='$marks' where rowid='$rowid' and rollno='$rollno'";
         }
-      print(sql);
           var results=await connection.query(sql);
           if(results.affectedRows>=0) {
             ToastWidget.showToast("saved", Colors.green[400]);

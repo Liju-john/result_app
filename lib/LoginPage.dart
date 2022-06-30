@@ -158,7 +158,7 @@ class _LoginPageState extends State<LoginPage> {
             height: MediaQuery.of(context).size.height * 0.6,
             width: MediaQuery.of(context).size.width * 0.8,
             decoration: BoxDecoration(
-              color: Colors.deepOrangeAccent,
+              color: Colors.blueGrey[300]
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -244,7 +244,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                         Text(
-                          "Version:- 2.2",
+                          "Version:- 2.3",
                           style: TextStyle(fontWeight: FontWeight.bold),
                         )
                       ],
@@ -292,7 +292,7 @@ class _LoginPageState extends State<LoginPage> {
     try {
       showLoaderDialog(context);
       await getConnection();
-      String check = "select status from appinfo where version='2.2'";
+      String check = "select status from appinfo where version='2.3'";
       var res = await connection.query(check);
       var r1 = res.first;
       if (r1[0] == 1) {

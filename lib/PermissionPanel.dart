@@ -1152,7 +1152,7 @@ class _PermissionPanelState extends State<PermissionPanel> {
 
   Future saveTeacher() async {
     var postData = {"tname": tname.text, "tid": tid.text, "tpwd": tpwd.text};
-    var url = Uri.parse('https://kpsbsp.in/result/addTeacher.php');
+    var url = Uri.parse('http://59.94.37.73/app/result/addTeacher.php');
     var response = await http.post(url, body: postData);
     if (response.statusCode == 200) {
       ToastWidget.showToast(response.body, Colors.red);

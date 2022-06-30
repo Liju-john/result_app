@@ -263,7 +263,7 @@ class _SearchDeletePanelState extends State<SearchDeletePanel> {
         "rowid":data[position].rowid,
         "cname":data[position].cname
       };
-      var url=Uri.parse('https://kpsbsp.in/result/deleteStudent.php');
+      var url=Uri.parse('http://59.94.37.73/app/result/deleteStudent.php');
       var response=await http.post(url,body: postData);
       if(response.statusCode==200)
       {
@@ -294,7 +294,7 @@ class _SearchDeletePanelState extends State<SearchDeletePanel> {
       "searchBy":searchBy=='Name'?"sname":"admno",
       "searchKeyword":searchController.text
     };
-    var url=Uri.parse('https://kpsbsp.in/result/search.php');
+    var url=Uri.parse('http://59.94.37.73/app/result/search.php');
     var response=await http.post(url,body: postData);
     if(response.statusCode==200)
     {

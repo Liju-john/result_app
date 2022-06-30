@@ -115,7 +115,9 @@ String _selectedtask,_previousSelectedStatus;
                           }
                       });
                     },
-                    items: <String>['Promote','Repeat','Promote and TC','Failed and TC','Not active']
+                    items: <String>['Promote','Repeat','Failed','Promote and '
+                        'TC','Fai'
+                  'led and TC','Not active']
                         .map<DropdownMenuItem<String>>((String value) {
                       return DropdownMenuItem<String>(
                         value: value,
@@ -129,7 +131,9 @@ String _selectedtask,_previousSelectedStatus;
                       setState(() {
                         if(data[position].selectstat=='Promote and TC' ||data[position].selectstat=='Failed and TC')
                           {
-                            if(tcdatecontroller[position].text==""||tcnocontroller[position].text==""||tcdatecontroller[position].text=="")
+                            ToastWidget.showToast('Option not available', Colors
+                                .red);
+                            /*if(tcdatecontroller[position].text==""||tcnocontroller[position].text==""||tcdatecontroller[position].text=="")
                               {
                                 ToastWidget.showToast('All Fields are compulsory', Colors.red);
                               }
@@ -141,7 +145,7 @@ String _selectedtask,_previousSelectedStatus;
                                 data[position].tcMenuVisibility=false;
                                 data[position].tcEditButonVisibility=true;
                                 uploadData(position);
-                              }
+                              }*/
                           }
                         else
                           {
@@ -158,7 +162,7 @@ String _selectedtask,_previousSelectedStatus;
                 ],
               ),
             ),
-          Visibility(
+          /*Visibility(
             visible: data[position].tcEditButonVisibility,
             child: Row(children: [Text('Edit TC details'),
               IconButton(icon: Icon(Icons.edit_rounded), onPressed: (){
@@ -168,8 +172,8 @@ String _selectedtask,_previousSelectedStatus;
                 });
               })
             ],),
-          ),
-          tcControlPanel(position)
+          ),*/
+          //tcControlPanel(position)
           ],
         ),
       );
@@ -325,18 +329,28 @@ String _selectedtask,_previousSelectedStatus;
     }
   }
   Future uploadData(int position) async{
+    String st=null;
     if(data[position].selectstat==null)
     {
       data[position].stcolor=Colors.purple;
       data[position].status='Not yet promoted';
       ToastWidget.showToast("OOPS!!!, no option selected",Colors.red);
     }
-    else if(data[position].selectstat=='Promote')
+    else if(data[position].selectstat=='Promote'||data[position]
+        .selectstat=='Failed'||data[position].selectstat=='Repeat')
     {
-      if(data[position].cno==12)
+      /*if(data[position].cno==12)
         {
           ToastWidget.showToast("Go with TC option", Colors.red);
           return;
+        }*/
+      if(data[position].selectstat=='Promote')
+        {
+          st="Promoted";
+        }
+      else
+        {
+          st=data[position].selectstat;
         }
       var postData= {
         "current_db":currentdb,
@@ -344,7 +358,7 @@ String _selectedtask,_previousSelectedStatus;
         "previous_status": _previousSelectedStatus,
         "rowid":data[position].rowid.toString(),
         "cno":data[position].cno.toString(),
-        "newstatus":"Promoted",
+        "newstatus":st,
         "branchno":branch
       };
       if(_previousSelectedStatus==null||_previousSelectedStatus==data[position].selectstat)
@@ -356,12 +370,23 @@ String _selectedtask,_previousSelectedStatus;
           setState(() {
             data[position].saveProgress=false;
           });
-          var url=Uri.parse('https://kpsbsp.in/result/promote.php');
+          var url=Uri.parse('http://59.94.37.73/app/result/promotenew.php');
           var response=await http.post(url,body: postData);
           if(response.statusCode==200)
           {
-            data[position].stcolor=Colors.green;
-            data[position].status='Promoted';
+            data[position].status=st;
+            if(st=='Promoted')
+              {
+                data[position].stcolor=Colors.green;
+              }
+            else if(st=='Repeat')
+              {
+                data[position].stcolor=Colors.blue;
+              }
+            else if(st=='Failed')
+              {
+                data[position].stcolor=Colors.red;
+              }
             ToastWidget.showToast(response.body,Colors.green);
           }
           else
@@ -378,7 +403,10 @@ String _selectedtask,_previousSelectedStatus;
       await connection.query("update session_tab  set session_status='Not yet promoted' where rowid='${data[position].rowid}'");
       await connection.query("update `kpsbspin_master`.`studmaster` set stat='' where rowid='${data[position].rowid}'");*/
     }
-    else if(data[position].selectstat=='Promote and TC'||data[position].selectstat=='Failed and TC')
+    else{
+      ToastWidget.showToast("Option not available",Colors.red);
+    }
+   /* else if(data[position].selectstat=='Promote and TC'||data[position].selectstat=='Failed and TC')
     {
       var postData= {
         "current_db":currentdb,
@@ -396,7 +424,7 @@ String _selectedtask,_previousSelectedStatus;
         setState(() {
           data[position].saveProgress=false;
         });
-          var url=Uri.parse('https://kpsbsp.in/result/tc.php');
+          var url=Uri.parse('http://59.94.37.73/app/result/tc.php');
           var response=await http.post(url,body: postData);
           if(response.statusCode==200)
           {
@@ -417,7 +445,7 @@ String _selectedtask,_previousSelectedStatus;
         {
           ToastWidget.showToast("No changes made!!!!",Colors.purpleAccent);
         }
-      /*String tcinsertquery="insert into `kpsbspin_master`.`tcdetail` values('${data[position].rowid}','${data[position].tcdate}','${data[position].tcno}','TC taken after ${data[position].cname}','${data[position].tcreason}','${data[position].cno}')";
+      *//*String tcinsertquery="insert into `kpsbspin_master`.`tcdetail` values('${data[position].rowid}','${data[position].tcdate}','${data[position].tcno}','TC taken after ${data[position].cname}','${data[position].tcreason}','${data[position].cno}')";
       String checktcquery="select count(*) from `kpsbspin_master`.`tcdetail` where rowid='${data[position].rowid}'";
       String deletetcquery="delete from `kpsbspin_master`.`tcdetail` where rowid='${data[position].rowid}'";
       var results=await connection.query(checktcquery);
@@ -430,7 +458,7 @@ String _selectedtask,_previousSelectedStatus;
           await connection.query(tcinsertquery);
           await connection.query("update `kpsbspin_master`.`studmaster` set stat='TC' where rowid='${data[position].rowid}'");
           await connection.query("update session_tab  set session_status='${data[position].status}' where rowid='${data[position].rowid}'");
-        }*/
+        }*//*
     }
     else if(data[position].selectstat=='Repeat')
     {
@@ -452,7 +480,7 @@ String _selectedtask,_previousSelectedStatus;
         setState(() {
           data[position].saveProgress=false;
         });
-        var url=Uri.parse('https://kpsbsp.in/result/repeat.php');
+        var url=Uri.parse('http://59.94.37.73/app/result/repeat.php');
         var response=await http.post(url,body: postData);
         if(response.statusCode==200)
         {
@@ -489,7 +517,7 @@ String _selectedtask,_previousSelectedStatus;
           setState(() {
             data[position].saveProgress=false;
           });
-          var url=Uri.parse('https://kpsbsp.in/result/notActive.php');
+          var url=Uri.parse('http://59.94.37.73/app/result/notActive.php');
           var response=await http.post(url,body: postData);
           if(response.statusCode==200)
           {
@@ -505,7 +533,7 @@ String _selectedtask,_previousSelectedStatus;
             data[position].saveProgress=true;
           });
         }
-      }
+      }*/
   }
   Future getConnection()async  {
     if(connection!=null)
@@ -545,11 +573,11 @@ class Data
       selectstat='Not active';
       stcolor=Colors.teal[900];
     }
-    else if(this.status=='Promote and TC'||this.status=='Failed and TC')
+    else if(this.status=='Promote and TC'||this.status=='Failed and TC'||this.status=='Failed')
     {
       selectstat=this.status;
       //tcMenuVisibility=true;
-      tcEditButonVisibility=true;
+      //tcEditButonVisibility=true;
       stcolor=Colors.red;
     }
 

@@ -206,7 +206,7 @@ class _MarksEntryBoxState extends State<MarksEntryBox> {
         sql =
             "update `$currentdb`.`$updateTab` set $markscolname='$marks' where rowid='$rowid' and rollno='$rollno'";
       }
-      print(sql);
+      //print(sql);
       var results = await connection.query(sql);
       if (results.affectedRows >= 0) {
         ToastWidget.showToast("saved", Colors.green[400]);
