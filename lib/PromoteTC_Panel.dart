@@ -370,7 +370,7 @@ String _selectedtask,_previousSelectedStatus;
           setState(() {
             data[position].saveProgress=false;
           });
-          var url=Uri.parse('http://59.94.37.73/app/result/promotenew.php');
+          var url=Uri.parse('http://117.247.90.209/app/result/promotenew.php');
           var response=await http.post(url,body: postData);
           if(response.statusCode==200)
           {
@@ -424,7 +424,7 @@ String _selectedtask,_previousSelectedStatus;
         setState(() {
           data[position].saveProgress=false;
         });
-          var url=Uri.parse('http://59.94.37.73/app/result/tc.php');
+          var url=Uri.parse('http://117.247.90.209/app/result/tc.php');
           var response=await http.post(url,body: postData);
           if(response.statusCode==200)
           {
@@ -480,7 +480,7 @@ String _selectedtask,_previousSelectedStatus;
         setState(() {
           data[position].saveProgress=false;
         });
-        var url=Uri.parse('http://59.94.37.73/app/result/repeat.php');
+        var url=Uri.parse('http://117.247.90.209/app/result/repeat.php');
         var response=await http.post(url,body: postData);
         if(response.statusCode==200)
         {
@@ -517,7 +517,7 @@ String _selectedtask,_previousSelectedStatus;
           setState(() {
             data[position].saveProgress=false;
           });
-          var url=Uri.parse('http://59.94.37.73/app/result/notActive.php');
+          var url=Uri.parse('http://117.247.90.209/app/result/notActive.php');
           var response=await http.post(url,body: postData);
           if(response.statusCode==200)
           {

@@ -71,6 +71,7 @@ class _VaccinePanelState extends State<VaccinePanel> {
       c3Controller=[];
   List<GlobalKey<FormState>> gk = [];
   List<VaccineData> data = [];
+
   String cname, section, branch;
   String selectedgen = "", selectedcat = "", selectedate = "", selectedRte = "";
   mysql.MySqlConnection connection;

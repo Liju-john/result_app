@@ -13,7 +13,7 @@ class MarksEntryPannel extends StatefulWidget {
   mysql.MySqlConnection connection;
   String currentdb = "", nextdb = "";
   double screenheight, screenwidth;
-  String cname, section, branch;
+  String cname, section, branch,branchno;
   MarksEntryPannel(
       {this.connection,
       this.cname,
@@ -22,7 +22,7 @@ class MarksEntryPannel extends StatefulWidget {
       this.currentdb,
       this.nextdb,
       this.screenheight,
-      this.screenwidth});
+      this.screenwidth,this.branchno});
   @override
   _MarksEntryPannelState createState() => _MarksEntryPannelState(
       this.connection,
@@ -32,7 +32,7 @@ class MarksEntryPannel extends StatefulWidget {
       this.currentdb,
       this.nextdb,
       this.screenheight,
-      this.screenwidth);
+      this.screenwidth,this.branchno);
 }
 class _MarksEntryPannelState extends State<MarksEntryPannel> {
   MysqlHelper mysqlHelper = MysqlHelper();
@@ -49,7 +49,8 @@ class _MarksEntryPannelState extends State<MarksEntryPannel> {
   List<Data> data = [];
   mysql.MySqlConnection connection;
   _MarksEntryPannelState(this.connection, this.cname, this.section, this.branch,
-      this.currentdb, this.nextdb, this.screenheight, this.screenwidth);
+      this.currentdb, this.nextdb, this.screenheight, this.screenwidth,this
+          .branchno);
   void initState() {
     super.initState();
   }
@@ -378,7 +379,7 @@ class _MarksEntryPannelState extends State<MarksEntryPannel> {
     try {
       sublist.clear();
       List<String> sublis = [];
-      if (branch == 'Koni') {
+     /* if (branch == 'Koni') {
         branchno = '1';
       } else if (branch == 'Narmada Nagar') {
         branchno = '2';
@@ -386,7 +387,7 @@ class _MarksEntryPannelState extends State<MarksEntryPannel> {
         branchno = '3';
       } else if (branch == 'KV') {
         branchno = '4';
-      }
+      }*/
       if (cname == 'I' ||
           cname == 'II' ||
           cname == 'III' ||
@@ -409,10 +410,10 @@ class _MarksEntryPannelState extends State<MarksEntryPannel> {
       } else if (cname == 'VI' || cname == 'VII' || cname == 'VIII') {
         tabname = 'vi_viii';
         classflag = "('6to8')";
-      } else if (cname == 'IX') {
+      } else if (cname == 'IX'|| cname == 'X') {
         tabname = 'ix_x';
         classflag = "('ixtox')";
-      } else if (cname == 'XI') {
+      } else if (cname == 'XI' || cname == 'XII') {
         tabname = 'xi_xii';
         classflag = "('xitoxii')";
       }
@@ -565,7 +566,7 @@ class _MarksEntryPannelState extends State<MarksEntryPannel> {
         });
         //connection.close();
         return this.data;
-      } else if (cname == 'IX') {
+      } else if (cname == 'IX'|| cname == 'X') {
         String sql;
         if (subject == "coscholastic") {
           if(term=='term1')
@@ -601,7 +602,7 @@ class _MarksEntryPannelState extends State<MarksEntryPannel> {
                 "session_status not in('Not active','TC after term1') order by "
                 "rollno";
           }
-
+        print(term+sql);
         }
         var results = await connection.query(sql);
         setState(() {
@@ -620,7 +621,7 @@ class _MarksEntryPannelState extends State<MarksEntryPannel> {
         });
 
         return this.data;
-      } else if (cname == 'XI') {
+      } else if (cname == 'XI'||cname == 'XII') {
         String sql;
         if (subject == "coscholastic") {
           if(term=='term1')

@@ -1066,14 +1066,17 @@ class _PermissionPanelState extends State<PermissionPanel> {
       });
       branchClassSection.clear();
       iBranch.clear();
-      var branchMap = {1: "Koni", 2: "Narmada Nagar", 3: "Sakri", 4: "KV"};
+      //var branchMap = {1: "Koni", 2: "Narmada Nagar", 3: "Sakri", 4: "KV"};
       String branch = "";
       String sql =
-          "select distinct branch from  `$currentdb`.`permission` where id='${nameData[position].id}'";
+          "select DISTINCT t1.branch,t2.branch from  `$currentdb`.`permission`"
+          " t1,kpsbspin_master.branchinfo t2 where t1.branch=t2.branchno and "
+          "id='${nameData[position].id}'";
       var result = await connection.query(sql);
       for (var r in result) {
-        branch = branch + "  " + '"${branchMap[r[0]]}"';
-        iBranch.add(branchMap[r[0]]);
+        //branch = branch + "  " + '"${branchMap[r[0]]}"';
+        branch = branch + "  " + '"${r[1]}"';
+        iBranch.add(r[1]);
         String temp = "";
         sql =
             "select class,section from `$currentdb`.`permission` where id='${nameData[position].id}' and branch='${r[0]}'";
@@ -1081,7 +1084,8 @@ class _PermissionPanelState extends State<PermissionPanel> {
         for (var cr in res) {
           temp = temp + " " + cr[0] + "-" + cr[1];
         }
-        branchClassSection.add(branchMap[r[0]] + " " + temp);
+        //branchClassSection.add(branchMap[r[0]] + " " + temp);
+        branchClassSection.add(r[1] + " " + temp);
       }
       setState(() {
         loadingClassSection = false;
@@ -1152,7 +1156,7 @@ class _PermissionPanelState extends State<PermissionPanel> {
 
   Future saveTeacher() async {
     var postData = {"tname": tname.text, "tid": tid.text, "tpwd": tpwd.text};
-    var url = Uri.parse('http://59.94.37.73/app/result/addTeacher.php');
+    var url = Uri.parse('http://117.247.90.209/app/result/addTeacher.php');
     var response = await http.post(url, body: postData);
     if (response.statusCode == 200) {
       ToastWidget.showToast(response.body, Colors.red);

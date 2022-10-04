@@ -914,7 +914,7 @@ class _AddNewStudentState extends State<AddNewStudent> {
             {
               print(i);
             }*/
-        var url = Uri.parse('http://59.94.37.73/app/result/addStudent.php');
+        var url = Uri.parse('http://117.247.90.209/app/result/addStudent.php');
         var response = await http.post(url, body: postData);
         if (response.statusCode == 200) {
           ToastWidget.showToast(response.body, Colors.green);
@@ -953,7 +953,7 @@ class _AddNewStudentState extends State<AddNewStudent> {
   Future _getStudentList() async{
     //rowid,sname,fname,mname,admno,dob
     try{
-    List<Data> data=[];
+      List<Data> data=[];
     setState(() {
       searchProgress=true;
       showOk=false;
@@ -964,7 +964,7 @@ class _AddNewStudentState extends State<AddNewStudent> {
       "current_db": currentdb,
       "next_db": nextdb,
       "sname": '${nameController.text}'};
-    var url = Uri.parse('http://59.94.37.73/app/result/findDuplicateStudent.php');
+    var url = Uri.parse('http://117.247.90.209/app/result/findDuplicateStudent.php');
     var response = await http.post(url, body: postData);
     if (response.statusCode == 200) {
       var jasonData=json.decode(response.body);

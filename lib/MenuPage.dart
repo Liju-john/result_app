@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:io';
 import 'dart:ui';
 
@@ -58,7 +59,7 @@ class _MenuPageState extends State<MenuPage> {
       tasklist = [],
       dbList = [],
       sessiondblist = [];
-
+      var branches=new LinkedHashMap();
   //String uname='121';
   String branch, branchno;
   String section;
@@ -551,9 +552,12 @@ class _MenuPageState extends State<MenuPage> {
       branchlist = [];
       List<String> br = [];
       var result = await connection.query(
-          "Select distinct branch from `$currentdb`.`permission` where id='$uid'");
+          "Select DISTINCT t1.branch,t2.branch from `$currentdb`.`permission`"
+              " t1,kpsbspin_master.branchinfo t2 where t1.branch=t2.branchno and id='$uid'");
       for (var row in result) {
-        if (row[0] == 1) {
+        branches[row[1].toString()]=row[0].toString();
+        br.add(row[1]);
+    /*    if (row[0] == 1) {
           br.add('Koni');
         }
         if (row[0] == 2) {
@@ -564,7 +568,7 @@ class _MenuPageState extends State<MenuPage> {
         }
         if (row[0] == 4) {
           br.add('KV');
-        }
+        }*/
       }
       setState(() {
         branchlist = br;
@@ -595,7 +599,7 @@ class _MenuPageState extends State<MenuPage> {
   Future getClasses() async {
     try {
       String query;
-      if (branch == 'Koni') {
+      /*if (branch == 'Koni') {
         branchno = '1';
       } else if (branch == 'Narmada Nagar') {
         branchno = '2';
@@ -603,7 +607,8 @@ class _MenuPageState extends State<MenuPage> {
         branchno = '3';
       } else if (branch == 'KV') {
         branchno = '4';
-      }
+      }*/
+      branchno=branches[branch];
       this.clist = [];
       setState(() {
         selectedclass = '';
@@ -676,7 +681,6 @@ class _MenuPageState extends State<MenuPage> {
         seclist.add(sec[0]);
       }
       setState(() {
-        print(seclist);
         sectionlist = seclist;
         if (sectionlist.isNotEmpty) {
           selectedsection = sectionlist[0];
@@ -846,7 +850,7 @@ class _MenuPageState extends State<MenuPage> {
                 screenheight: screenheight,
                 screenwidth: screenwidth,
                 currentdb: currentdb,
-                nextdb: nextdb,
+                nextdb: nextdb,branchno: branches[branch],
               )));
     } else if (tasklist == 'Assign new rollno and section') {
       Navigator.of(context).push(MaterialPageRoute(
@@ -963,7 +967,7 @@ class _MenuPageState extends State<MenuPage> {
                 currentdb: currentdb,
                 nextdb: nextdb,
                 screenheight: screenheight,
-                screenwidth: screenwidth,
+                screenwidth: screenwidth,branches: branches,
               )));
     } else if (tasklist == "Permission Manager") {
       Navigator.of(context).push(MaterialPageRoute(

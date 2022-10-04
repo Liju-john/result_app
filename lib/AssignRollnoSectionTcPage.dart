@@ -344,7 +344,15 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
                         await assignSectionRollNo(position);
                       },),
                       Visibility(visible: loadingSubject[position],
-                          child: Text("Loading Subjects...",style: TextStyle(color:Colors.purple,fontSize: 18,fontWeight: FontWeight.bold),))
+                          child: Text("Loading Subjects...",style: TextStyle
+                            (color:Colors.purple,fontSize: 18,fontWeight: FontWeight.bold),)),
+                      TextButton(child: Text( "Reset Rollno"
+                        ,style: TextStyle(fontWeight: FontWeight.bold,fontSize: 16),),onPressed: ()async{
+                        setState((){
+                            FocusScope.of(context).requestFocus(FocusNode());
+                            resetRollnoAlert(position);
+                        });
+                      },),
                     ],
                   ),
                 ),
@@ -393,7 +401,7 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
                 sessionStatus: rows[6],
                 previousSection: rows[6],
                 cno: rows[7].toString(),
-                tcno: row[1],
+                tcno: row[1].toString(),
                 admno: rows[4],
                 tcdate: row[2],
                 tcreason: row[3]));
@@ -477,7 +485,7 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
         this.maleCount=maleCount;
         this.femaleCount=femaleCount;
       });
-    }catch(Exception)
+    }catch(Exception,stack)
     {
       if(Exception.runtimeType==StateError) {
         if(NetworkStatus.NETWORKTYPE==0)
@@ -498,11 +506,48 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
       else
       {
         print(Exception.toString());
+        print(stack);
         ToastWidget.showToast(Exception.runtimeType.toString()+" "+Exception.toString(), Colors.red);
       }
     }
   }
+  Future<void> resetRollnoAlert(int position) async
+  {
+    return showDialog<void>(
+        context: context,
+        barrierDismissible: false, // user must tap button!
+        builder: (context) {
+          return StatefulBuilder(
+              builder: (context,setState){
+                return AlertDialog(
+                    elevation: 10,
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                      BorderRadius.circular(20.0),),
+                    title: Text(
+                        'Alert', style: TextStyle(fontWeight: FontWeight.w900)),
+                    content: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            Text("You are about to reset rollno and section,"
+                                "Are you sure about this?",style: TextStyle
+                              (fontWeight: FontWeight.bold),),
+                            Row( mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                TextButton(onPressed: (){
+                                  resetRollno(position);
+                                  Navigator.of(context).pop();
+                                }, child: Text("Ok",style: TextStyle(fontWeight: FontWeight.w900,color: Colors.green,fontSize: 17),)),
+                                TextButton(onPressed: (){Navigator.of(context).pop();}, child: Text("Cancel",style: TextStyle(fontWeight: FontWeight.w900,color: Colors.red,fontSize: 17)))],)
 
+                          ],
+                        )
+                    )
+                );
+              });
+        }
+    );
+  }
   Future getConnection()async  {
     if(connection!=null)
     {
@@ -669,12 +714,12 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
         cname=='KGI' || cname=='KGII'|| cname=='NUR')
     {
       url = Uri.parse(
-          'http://59.94.37.73/app/result/rollno_assign/nur_v.php');
+          'http://117.247.90.209/app/result/rollno_assign/nur_v.php');
     }
     else if(cname=='VI'||cname=='VII'||cname=='VIII')
     {
       url = Uri.parse(
-          'http://59.94.37.73/app/result/rollno_assign/vi_viii.php');
+          'http://117.247.90.209/app/result/rollno_assign/vi_viii.php');
     }
     else if(cname=='IX'||cname=='X')
     {
@@ -692,8 +737,7 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
         'subject6':data[position].subject6
       });
       url = Uri.parse(
-          'http://59.94.37.73/app/result/rollno_assign/ix_x.php');
-      print(url);
+          'http://117.247.90.209/app/result/rollno_assign/ix_x.php');
     }
     else if(cname=='XI'||cname=='XII')
     {
@@ -712,7 +756,7 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
         'subject6':data[position].subject6
       });
       url = Uri.parse(
-          'http://59.94.37.73/app/result/rollno_assign/xi_xii.php');
+          'http://117.247.90.209/app/result/rollno_assign/xi_xii.php');
     }
     var response=await http.post(url,body: postData);
     if(response.statusCode==200)
@@ -767,7 +811,7 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
       "tcreason":data[position].tcreason
     };
     url = Uri.parse(
-        'http://59.94.37.73/app/result/rollno_assign/tc_assign.php');
+        'http://117.247.90.209/app/result/rollno_assign/tc_assign.php');
     var response=await http.post(url,body: postData);
     if(response.statusCode==200)
     {
@@ -1048,6 +1092,31 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
         print(getdate);
       });
   }
+
+   Future resetRollno(int position) async {
+    var postData={
+      "rowid":data[position].rowid,
+      "current_db":currentDB
+    };
+    var url = Uri.parse(
+        'http://117.247.90.209/app/result/rollno_assign/reset_rollno.php');
+    var response=await http.post(url,body: postData);
+    if(response.statusCode==200)
+    {
+      ToastWidget.showToast(response.body, Colors.green);
+      if(!(response.body.toString()=="Error"))
+        {
+          setState((){
+            data[position].rollno="";
+            data[position].section="";
+          });
+        }
+    }
+    else
+      {
+        ToastWidget.showToast("Connection error", Colors.red);
+      }
+   }
 
 }
 class Data

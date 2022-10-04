@@ -1,9 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.kps.bsp.result_app">
+    package="com.kps.bsp.result_app" android:versionCode="2"
+    android:versionName="2.5">
     <uses-permission android:name="android.permission.INTERNET"/>
    <application
        android:usesCleartextTraffic="true"
-        android:label="Result v2.2"
+        android:label="Result v2.5"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

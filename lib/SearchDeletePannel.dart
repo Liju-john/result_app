@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
@@ -16,10 +17,14 @@ import 'MysqlHelper.dart';
 class SearchDeletePanel extends StatefulWidget {
   String currentdb="",nextdb="";
   double screenheight,screenwidth;
+  var branches=new LinkedHashMap();
   mysql.MySqlConnection connection;
-  SearchDeletePanel({Key key, this.currentdb,this.nextdb,this.connection,this.screenwidth,this.screenheight});
+  SearchDeletePanel({Key key, this.currentdb,this.nextdb,this.connection,this
+      .screenwidth,this.screenheight,this.branches});
   @override
-  _SearchDeletePanelState createState() => _SearchDeletePanelState(this.currentdb,this.nextdb,this.connection,this.screenwidth,this.screenheight);
+  _SearchDeletePanelState createState() =>
+      _SearchDeletePanelState(this.currentdb,this.nextdb,this.connection,
+          this.screenwidth,this.screenheight,this.branches);
 }
 
 class _SearchDeletePanelState extends State<SearchDeletePanel> {
@@ -29,9 +34,11 @@ class _SearchDeletePanelState extends State<SearchDeletePanel> {
   MysqlHelper mysqlHelper=MysqlHelper();
   String currentdb="",nextdb="",searchBy="Name";
   double screenheight,screenwidth;
+  var branches=new LinkedHashMap();
   TextEditingController searchController=TextEditingController();
   mysql.MySqlConnection connection;
-  _SearchDeletePanelState(this.currentdb,this.nextdb,this.connection,this.screenwidth,this.screenheight);
+  _SearchDeletePanelState(this.currentdb,this.nextdb,this.connection,this
+      .screenwidth,this.screenheight,this.branches);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -263,7 +270,7 @@ class _SearchDeletePanelState extends State<SearchDeletePanel> {
         "rowid":data[position].rowid,
         "cname":data[position].cname
       };
-      var url=Uri.parse('http://59.94.37.73/app/result/deleteStudent.php');
+      var url=Uri.parse('http://117.247.90.209/app/result/deleteStudent.php');
       var response=await http.post(url,body: postData);
       if(response.statusCode==200)
       {
@@ -294,7 +301,7 @@ class _SearchDeletePanelState extends State<SearchDeletePanel> {
       "searchBy":searchBy=='Name'?"sname":"admno",
       "searchKeyword":searchController.text
     };
-    var url=Uri.parse('http://59.94.37.73/app/result/search.php');
+    var url=Uri.parse('http://117.247.90.209/app/result/search.php');
     var response=await http.post(url,body: postData);
     if(response.statusCode==200)
     {
@@ -324,6 +331,12 @@ class _SearchDeletePanelState extends State<SearchDeletePanel> {
     setState(() {
         showProgressBar=true;
     });
+    var branchnames=LinkedHashMap();
+      for(String k in branches.keys)
+        {
+            branchnames[branches[k]]=k;
+        }
+      print(branchnames);
     try {
         String query="select t2.rowid,sname,fname,mname,cname,section,mobileno,t2.branch,"
             "admno from `$currentdb`.`session_tab` t1,`kpsbspin_master`.`studmaster` t2,"
@@ -333,7 +346,7 @@ class _SearchDeletePanelState extends State<SearchDeletePanel> {
         searchResultLength=result.length;
         for(var rows in result)
           {
-            if (rows[7] == '1') {
+            /*if (rows[7] == '1') {
               branchName='Koni';
             }
             if (rows[7] == '2') {
@@ -344,7 +357,8 @@ class _SearchDeletePanelState extends State<SearchDeletePanel> {
             }
             if (rows[7] == '4') {
               branchName='KV';
-            }
+            }*/
+            branchName=branchnames[rows[7]];
             data.add(Data(rowid: rows[0].toString(),sname: rows[1],fname: rows[2]
                 ,mname: rows[3],cname: rows[4],section: rows[5],mobileno:rows[6],
                 branch: branchName,admno: rows[8]));

@@ -244,7 +244,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                         Text(
-                          "Version:- 2.3",
+                          "Version:- 2.5",
                           style: TextStyle(fontWeight: FontWeight.bold),
                         )
                       ],
@@ -292,7 +292,7 @@ class _LoginPageState extends State<LoginPage> {
     try {
       showLoaderDialog(context);
       await getConnection();
-      String check = "select status from appinfo where version='2.3'";
+      String check = "select status from appinfo where version='2.5'";
       var res = await connection.query(check);
       var r1 = res.first;
       if (r1[0] == 1) {
