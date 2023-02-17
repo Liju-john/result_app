@@ -10,13 +10,12 @@ import 'package:mysql1/mysql1.dart' as mysql;
 import 'package:result_app/AddNewStudentPage.dart';
 import 'package:result_app/AssignRollnoSectionTcPage.dart';
 import 'package:result_app/MarksEntryPage.dart';
+import 'package:result_app/Outstanding.dart';
 import 'package:result_app/PermissionPanel.dart';
 import 'package:result_app/SchoolStatsPanel.dart';
 import 'package:result_app/SearchDeletePannel.dart';
 import 'package:result_app/StatsPanel.dart';
-import 'package:result_app/settings/Exp.dart';
 import 'package:result_app/settings/InternetCheck.dart';
-import 'package:result_app/widgets/ScrollListExp.dart';
 import 'package:result_app/widgets/ToastWidget.dart';
 import 'MysqlHelper.dart';
 import 'NominalPanel.dart';
@@ -467,14 +466,14 @@ class _MenuPageState extends State<MenuPage> {
       if (user == 'admin') {
         query =
             "select marks,nominal,rollnumber,promote,newstudent,admno_change,"
-                "class_sum, school_sum,vd"
+                "class_sum, school_sum,vd,outstanding"
                 " from `$currentdb`.`permission` where id='$uid' and branch='$branchno'";
         checkSearch =
             "Select search_delete from `kpsbspin_master`.`login` where id='$uid'";
       } else {
         query =
             "select marks,nominal,rollnumber,promote,newstudent,admno_change,"
-                " class_sum,school_sum,vd"
+                " class_sum,school_sum,vd,outstanding"
                 " from `$currentdb`.`permission` where id='$uid' and branch='$branchno' and class='$selectedclass' and section='$selectedsection'";
       }
       var addTeacher = await connection.query(
@@ -513,6 +512,10 @@ class _MenuPageState extends State<MenuPage> {
           {
             tasklist.add("Vaccine Detail");
           }
+        if(row[9]==1)
+        {
+          tasklist.add("Fees Detail");
+        }
         if (user == 'admin') {
           var res = await connection.query(checkSearch);
           for (row in res) {
@@ -978,5 +981,19 @@ class _MenuPageState extends State<MenuPage> {
                 branch: branch,
               )));
     }
+    else if(tasklist=="Fees Detail")
+      {
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (context)=>OutstandingPanel(
+              currentdb: currentdb,
+              nextdb: nextdb,
+              connection: connection,
+              section: selectedsection,
+              cname: selectedclass,
+              branch: branchno,
+              screenheight: screenheight,
+              screenwidth: screenwidth,
+            )));
+      }
   }
 }

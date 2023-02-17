@@ -3,8 +3,6 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:result_app/MenuPage.dart';
 import 'package:result_app/settings/InternetCheck.dart';
 import 'package:result_app/settings/Settings.dart';
@@ -244,7 +242,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                         Text(
-                          "Version:- 2.5",
+                          "Version:- 2.6",
                           style: TextStyle(fontWeight: FontWeight.bold),
                         )
                       ],
@@ -292,7 +290,7 @@ class _LoginPageState extends State<LoginPage> {
     try {
       showLoaderDialog(context);
       await getConnection();
-      String check = "select status from appinfo where version='2.5'";
+      String check = "select status from appinfo where version='2.6'";
       var res = await connection.query(check);
       var r1 = res.first;
       if (r1[0] == 1) {

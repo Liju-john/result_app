@@ -37,7 +37,8 @@ String _selectedtask,_previousSelectedStatus;
   List <Data> data=[];
   mysql.MySqlConnection connection;
   String cname,section,branch,selectedate="",getdate="";
-  _PromoteTC_PanelState(this.currentdb,this.nextdb,this.connection,this.cname,this.section,this.branch,this.screenheight,this.screenwidth);
+  _PromoteTC_PanelState(this.currentdb,this.nextdb,this.connection,this.cname,
+      this.section,this.branch,this.screenheight,this.screenwidth);
   void initState() {
     super.initState();
     loadData();
