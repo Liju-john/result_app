@@ -127,6 +127,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
             onPressed: () async {
               FocusScope.of(context).requestFocus(FocusNode());
+              //print("login called");
               await checkLogin();
             },
             child: Text(
@@ -242,7 +243,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                         Text(
-                          "Version:- 2.6",
+                          "Version:- 2.7",
                           style: TextStyle(fontWeight: FontWeight.bold),
                         )
                       ],
@@ -290,13 +291,14 @@ class _LoginPageState extends State<LoginPage> {
     try {
       showLoaderDialog(context);
       await getConnection();
-      String check = "select status from appinfo where version='2.6'";
+      String check = "select status from appinfo where version='2.7'";
       var res = await connection.query(check);
       var r1 = res.first;
       if (r1[0] == 1) {
         String sql = "select count(*),name from login where id='$id'"
             " and pwd='$password'";
         var result = await connection.query(sql);
+        //print(sql);
         var row = result.first;
         Navigator.pop(context);
         if (row[0] == 1) {
@@ -318,7 +320,9 @@ class _LoginPageState extends State<LoginPage> {
       }
 
       //
-    } catch (Exception) {}
+    } catch (Exception) {
+      print(Exception.toString());
+    }
   }
 
   @override

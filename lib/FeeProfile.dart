@@ -416,7 +416,7 @@ class _StuddentFeeStructureState extends State<StuddentFeeStructure> {
                                   toastLength: Toast.LENGTH_SHORT);
                             }
                             else{
-                              openGateway(famt);
+                              //openGateway(famt);
                             }
                           },
                           child: Text('Generate QR',style: TextStyle(fontWeight: FontWeight

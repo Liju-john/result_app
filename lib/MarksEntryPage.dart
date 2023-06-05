@@ -379,15 +379,6 @@ class _MarksEntryPannelState extends State<MarksEntryPannel> {
     try {
       sublist.clear();
       List<String> sublis = [];
-     /* if (branch == 'Koni') {
-        branchno = '1';
-      } else if (branch == 'Narmada Nagar') {
-        branchno = '2';
-      } else if (branch == 'Sakri') {
-        branchno = '3';
-      } else if (branch == 'KV') {
-        branchno = '4';
-      }*/
       if (cname == 'I' ||
           cname == 'II' ||
           cname == 'III' ||
@@ -464,7 +455,7 @@ class _MarksEntryPannelState extends State<MarksEntryPannel> {
             sql= "select t1.rollno,t2.sname,$markscolname,t1.rowid from `$currentdb`.`$tabname` t1 , "
                 "`$currentdb`.`nominal` t2 where t1.rowid = t2.rowid and cname='$cname' "
                 "and section='$section' and t1.rollno not in('',' ') and t1.branch= '$branchno'"
-                "and session_status not in('Not active','TC after term1') order"
+                "and session_status not in('Not active','after term I') order"
                 " by t1.rollno";
           }
         var results = await connection.query(sql);
@@ -495,7 +486,7 @@ class _MarksEntryPannelState extends State<MarksEntryPannel> {
             sql= "select t1.rollno,t2.sname,$markscolname,t1.rowid from `$currentdb`.`$tabname` t1 , `$currentdb`.`nominal` t2 "
                 "where t1.rowid = t2.rowid and cname='$cname' and section='$section' and t1.rollno not in('',' ')"
                 " and t1.branch= '$branchno' and session_status not in('Not "
-                "active','TC after term1') order by t1.rollno";
+                "active','after term I') order by t1.rollno";
           }
         var results = await connection.query(sql);
         setState(() {
@@ -529,7 +520,7 @@ class _MarksEntryPannelState extends State<MarksEntryPannel> {
               "select t1.rollno,t2.sname,$markscolname,t1.rowid,'subno' from `$currentdb`.`vi_viiicoscho` t1 ,"
                   " `$currentdb`.`nominal` t2 where t1.rowid = t2.rowid and cname='$cname' and section='$section' "
                   "and t1.branch='$branchno' and session_status not in('Not "
-                  "active','TC after term1') order by t1.rollno";
+                  "active','after term I') order by t1.rollno";
             }
         } else {
           if(term=='term1')
@@ -545,7 +536,7 @@ class _MarksEntryPannelState extends State<MarksEntryPannel> {
               "select t1.rollno,t2.sname,$markscolname,t1.rowid,subno from `$currentdb`.`$tabname` t1 ,"
                   " `$currentdb`.`nominal` t2 where t1.rowid = t2.rowid and cname='$cname' and section='$section' "
                   "and subname='$subject' and t1.branch='$branchno' and "
-                  "session_status not in('Not active','TC after term1') order by t1.rollno";
+                  "session_status not in('Not active','after term I') order by t1.rollno";
             }
 
         }
@@ -582,7 +573,7 @@ class _MarksEntryPannelState extends State<MarksEntryPannel> {
               "select t1.rollno,t2.sname,$markscolname,t1.rowid,'subno' from `$currentdb`.`ix_xcoscho` t1 ,"
                   " `$currentdb`.`nominal` t2 where t1.rowid = t2.rowid and cname='$cname' and section='$section' "
                   "and t1.branch='$branchno' and session_status not in('Not "
-                  "active','TC after term1') order by t1.rollno";
+                  "active','after term I') order by t1.rollno";
             }
 
         } else {
@@ -599,10 +590,9 @@ class _MarksEntryPannelState extends State<MarksEntryPannel> {
             "select t1.rollno,t2.sname,$markscolname,t1.rowid,subno from `$currentdb`.`$tabname` t1 , "
                 "`$currentdb`.`nominal` t2 where t1.rowid = t2.rowid and  t1.subname='$subject' "
                 "and cname ='$cname' and t2.section='$section' and "
-                "session_status not in('Not active','TC after term1') order by "
+                "session_status not in('Not active','after term I') order by "
                 "rollno";
           }
-        print(term+sql);
         }
         var results = await connection.query(sql);
         setState(() {
@@ -637,7 +627,7 @@ class _MarksEntryPannelState extends State<MarksEntryPannel> {
             "select t1.rollno,t2.sname,$markscolname,t1.rowid,'subno' from `$currentdb`.`xi_xiicoscho` t1 ,"
                 " `$currentdb`.`nominal` t2 where t1.rowid = t2.rowid and cname='$cname' and section='$section' "
                 "and t1.branch='$branchno' and session_status not in('Not "
-                "active','TC after term1') order by t1.rollno";
+                "active','after term I') order by t1.rollno";
           }
 
         } else {
@@ -654,7 +644,7 @@ class _MarksEntryPannelState extends State<MarksEntryPannel> {
             "select t1.rollno,t2.sname,$markscolname,t1.rowid,subno from `$currentdb`.`$tabname` t1 , "
                 "`$currentdb`.`nominal` t2 where t1.rowid = t2.rowid and  t1.subname='$subject' "
                 "and cname ='$cname' and t2.section='$section' and "
-                "session_status not in('Not active','TC after term1') order by "
+                "session_status not in('Not active','after term I') order by "
                 "rollno";
           }
 

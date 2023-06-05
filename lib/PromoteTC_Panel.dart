@@ -18,10 +18,13 @@ class PromoteTC_Panel extends StatefulWidget {
   String currentdb="",nextdb="";
   mysql.MySqlConnection connection;
   double screenheight,screenwidth;
-  String cname,section,branch;
-  PromoteTC_Panel({Key key,this.currentdb,this.nextdb,this.connection,this.cname,this.section,this.branch,this.screenheight,this.screenwidth}) : super(key: key);
+  String cname,section,branch,nextSession,currentSession;
+  PromoteTC_Panel({Key key,this.currentdb,this.nextdb,this.connection,this.cname,
+    this.section,this.branch,this.screenheight,this.screenwidth,this.nextSession,this.currentSession}) : super(key: key);
   @override
-  _PromoteTC_PanelState createState() => _PromoteTC_PanelState(this.currentdb,this.nextdb,this.connection,this.cname,this.section,this.branch,this.screenheight,this.screenwidth);
+  _PromoteTC_PanelState createState() => _PromoteTC_PanelState(this.currentdb,
+      this.nextdb,this.connection,this.cname,this.section,this.branch,
+      this.screenheight,this.screenwidth,this.nextSession,this.currentSession);
 }
 
 // ignore: camel_case_types
@@ -32,13 +35,13 @@ class _PromoteTC_PanelState extends State<PromoteTC_Panel> {
   MysqlHelper mysqlHelper=MysqlHelper();
   var myFormat = DateFormat('yyyy-MM-dd');
   double screenheight,screenwidth;
-String _selectedtask,_previousSelectedStatus;
+String _selectedtask,_previousSelectedStatus,nextSession,currentSession;
   final List<TextEditingController> tcnocontroller=[],tcdatecontroller=[],tcreasoncontroller=[];
   List <Data> data=[];
   mysql.MySqlConnection connection;
   String cname,section,branch,selectedate="",getdate="";
   _PromoteTC_PanelState(this.currentdb,this.nextdb,this.connection,this.cname,
-      this.section,this.branch,this.screenheight,this.screenwidth);
+      this.section,this.branch,this.screenheight,this.screenwidth,this.nextSession,this.currentSession);
   void initState() {
     super.initState();
     loadData();
@@ -116,9 +119,9 @@ String _selectedtask,_previousSelectedStatus;
                           }
                       });
                     },
-                    items: <String>['Promote','Repeat','Failed','Promote and '
+                    items: <String>['Promote','Repeat','GIT','Promote and '
                         'TC','Fai'
-                  'led and TC','Not active']
+                  'led and TC','Reset']
                         .map<DropdownMenuItem<String>>((String value) {
                       return DropdownMenuItem<String>(
                         value: value,
@@ -130,11 +133,11 @@ String _selectedtask,_previousSelectedStatus;
                     visible: data[position].saveProgress,
                     child: MaterialButton(onPressed: (){
                       setState(() {
-                        if(data[position].selectstat=='Promote and TC' ||data[position].selectstat=='Failed and TC')
+                        /*if(data[position].selectstat=='Promote and TC' ||data[position].selectstat=='Failed and TC')
                           {
                             ToastWidget.showToast('Option not available', Colors
                                 .red);
-                            /*if(tcdatecontroller[position].text==""||tcnocontroller[position].text==""||tcdatecontroller[position].text=="")
+                            *//*if(tcdatecontroller[position].text==""||tcnocontroller[position].text==""||tcdatecontroller[position].text=="")
                               {
                                 ToastWidget.showToast('All Fields are compulsory', Colors.red);
                               }
@@ -146,13 +149,13 @@ String _selectedtask,_previousSelectedStatus;
                                 data[position].tcMenuVisibility=false;
                                 data[position].tcEditButonVisibility=true;
                                 uploadData(position);
-                              }*/
+                              }*//*
                           }
                         else
                           {
                             uploadData(position);
-                          }
-
+                          }*/
+                        uploadData(position);
                       });
 
                     },child:Icon(Icons.done_outline_sharp),
@@ -184,13 +187,14 @@ String _selectedtask,_previousSelectedStatus;
     try {
       List<Data> data = [];
       this.data = [];
+      //session_status not in ('TC after term1')
       var results = await connection.query(
-          "Select rowid,rollno,sname,session_status,cno,cname from "
+          "Select rowid,rollno,sname,session_status,cno,cname,busstop from "
               "`$currentdb`.`nominal` where cname='$cname' and section='$section'"
-              " and branch='$branch' and rollno not in('',' ') and rollno is not"
-              " null and session_status not in ('TC after term1') order by rollno asc");
+              " and branch='$branch'  and rollno is not"
+              " null and status =1 order by rollno asc");
       for (var rows in results) {
-        if (rows[3] == 'Promote and TC'||rows[3] == 'Failed and TC') {
+        /*if (rows[3] == 'Promote and TC'||rows[3] == 'Failed and TC') {
           var result = await connection.query(
               "select rowid,tcno,tcdate,reason from `kpsbspin_master`.`tcdetail` where rowid='${rows[0]}'");
           for (var row in result) {
@@ -214,7 +218,15 @@ String _selectedtask,_previousSelectedStatus;
               status: rows[3],
               cno: rows[4],
               cname: rows[5]));
-        }
+        }*/
+        data.add(Data(
+            rowid: rows[0],
+            rollno: rows[1],
+            name: rows[2],
+            status: rows[3],
+            cno: rows[4],
+            cname: rows[5],
+            busstop: rows[6]));
       }
       setState(() {
         this.data = data;
@@ -337,8 +349,9 @@ String _selectedtask,_previousSelectedStatus;
       data[position].status='Not yet promoted';
       ToastWidget.showToast("OOPS!!!, no option selected",Colors.red);
     }
-    else if(data[position].selectstat=='Promote'||data[position]
-        .selectstat=='Failed'||data[position].selectstat=='Repeat')
+    /*else if(data[position].selectstat=='Promote'||data[position]
+        .selectstat=='Failed'||data[position].selectstat=='Repeat')*/
+    else
     {
       /*if(data[position].cno==12)
         {
@@ -356,12 +369,34 @@ String _selectedtask,_previousSelectedStatus;
       var postData= {
         "current_db":currentdb,
         "next_db":nextdb,
+        "next_session":nextSession,
+        "current_session":currentSession,
         "previous_status": _previousSelectedStatus,
         "rowid":data[position].rowid.toString(),
         "cno":data[position].cno.toString(),
+        "busstop":data[position].busstop,
         "newstatus":st,
-        "branchno":branch
+        "branchno":branch,
       };
+      if(data[position].selectstat=='Reset')
+      {
+        setState(() {
+          data[position].saveProgress=false;
+        });
+        var url=Uri.parse('http://117.247.90.209/app/result/promotereset.php');
+        var response=await http.post(url,body: postData);
+        if(response.statusCode==200)
+          {
+            ToastWidget.showToast(response.body,Colors.green);
+            data[position].selectstat=null;
+            data[position].status="Not yet promoted";
+            data[position].stcolor=Colors.purple;
+          }
+        setState(() {
+          data[position].saveProgress=true;
+        });
+        return;
+      }
       if(_previousSelectedStatus==null||_previousSelectedStatus==data[position].selectstat)
         {
           ToastWidget.showToast("No changes made!!!!",Colors.purpleAccent);
@@ -384,7 +419,7 @@ String _selectedtask,_previousSelectedStatus;
               {
                 data[position].stcolor=Colors.blue;
               }
-            else if(st=='Failed')
+            else if(st=='Failed'||st=='Promote and TC'||st=='Failed and TC')
               {
                 data[position].stcolor=Colors.red;
               }
@@ -404,9 +439,9 @@ String _selectedtask,_previousSelectedStatus;
       await connection.query("update session_tab  set session_status='Not yet promoted' where rowid='${data[position].rowid}'");
       await connection.query("update `kpsbspin_master`.`studmaster` set stat='' where rowid='${data[position].rowid}'");*/
     }
-    else{
+    /*else{
       ToastWidget.showToast("Option not available",Colors.red);
-    }
+    }*/
    /* else if(data[position].selectstat=='Promote and TC'||data[position].selectstat=='Failed and TC')
     {
       var postData= {
@@ -548,11 +583,13 @@ class Data
 {
   int rowid;
   bool tcMenuVisibility=false,tcEditButonVisibility=false,saveProgress=true;
-  String rollno,name,status,selectstat,cname;
+  String rollno,name,status,selectstat,cname,busstop;
   String tcno="",tcdate="",tcreason="";
   Color stcolor;
   int cno;
-  Data({this.rowid,this.rollno,this.name,this.status,this.tcno,this.tcdate,this.tcreason,this.cno,this.cname})
+  Data({this.rowid,this.rollno,this.name,
+    this.status,this.tcno,this.tcdate,this.tcreason,
+    this.cno,this.cname,this.busstop})
   {
     if(this.status=='Not yet promoted')
       {
@@ -568,6 +605,11 @@ class Data
     {
       selectstat='Repeat';
       stcolor=Colors.blue;
+    }
+    else if(this.status=='GIT')
+    {
+      selectstat='GIT';
+      stcolor=Colors.red;
     }
     else if(this.status=='Not active')
     {

@@ -55,40 +55,6 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
     loadData();
   }
   @override
- /* Widget build(BuildContext context)
-  {
-    return
-      Scaffold(
-          backgroundColor: AppColor.BACKGROUND,
-          appBar: AppBar(
-            elevation: 0,
-            title: Text('Assign rollno and section'),
-            backgroundColor: AppColor.NAVIGATIONBAR,
-          ),
-        body:Column(
-          children: [
-            Row(mainAxisAlignment: MainAxisAlignment.center,
-              children: [Text("Class:-  "+cname,
-                style: TextStyle(fontWeight: FontWeight.w900,color: Colors.teal,
-                    fontSize: 18),)],),
-            search(),
-            legends(),
-            SizedBox(height: 5,),
-            data.isEmpty?Center(child: CircularProgressIndicator(backgroundColor: Colors.red,)):Expanded(
-              flex: 1,
-              child: ListView.builder(
-                  scrollDirection: Axis.vertical,
-                  itemCount: data.length,
-                  padding: const EdgeInsets.all(5.0),
-                  itemBuilder: (context,position){
-                    _selectedSection=data[position].section==""?null:data[position].section;
-                    return rowData(position);
-                  }),
-            ),
-          ],
-        ),
-      );
-  }*/
   Widget build(BuildContext context)
   {
     return
@@ -212,26 +178,35 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
           child: Column(
             children: [
               Container(
-                padding: EdgeInsets.only(left: 10),
-                child: Row(
+                child: Row(mainAxisAlignment: MainAxisAlignment.center,
                   children: [Text("Color Codes & Count",style: TextStyle
                     (fontWeight: FontWeight.bold,fontSize: 18),)],
                 ),
               ),
               Container(
-                padding: EdgeInsets.only(left: 10),
-                child: Row(
-                  children: [Text("Girls",style: TextStyle(fontWeight: FontWeight.bold,
-                      fontSize: 18,color: Colors.green[200]),),Padding(
+                child: Row(mainAxisAlignment: MainAxisAlignment.center,
+                  children: [Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 0, 0, 0),
+                    child: Text("Girls",style: TextStyle(fontWeight: FontWeight.bold,
+                        fontSize: 18,color: Colors.green[200]),),
+                  ),Padding(
                         padding: const EdgeInsets.only(left: 10),
-                        child: Text
-                    (femaleCount.toString(),style: TextStyle(fontWeight:
-                  FontWeight.w900,fontSize:18)
-                    ,),
-                      )],
+                        child: Text(femaleCount.toString(),style: TextStyle(fontWeight:
+                  FontWeight.w900,fontSize:18,color: Colors.green[200]),),),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(8, 0, 0, 0),
+                      child: Text("Boys",style: TextStyle(fontWeight: FontWeight.bold,
+                          fontSize: 18,color: Colors.amber),),
+                    ),Padding(
+                      padding: const EdgeInsets.only(left: 10),
+                      child: Text(maleCount
+                          .toString(),style: TextStyle(fontWeight:
+                      FontWeight.w900,fontSize:18,color: Colors.amber)),
+                    )
+                  ],
                 ),
               ),
-              Container(
+              /*Container(
                 padding: EdgeInsets.only(left: 10),
                 child: Row(
                   children: [Text("Boys",style: TextStyle(fontWeight: FontWeight.bold,
@@ -242,31 +217,33 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
                   FontWeight.w900,fontSize:18)),
                       )],
                 ),
-              ),
-              Container(
-                padding: EdgeInsets.only(left: 10),
-                child: Row(
-                  children: [Text("Previous year non active students",style: TextStyle(
-                      fontWeight: FontWeight.bold,fontSize: 18,color: Colors
-                      .blueGrey),),Padding(
-                        padding: const EdgeInsets.only(left: 10),
-                        child: Text(nonActiveCount.toString(),style: TextStyle(fontWeight:
-                  FontWeight.w900,fontSize:18)),
-                      )],
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.only(left: 10),
-                child: Row(
-                  children: [Text("Previous year non cleared students",style: TextStyle(
-                      fontWeight: FontWeight.bold,fontSize: 18,color: Colors
-                      .redAccent),),Padding(
-                        padding: const EdgeInsets.only(left: 10),
-                        child: Text(nonClearedCount.toString(),style: TextStyle(fontWeight:
-                  FontWeight.w900,fontSize:18)),
-                      )],
-                ),
-              ),
+              ),*/
+
+              //Previous year
+              // Container(
+              //   padding: EdgeInsets.only(left: 10),
+              //   child: Row(
+              //     children: [Text("Previous year non active students",style: TextStyle(
+              //         fontWeight: FontWeight.bold,fontSize: 18,color: Colors
+              //         .blueGrey),),Padding(
+              //           padding: const EdgeInsets.only(left: 10),
+              //           child: Text(nonActiveCount.toString(),style: TextStyle(fontWeight:
+              //     FontWeight.w900,fontSize:18)),
+              //         )],
+              //   ),
+              // ),
+              // Container(
+              //   padding: EdgeInsets.only(left: 10),
+              //   child: Row(
+              //     children: [Text("Previous year non cleared students",style: TextStyle(
+              //         fontWeight: FontWeight.bold,fontSize: 18,color: Colors
+              //         .redAccent),),Padding(
+              //           padding: const EdgeInsets.only(left: 10),
+              //           child: Text(nonClearedCount.toString(),style: TextStyle(fontWeight:
+              //     FontWeight.w900,fontSize:18)),
+              //         )],
+              //   ),
+              // ),
             ],
           ),
         );
@@ -385,11 +362,11 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
       List<Data> data=[];
       String query="select rowid,sname,rollno,section,admno,gen,session_status,cno"
           " from `$currentDB`.`nominal` where "
-          "cname='$cname' and branch='$branch' order by gen,sname";
+          "cname='$cname' and branch='$branch' and status=1 order by gen,sname";
       var results=await connection.query(query);
       for (var rows in results) {
         cno=rows[7];
-        if (rows[6] == 'TC after term1') {
+        if (rows[6] == 'After Term I') {
           var result = await connection.query(
               "select rowid,tcno,tcdate,reason from `kpsbspin_master`.`tcdetail` where rowid='${rows[0]}'");
           for (var row in result) {
@@ -420,43 +397,43 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
             sessionStatus: rows[6],
           cno: rows[7].toString(),));}
       }
-      if(cno!=15&&previousDB!=""){//checking for nursery
-      if(cno==13)
-        {
-          cno=15;
-        }
-      else if(cno==1)
-        {
-          cno=14;
-        }
-      else
-        {
-          cno=cno-1;
-        }
-      //previous year non active students
-      String q1="select rowid,sname,rollno,section,admno,gen,session_status,cno"
-          " from `$previousDB`.`nominal` where "
-          "cno='$cno' and branch='$branch' and session_status in('Not active') order by gen,sname";
-      var r1=await connection.query(q1);
-      for (var rows in r1)
-        {
-          data.add(Data(sname: rows[1].toString(),admno: rows[4].toString(),
-              section: rows[3].toString(),sessionStatus: rows[6].toString(),
-              nonactive: true));
-        }
-      //previous year not promoted students
-      String q2="select rowid,sname,rollno,section,admno,gen,session_status,cno"
-          " from `$previousDB`.`nominal` where "
-          "cno='$cno' and branch='$branch' and session_status in('Not yet promoted') order by gen,sname";
-      var r2=await connection.query(q2);
-      for (var rows in r2)
-      {
-        data.add(Data(sname: rows[1].toString(),admno: rows[4].toString(),
-            section: rows[3].toString(),sessionStatus: rows[6].toString(),
-           notpromoted: true));
-      }
-      this.nonClearedCount=r2.length;
-      }
+      // if(cno!=15&&previousDB!=""){//checking for nursery
+      // if(cno==13)
+      //   {
+      //     cno=15;
+      //   }
+      // else if(cno==1)
+      //   {
+      //     cno=14;
+      //   }
+      // else
+      //   {
+      //     cno=cno-1;
+      //   }
+      // //previous year non active students
+      // String q1="select rowid,sname,rollno,section,admno,gen,session_status,cno"
+      //     " from `$previousDB`.`nominal` where "
+      //     "cno='$cno' and branch='$branch' and session_status in('Not active') order by gen,sname";
+      // var r1=await connection.query(q1);
+      // for (var rows in r1)
+      //   {
+      //     data.add(Data(sname: rows[1].toString(),admno: rows[4].toString(),
+      //         section: rows[3].toString(),sessionStatus: rows[6].toString(),
+      //         nonactive: true));
+      //   }
+      // //previous year not promoted students
+      // String q2="select rowid,sname,rollno,section,admno,gen,session_status,cno"
+      //     " from `$previousDB`.`nominal` where "
+      //     "cno='$cno' and branch='$branch' and session_status in('Not yet promoted') order by gen,sname";
+      // var r2=await connection.query(q2);
+      // for (var rows in r2)
+      // {
+      //   data.add(Data(sname: rows[1].toString(),admno: rows[4].toString(),
+      //       section: rows[3].toString(),sessionStatus: rows[6].toString(),
+      //      notpromoted: true));
+      // }
+      // this.nonClearedCount=r2.length;
+      // }
       await loadDBSubjects();
       setState(() {
         this.data=data;
@@ -577,9 +554,9 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
               mainAxisSize: MainAxisSize.min,
               children: [
                 ListTile(
-                  title: const Text('Tc after term1'),
+                  title: const Text('After Term I'),
                   leading: Radio<String>(
-                      value:"TC after term1",
+                      value:"After Term I",
                       groupValue: data[position].sessionStatus,
                       onChanged:(value){
                         setState((){
@@ -589,7 +566,7 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
                   ),
                 ),
                 ListTile(
-                  title: const Text('Tc before term1'),
+                  title: const Text('Before Term I'),
                   leading: Radio<String>(
                     value:"TC",
                     groupValue: data[position].sessionStatus,
@@ -791,7 +768,7 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
     });
     var url;
     print(data[position].sessionStatus);
-    if(!(data[position].sessionStatus=='TC' || data[position].sessionStatus=='TC after term1'))
+    if(!(data[position].sessionStatus=='TC' || data[position].sessionStatus=='After Term I'))
       {
         ToastWidget.showToast("Select any one from above option", Colors.red);
         setState(() {
@@ -1131,7 +1108,7 @@ class Data
     this.mainSubject="",this.sessionStatus,this.tcno,this.tcdate,
     this.tcreason,this.cno,this.nonactive=false,this.notpromoted=false})
   {
-    if(sessionStatus=='TC'||sessionStatus=='TC after term1')
+    if(sessionStatus=='TC'||sessionStatus=='After Term I')
     {
 
       //this.tcMenuVisibility = true;

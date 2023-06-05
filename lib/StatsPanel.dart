@@ -1,15 +1,18 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 import 'package:mysql1/mysql1.dart' as mysql;
 import 'package:result_app/MysqlHelper.dart';
 import 'package:result_app/settings/InternetCheck.dart';
 import 'package:result_app/settings/Settings.dart';
 import 'package:result_app/widgets/ToastWidget.dart';
+import 'package:share_plus/share_plus.dart';
 
 class StatsPanel extends StatefulWidget {
   String currentdb = "", nextdb = "";
@@ -285,19 +288,53 @@ class _StatsPanelState extends State<StatsPanel> {
               +boysSTRte+boysSCRte+boysSCNa+girlsObcRte+girlsObcNa+girlsSCNa
               +girlsSCRte+girlsSTNa+girlsSTRte+girlsGenNa+girlsGenRte)).toString(),border: false,bold: true,
   fsize: 18
-          )],)
-
-
+          )],),
+        /*Row(children: [MaterialButton(onPressed: () async {
+          await callJsp();
+          *//*String path=await callJsp();
+          Navigator.of(context).push(MaterialPageRoute(builder: (context)=>BillPdf(filepath:path)));*//*
+        },child: Text("Click here"),)],)*/
       ],
     );
   }
+  /*Future <String> callJsp() async
+  {
+    String billno="23134";
+    String selectedDb=this.currentdb;
+    String cname="I";
+    var postdata={"cname":cname,
+      "selectedDb":this.currentdb,"billno":billno};
+    var url = Uri.parse('http://117.247.90.209:8080/erp-1.0/FetchBill');
+    var response = await http.post(url, body: postdata);
+    if(response.statusCode==200)
+    {
+      //var jasonData=json.decode(response.body);
+      final bytes = response.bodyBytes;
+      *//*Directory directory = await getApplicationDocumentsDirectory();
+      final file = File('${directory.path}/example2.pdf');*//*
+      var path="/storage/emulated/0/Download/example2.pdf";
+      final file=File(path);
+      await file.writeAsBytes(bytes, flush: true);
+      //final url = Uri.parse("file://"+file.path);
+      print('PDF file saved to ${file.path}');
+      *//*if (await canLaunchUrl(url)) {
+        print("inside");
+        await launchUrl(url);
+      } else {
+        throw 'Could not launch $url';
+      }*//*
+      await Share.shareFiles([file.path], text: 'Sharing PDF file');
+    }
+  }*/
+
+
   Future loadData() async {
     try {
       String query="select count(gen) from `$currentdb`.`nominal` where "
           "cname='$cname' "
           "and section='$section' and branch='$branch'  and rollno "
           "not in ('',' ') and rollno is not null and gen='m' and "
-          "session_status not in ('TC after term1')";
+          "session_status not in ('after term I')";
       var results = await connection.query(query);
       for (var rows in results){
         boysCount=rows[0];
@@ -306,7 +343,7 @@ class _StatsPanelState extends State<StatsPanel> {
           "cname='$cname' "
           "and section='$section' and branch='$branch'  and rollno "
           "not in ('',' ') and rollno is not null and gen='f'"
-          "and session_status not in ('TC after term1')";
+          "and session_status not in ('after term I')";
       results = await connection.query(query);
       for (var rows in results){
         girlsCount=rows[0];
@@ -316,7 +353,7 @@ class _StatsPanelState extends State<StatsPanel> {
           "and section='$section' and branch='$branch'  and rollno "
           "not in ('',' ') and rollno is not null and  rte='yes' and "
           "cat='general' and gen='m' and "
-          "session_status not in ('TC after term1')";
+          "session_status not in ('after term I')";
       results = await connection.query(query);
       for (var rows in results){
         boysGenRte=rows[0];
@@ -326,7 +363,7 @@ class _StatsPanelState extends State<StatsPanel> {
           "and section='$section' and branch='$branch'  and rollno "
           "not in ('',' ') and rollno is not null and  rte='no' and "
           "cat='general' and gen='m' and "
-          "session_status not in ('TC after term1')";
+          "session_status not in ('after term I')";
       results = await connection.query(query);
       for (var rows in results){
         boysGenNa=rows[0];
@@ -336,7 +373,7 @@ class _StatsPanelState extends State<StatsPanel> {
           "and section='$section' and branch='$branch'  and rollno "
           "not in ('',' ') and rollno is not null and  rte='yes' and "
           "cat='general' and gen='f' and "
-          "session_status not in ('TC after term1')";
+          "session_status not in ('after term I')";
       results = await connection.query(query);
       for (var rows in results){
         girlsGenRte=rows[0];
@@ -346,7 +383,7 @@ class _StatsPanelState extends State<StatsPanel> {
           "and section='$section' and branch='$branch'  and rollno "
           "not in ('',' ') and rollno is not null and  rte='no' and "
           "cat='general' and gen='f' and "
-          "session_status not in ('TC after term1')";
+          "session_status not in ('after term I')";
       results = await connection.query(query);
       for (var rows in results){
         girlsGenNa=rows[0];
@@ -356,7 +393,7 @@ class _StatsPanelState extends State<StatsPanel> {
           "and section='$section' and branch='$branch'  and rollno "
           "not in ('',' ') and rollno is not null and  rte='yes' and "
           "cat='sc' and gen='m' and "
-          "session_status not in ('TC after term1')";
+          "session_status not in ('after term I')";
       results = await connection.query(query);
       for (var rows in results){
         boysSCRte=rows[0];
@@ -366,7 +403,7 @@ class _StatsPanelState extends State<StatsPanel> {
           "and section='$section' and branch='$branch'  and rollno "
           "not in ('',' ') and rollno is not null and  rte='no' and "
           "cat='sc' and gen='m' and "
-          "session_status not in ('TC after term1')";
+          "session_status not in ('After Term I')";
       results = await connection.query(query);
       for (var rows in results){
         boysSCNa=rows[0];
@@ -376,7 +413,7 @@ class _StatsPanelState extends State<StatsPanel> {
           "and section='$section' and branch='$branch'  and rollno "
           "not in ('',' ') and rollno is not null and  rte='yes' and "
           "cat='sc' and gen='f' and "
-          "session_status not in ('TC after term1')";
+          "session_status not in ('After Term I')";
       results = await connection.query(query);
       for (var rows in results){
         girlsSCRte=rows[0];
@@ -386,7 +423,7 @@ class _StatsPanelState extends State<StatsPanel> {
           "and section='$section' and branch='$branch'  and rollno "
           "not in ('',' ') and rollno is not null and  rte='no' and "
           "cat='sc' and gen='f' and "
-          "session_status not in ('TC after term1')";
+          "session_status not in ('After Term I')";
       results = await connection.query(query);
       for (var rows in results){
         girlsSCNa=rows[0];
@@ -396,7 +433,7 @@ class _StatsPanelState extends State<StatsPanel> {
           "and section='$section' and branch='$branch'  and rollno "
           "not in ('',' ') and rollno is not null and  rte='yes' and "
           "cat='st' and gen='m' and "
-          "session_status not in ('TC after term1')";
+          "session_status not in ('After Term I')";
       results = await connection.query(query);
       for (var rows in results){
         boysSTRte=rows[0];
@@ -406,7 +443,7 @@ class _StatsPanelState extends State<StatsPanel> {
           "and section='$section' and branch='$branch'  and rollno "
           "not in ('',' ') and rollno is not null and  rte='no' and "
           "cat='st' and gen='m' and "
-          "session_status not in ('TC after term1')";
+          "session_status not in ('After Term I')";
       results = await connection.query(query);
       for (var rows in results){
         boysSTNa=rows[0];
@@ -416,7 +453,7 @@ class _StatsPanelState extends State<StatsPanel> {
           "and section='$section' and branch='$branch'  and rollno "
           "not in ('',' ') and rollno is not null and  rte='yes' and "
           "cat='st' and gen='f' and "
-          "session_status not in ('TC after term1')";
+          "session_status not in ('After Term I')";
       results = await connection.query(query);
       for (var rows in results){
         girlsSTRte=rows[0];
@@ -426,7 +463,7 @@ class _StatsPanelState extends State<StatsPanel> {
           "and section='$section' and branch='$branch'  and rollno "
           "not in ('',' ') and rollno is not null and  rte='no' and "
           "cat='st' and gen='f' and "
-          "session_status not in ('TC after term1')";
+          "session_status not in ('After Term I')";
       results = await connection.query(query);
       for (var rows in results){
         girlsSTNa=rows[0];
@@ -436,7 +473,7 @@ class _StatsPanelState extends State<StatsPanel> {
           "and section='$section' and branch='$branch'  and rollno "
           "not in ('',' ') and rollno is not null and  rte='yes' and "
           "cat='obc' and gen='m' and "
-          "session_status not in ('TC after term1')";
+          "session_status not in ('After Term I')";
       results = await connection.query(query);
       for (var rows in results){
         boysObcRte=rows[0];
@@ -446,7 +483,7 @@ class _StatsPanelState extends State<StatsPanel> {
           "and section='$section' and branch='$branch'  and rollno "
           "not in ('',' ') and rollno is not null and  rte='no' and "
           "cat='obc' and gen='m' and "
-          "session_status not in ('TC after term1')";
+          "session_status not in ('After Term I')";
       results = await connection.query(query);
       for (var rows in results){
         boysObcNa=rows[0];
@@ -456,7 +493,7 @@ class _StatsPanelState extends State<StatsPanel> {
           "and section='$section' and branch='$branch'  and rollno "
           "not in ('',' ') and rollno is not null and  rte='yes' and "
           "cat='obc' and gen='f' and "
-          "session_status not in ('TC after term1')";
+          "session_status not in ('After Term I')";
       results = await connection.query(query);
       for (var rows in results){
         girlsObcRte=rows[0];
@@ -466,7 +503,7 @@ class _StatsPanelState extends State<StatsPanel> {
           "and section='$section' and branch='$branch'  and rollno "
           "not in ('',' ') and rollno is not null and  rte='no' and "
           "cat='obc' and gen='f' and "
-          "session_status not in ('TC after term1')";
+          "session_status not in ('After Term I')";
       results = await connection.query(query);
       for (var rows in results){
         girlsObcNa=rows[0];

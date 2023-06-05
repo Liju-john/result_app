@@ -139,7 +139,7 @@ class _NominalPanelState extends State<NominalPanel> {
                     (mainAxisAlignment: MainAxisAlignment.center, children:
                   [SizedBox
                     (width: 5,),
-                    dataBox(data: "Taken TC after term 1",border: false,
+                    dataBox(data: "Taken TC After Term I",border: false,
                         backColor:
                     AppColor
                         .BACKGROUND,textColor: Colors.red),dataBox(data: tcCount
@@ -186,7 +186,7 @@ class _NominalPanelState extends State<NominalPanel> {
                       });
                       return ExpansionTile(
                         collapsedBackgroundColor:
-                            data[position].session_status=='TC after term1'?Colors.limeAccent:(
+                            data[position].session_status=='After Term I'?Colors.limeAccent:(
                             position % 2 == 0 ?
                             Colors.blue[100] :
                             Colors
@@ -215,11 +215,10 @@ class _NominalPanelState extends State<NominalPanel> {
                               child: Column(
                                 children:  [
                                   Visibility(
-                                    visible: data[position].session_status=='TC '
-                                        'after term1'?true:false,
+                                    visible: data[position].session_status=='After Term I'?true:false,
                                       child: Text("Current status:- Taken TC "
                                           "after "
-                                          "term 1",style:
+                                          "term I",style:
                                       TextStyle(
                                           fontWeight: FontWeight.w900,color: Colors
                                           .red),)),
@@ -628,7 +627,6 @@ class _NominalPanelState extends State<NominalPanel> {
     var url = Uri.parse('http://117.247.90.209/app/result/docupload.php');
     var response = await http.post(url, body: postData);
     if (response.statusCode == 200) {
-      print(response.body);
       ToastWidget.showToast(response.body, Colors.green);
     } else {
       ToastWidget.showToast("Please try again!!!", Colors.red);
@@ -849,7 +847,6 @@ class _NominalPanelState extends State<NominalPanel> {
                  vData.add(VaccineData(vname:rows[0],dov1:rows[1],dov2: rows[2],
                      remark: rows[3]));
                 }
-                print("called");
                 setState(() {});
               } catch (Exception) {
                 print(Exception);
@@ -945,7 +942,7 @@ class _NominalPanelState extends State<NominalPanel> {
             rte: rows[11],
             doa:rows[12],
             addhar:rows[13],session_status: rows[14]));
-        if(rows[14]=='TC after term1')
+        if(rows[14]=='After Term I')
           {
             tcCount+=1;
           }
@@ -953,7 +950,7 @@ class _NominalPanelState extends State<NominalPanel> {
       query="select gen,count(gen) from `$currentdb`.`nominal` where "
           "cname='$cname' and section='$section' and branch='$branch' and "
           "rollno not in('',' ') and rollno is not null and session_status "
-          "not in('TC after term1') group "
+          "not in('after term I') group "
           "by gen order by gen";
       results=await connection.query(query);
       for(var rows in results)

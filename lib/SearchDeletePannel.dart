@@ -46,7 +46,7 @@ class _SearchDeletePanelState extends State<SearchDeletePanel> {
       appBar:AppBar(
         elevation: 0,
         backgroundColor:AppColor.NAVIGATIONBAR,
-        title:Text("Search and delete", style: GoogleFonts.playball(
+        title:Text("Find Student", style: GoogleFonts.playball(
           fontSize: screenheight / 30,
           fontWeight: FontWeight.bold,
           color: Colors.grey[600],),),),
@@ -185,29 +185,29 @@ class _SearchDeletePanelState extends State<SearchDeletePanel> {
                               children: [SizedBox(child: Text('Branch',),width: screenwidth*0.22),
                                 SizedBox(width: 10,),Text(data[position].branch,style: TextStyle(fontWeight: FontWeight.w900))],
                             ),
-                            SizedBox(height: 10,),
-                           deleteComplete?Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                TextButton(
-                                  onPressed: ()async{
-                                    await deleteConfirmation(position);
-                                  },
-                                //color: Colors.yellow[600],
-                                child: Row(
-                                  children: [Column(
-                                    children: [
-                                      Icon(Icons.delete,color: Colors.red,size: 30,),
-                                      Text("Delete",style: TextStyle(fontWeight: FontWeight.w900,color: Colors.red,fontSize: 12))
-                                    ],
-                                  ),
-                                    //SizedBox(width: 5,),
-                                    ],
-                                ),),],
-                            ):Row(
-                             mainAxisSize: MainAxisSize.min,
-                             children: [CircularProgressIndicator(backgroundColor: Colors.red,)],
-                           ),
+                           //delete student comented in both php and flutter
+                           //  SizedBox(height: 10,),
+                           // deleteComplete?Row(
+                           //    mainAxisSize: MainAxisSize.min,
+                           //    children: [
+                           //      TextButton(
+                           //        onPressed: ()async{
+                           //          await deleteConfirmation(position);
+                           //        },
+                           //      //color: Colors.yellow[600],
+                           //      child: Row(
+                           //        children: [Column(
+                           //          children: [
+                           //            Icon(Icons.delete,color: Colors.red,size: 30,),
+                           //            Text("Delete",style: TextStyle(fontWeight: FontWeight.w900,color: Colors.red,fontSize: 12))
+                           //          ],
+                           //        ),
+                           //          //SizedBox(width: 5,),
+                           //          ],
+                           //      ),),],
+                           //  ):Row(
+                           //   mainAxisSize: MainAxisSize.min,
+                           //   children: [CircularProgressIndicator(backgroundColor: Colors.red,)],),
                           ],
                         )
                       ],

@@ -40,6 +40,7 @@ class _MenuPageState extends State<MenuPage> {
       nextdb = "",
       previousDB = "",
       currentSession = "",
+      next_Session="",
       uname;
   double screenwidth, screenheight;
   int connectionType;
@@ -416,6 +417,7 @@ class _MenuPageState extends State<MenuPage> {
           "Select session,db from `kpsbspin_master`.`db_names` where id=${rowID + 1}"); //to set the next database
       for (var row in result) {
         nextdb = row[1];
+        next_Session=row[0];
       }
       result = await connection.query(
           "Select session,db from `kpsbspin_master`.`db_names` where id=${rowID - 1}"); //to set the previous database
@@ -497,7 +499,7 @@ class _MenuPageState extends State<MenuPage> {
           tasklist.add("Assign new rollno and section");
         }
         if (row[3] == 1) {
-          tasklist.add("Promote/TC");
+          tasklist.add("Promote");
         }
         if (row[5] == 1) {
           admnoChange = true;
@@ -602,15 +604,6 @@ class _MenuPageState extends State<MenuPage> {
   Future getClasses() async {
     try {
       String query;
-      /*if (branch == 'Koni') {
-        branchno = '1';
-      } else if (branch == 'Narmada Nagar') {
-        branchno = '2';
-      } else if (branch == 'Sakri') {
-        branchno = '3';
-      } else if (branch == 'KV') {
-        branchno = '4';
-      }*/
       branchno=branches[branch];
       this.clist = [];
       setState(() {
@@ -725,9 +718,10 @@ class _MenuPageState extends State<MenuPage> {
         id = rows[0];
         currentdb = rows[1];
         results = await connection.query(
-            "select db from `kpsbspin_master`.`db_names` where id='${id + 1}'");
+            "select db,session from `kpsbspin_master`.`db_names` where id='${id + 1}'");
         for (rows in results) {
           nextdb = rows[0];
+          next_Session=rows[1];
         }
         results = await connection.query(
             "Select session,db from `kpsbspin_master`.`db_names` where id=${id - 1}"); //to set the previous database
@@ -937,7 +931,7 @@ class _MenuPageState extends State<MenuPage> {
             )));
       }
     }
-    else if (tasklist == 'Promote/TC') {
+    else if (tasklist == 'Promote') {
       if (nextdb == "") {
         ToastWidget.showToast("Cant access", Colors.red);
       } else
@@ -951,6 +945,8 @@ class _MenuPageState extends State<MenuPage> {
                   branch: branchno,
                   screenheight: screenheight,
                   screenwidth: screenwidth,
+                  nextSession: next_Session,
+              currentSession: currentSession,
                 )));
     } else if (tasklist == "Add New Student") {
       Navigator.of(context).push(MaterialPageRoute(

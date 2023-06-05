@@ -246,7 +246,7 @@ class _SchoolStatsPanelState extends State<SchoolStatsPanel> {
             sql="select gen,count(*) from "+currentdb+".nominal "
                 "where branch='"+branch+"' and cname ='"+cname[0]+"' "
                 "and section='"+section[0]+"' and "
-                "session_status not in ('TC after term1') group by gen";
+                "session_status not in ('after term I') group by gen";
             var r2=await connection.query(sql);
             for(var count in r2)
               {
