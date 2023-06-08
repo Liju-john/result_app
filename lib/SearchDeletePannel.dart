@@ -19,8 +19,8 @@ class SearchDeletePanel extends StatefulWidget {
   double screenheight,screenwidth;
   var branches=new LinkedHashMap();
   mysql.MySqlConnection connection;
-  SearchDeletePanel({Key key, this.currentdb,this.nextdb,this.connection,this
-      .screenwidth,this.screenheight,this.branches});
+  SearchDeletePanel({Key? key, required this.currentdb,required this.nextdb,required this.connection,
+    required this.screenwidth,required this.screenheight,required this.branches});
   @override
   _SearchDeletePanelState createState() =>
       _SearchDeletePanelState(this.currentdb,this.nextdb,this.connection,
@@ -87,9 +87,9 @@ class _SearchDeletePanelState extends State<SearchDeletePanel> {
                         icon: const Icon(Icons.arrow_downward),
                         iconSize: 24,
                         elevation: 16,
-                        onChanged: (String newValue) async {
+                        onChanged: (String? newValue) async {
                           setState(() {
-                            searchBy = newValue;
+                            searchBy = newValue!;
                             searchController.text="";
                           });
                         },
@@ -140,7 +140,7 @@ class _SearchDeletePanelState extends State<SearchDeletePanel> {
       Padding(
         padding: const EdgeInsets.all(8.0),
         child: Container(
-          decoration: BoxDecoration(border: Border.all(color: Colors.deepPurple[300],width: 2),borderRadius: BorderRadius.circular(15),color: Colors.white),
+          decoration: BoxDecoration(border: Border.all(color: Colors.deepPurple[300]!,width: 2),borderRadius: BorderRadius.circular(15),color: Colors.white),
           child: ListView.builder(
               scrollDirection: Axis.vertical,
               shrinkWrap: true,
@@ -278,7 +278,7 @@ class _SearchDeletePanelState extends State<SearchDeletePanel> {
       }
       else
         {
-          ToastWidget.showToast(response.reasonPhrase, Colors.red);
+          ToastWidget.showToast(response.reasonPhrase!, Colors.red);
         }
       setState(() {
         deleteComplete=true;
@@ -407,5 +407,7 @@ class _SearchDeletePanelState extends State<SearchDeletePanel> {
 class Data
 {
   String sname="",fname="",mname="",rowid="",cname="",admno="",section="",mobileno="",branch="";
-  Data({this.sname,this.fname,this.mname,this.rowid,this.cname,this.admno,this.section,this.mobileno,this.branch});
+  Data({required this.sname,required this.fname,required this.mname,
+    required this.rowid,required this.cname,required this.admno,
+    required this.section,required this.mobileno,required this.branch});
 }

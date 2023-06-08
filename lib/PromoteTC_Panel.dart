@@ -19,8 +19,8 @@ class PromoteTC_Panel extends StatefulWidget {
   mysql.MySqlConnection connection;
   double screenheight,screenwidth;
   String cname,section,branch,nextSession,currentSession;
-  PromoteTC_Panel({Key key,this.currentdb,this.nextdb,this.connection,this.cname,
-    this.section,this.branch,this.screenheight,this.screenwidth,this.nextSession,this.currentSession}) : super(key: key);
+  PromoteTC_Panel({Key? key,required this.currentdb,required this.nextdb,required this.connection,required this.cname,
+    required this.section,required this.branch,required this.screenheight,required this.screenwidth,required this.nextSession,required this.currentSession}) : super(key: key);
   @override
   _PromoteTC_PanelState createState() => _PromoteTC_PanelState(this.currentdb,
       this.nextdb,this.connection,this.cname,this.section,this.branch,
@@ -35,7 +35,7 @@ class _PromoteTC_PanelState extends State<PromoteTC_Panel> {
   MysqlHelper mysqlHelper=MysqlHelper();
   var myFormat = DateFormat('yyyy-MM-dd');
   double screenheight,screenwidth;
-String _selectedtask,_previousSelectedStatus,nextSession,currentSession;
+String ?_selectedtask,_previousSelectedStatus,nextSession,currentSession;
   final List<TextEditingController> tcnocontroller=[],tcdatecontroller=[],tcreasoncontroller=[];
   List <Data> data=[];
   mysql.MySqlConnection connection;
@@ -77,9 +77,9 @@ String _selectedtask,_previousSelectedStatus,nextSession,currentSession;
     tcdatecontroller.add(TextEditingController());
     tcnocontroller.add(TextEditingController());
     tcreasoncontroller.add(TextEditingController());
-    tcnocontroller[position].text=data[position].tcno;
-    tcreasoncontroller[position].text=data[position].tcreason;
-    tcdatecontroller[position].text=data[position].tcdate;
+    tcnocontroller[position].text=(data[position].tcno != null ? data[position].tcno : "")!;
+    tcreasoncontroller[position].text=(data[position].tcreason !=null?data[position].tcreason:"")!;
+    tcdatecontroller[position].text=(data[position].tcdate!=null?data[position].tcdate:"")!;
     return
       Card(
         color: Colors.yellow[50],
@@ -103,11 +103,11 @@ String _selectedtask,_previousSelectedStatus,nextSession,currentSession;
                     icon: const Icon(Icons.arrow_downward),
                     iconSize: 24,
                     elevation: 16,
-                    onChanged: (String newValue) async {
+                    onChanged: (String ? newValue) async {
                       setState(() {
                         _selectedtask= newValue;
-                        _previousSelectedStatus=data[position].selectstat==null?"FIRST_TIME":data[position].selectstat;
-                        data[position].selectstat=_selectedtask;
+                        _previousSelectedStatus=data[position].selectstat==""?"FIRST_TIME":data[position].selectstat;
+                        data[position].selectstat=_selectedtask!;
                         if(newValue=='Promote and TC'||newValue=='Failed and TC')
                           {
                             data[position].tcMenuVisibility=true;
@@ -283,7 +283,7 @@ String _selectedtask,_previousSelectedStatus,nextSession,currentSession;
                      data[position].tcdate==null?DateTime.now():(new
                      DateFormat
                        ("yyyy-MM-dd hh:mm:ss").parse(data[position]
-                         .tcdate+" "
+                         .tcdate!+" "
                          "00:00:00"));
                      showDateDialog(context,child: datePicker(),onClicked: (){
                        setState(() {
@@ -312,8 +312,8 @@ String _selectedtask,_previousSelectedStatus,nextSession,currentSession;
          ),
        ));
 }
-  static void showDateDialog(BuildContext context,{Widget child,
-    VoidCallback onClicked})=>showCupertinoModalPopup(context: context,
+  static void showDateDialog(BuildContext context,{required Widget child,
+    required VoidCallback onClicked})=>showCupertinoModalPopup(context: context,
       builder: (context)=>CupertinoActionSheet(
         actions: [child],
         cancelButton: CupertinoActionSheetAction(child: Text("Done"),
@@ -342,8 +342,8 @@ String _selectedtask,_previousSelectedStatus,nextSession,currentSession;
     }
   }
   Future uploadData(int position) async{
-    String st=null;
-    if(data[position].selectstat==null)
+    String  st="";
+    if(data[position].selectstat=="")
     {
       data[position].stcolor=Colors.purple;
       data[position].status='Not yet promoted';
@@ -388,7 +388,7 @@ String _selectedtask,_previousSelectedStatus,nextSession,currentSession;
         if(response.statusCode==200)
           {
             ToastWidget.showToast(response.body,Colors.green);
-            data[position].selectstat=null;
+            data[position].selectstat="";
             data[position].status="Not yet promoted";
             data[position].stcolor=Colors.purple;
           }
@@ -581,19 +581,19 @@ String _selectedtask,_previousSelectedStatus,nextSession,currentSession;
 }
 class Data
 {
-  int rowid;
+  int rowid=0;
   bool tcMenuVisibility=false,tcEditButonVisibility=false,saveProgress=true;
-  String rollno,name,status,selectstat,cname,busstop;
-  String tcno="",tcdate="",tcreason="";
-  Color stcolor;
-  int cno;
-  Data({this.rowid,this.rollno,this.name,
-    this.status,this.tcno,this.tcdate,this.tcreason,
-    this.cno,this.cname,this.busstop})
+  String rollno,name,status,selectstat="",cname,busstop;
+  String ?tcno="",tcdate="",tcreason="";
+  Color? stcolor;
+  int cno=0;
+  Data({required this.rowid,required this.rollno,required this.name,
+    required this.status, this.tcno,this.tcdate,this.tcreason,
+    required this.cno,required this.cname,required this.busstop})
   {
     if(this.status=='Not yet promoted')
       {
-        selectstat=null;
+        selectstat="";
         stcolor=Colors.purple;
       }
     else if(this.status=='Promoted')

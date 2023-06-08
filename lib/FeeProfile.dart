@@ -12,9 +12,9 @@ import 'package:lottie/lottie.dart';
 import 'package:sizer/sizer.dart';
 
 class StuddentFeeStructure extends StatefulWidget {
-  double mheight,mwidth;
-  String rowid,sname,mobileno,branch,fname;
-  StuddentFeeStructure({Key key,this.rowid,this
+  double? mheight,mwidth;
+  String? rowid,sname,mobileno,branch,fname;
+  StuddentFeeStructure({Key? key,this.rowid,this
       .sname,this.mobileno,this.branch,this.fname}) : super(key:
   key);
 
@@ -24,19 +24,19 @@ class StuddentFeeStructure extends StatefulWidget {
 }
 
 class _StuddentFeeStructureState extends State<StuddentFeeStructure> {
-  String key="",secret="",qrurl;
-  double mheight,mwidth,tf=0,af=0,pf=0,bf=0,famt=0,service=0;
+  String key="",secret="",qrurl="";
+  double mheight=0,mwidth=0,tf=0,af=0,pf=0,bf=0,famt=0,service=0;
   String orderid="",payid="";
   double prevbal=0,miscbal=0;
   bool loading=false;
-  int prevInst=0,paid_installmentno,x=0;
-  String ins_name="",branch="";
+  int prevInst=0,paid_installmentno=0,x=0;
+  String? ins_name="",branch="";
   List<FeeData> data=[];
   List<BusFeeData> bus=[];
   List<MainFeeData> mainFee=[];
   Map<String,dynamic> summary=Map();
   Map<int,String> insMonth=Map();
-  String rowid,sname,mobileno,fname;
+  String? rowid,sname,mobileno,fname;
   _StuddentFeeStructureState(this.rowid,this.sname,this.mobileno,this.branch,this.fname);
   void initState(){
     super.initState();
@@ -72,7 +72,7 @@ class _StuddentFeeStructureState extends State<StuddentFeeStructure> {
                 toolbarHeight: 8.h,
                 title: Column(
                   children: [
-                    Text(sname,style: TextStyle(color: Colors.black, fontSize: 13.0.sp),),
+                    Text(sname!,style: TextStyle(color: Colors.black, fontSize: 13.0.sp),),
                     Text("Total amount:-"+famt.toString(),style: TextStyle(color:
                     Colors.blue,fontWeight: FontWeight.bold,fontSize: 12.0.sp))
                   ],
@@ -97,7 +97,7 @@ class _StuddentFeeStructureState extends State<StuddentFeeStructure> {
                       scrollDirection:Axis.horizontal,
                       child: DataTable(
                           headingRowColor:MaterialStateProperty.all<Color>(Colors
-                              .grey[300]) ,
+                              .grey[300]!) ,
                           headingRowHeight: 3.h,
                           columnSpacing: 3.w,
                           border: TableBorder.all(color: Colors.black,),
@@ -111,11 +111,11 @@ class _StuddentFeeStructureState extends State<StuddentFeeStructure> {
                                   (e){
                                 return  DataRow(
                                     cells: [
-                                      DataCell(Text(e.feetype)),
+                                      DataCell(Text(e.feetype!)),
                                       DataCell(Column(
                                         children: [
-                                          Text("Fee:-"+e.feeamount),
-                                          Text("Bal:-"+e.feebal,
+                                          Text("Fee:-"+e.feeamount!),
+                                          Text("Bal:-"+e.feebal!,
                                             style:
                                             TextStyle
                                               (color: e.ppaid?Colors.green:Colors.red,
@@ -127,27 +127,27 @@ class _StuddentFeeStructureState extends State<StuddentFeeStructure> {
                                       )),
                                       DataCell(IgnorePointer(
                                         ignoring: e.ppaid,
-                                        child: Checkbox(value:e.paid, onChanged: (bool
+                                        child: Checkbox(value:e.paid, onChanged: (bool?
                                         value) {
-                                          double amt=double.parse(e.feebal);
+                                          double amt=double.parse(e.feebal!);
                                           if(e.installment_no==-1)
                                           {
-                                            value?summary["prev"]=["Previous Balance",e
+                                            value!?summary["prev"]=["Previous Balance",e
                                                 .feebal]:summary.remove("prev");
                                           }
                                           else if(e.installment_no==0)
                                           {
-                                            value?summary["admission"]=["Admission Fees",e.feebal]
+                                            value!?summary["admission"]=["Admission Fees",e.feebal]
                                                 :summary.remove("admission");
                                           }
                                           else if(e.installment_no==-2)
                                           {
-                                            value?summary["misc"]=["Miscellaneous Fee",e.feebal]
+                                            value!?summary["misc"]=["Miscellaneous Fee",e.feebal]
                                                 :summary.remove("misc");
                                           }
-                                          if(value)
+                                          if(value!)
                                           {
-                                            famt=famt+double.parse(e.feebal);
+                                            famt=famt+double.parse(e.feebal!);
                                             if(e.installment_no==-1)
                                             {
                                               prevbal=0;
@@ -159,15 +159,15 @@ class _StuddentFeeStructureState extends State<StuddentFeeStructure> {
                                           }
                                           else
                                           {
-                                            famt=famt-double.parse(e.feebal);
+                                            famt=famt-double.parse(e.feebal!);
                                             summary.remove(e.feetype);
                                             if(e.installment_no==-1)
                                             {
-                                              prevbal=double.parse(e.feebal);
+                                              prevbal=double.parse(e.feebal!);
                                             }
                                             else if(e.installment_no==-2)
                                             {
-                                              miscbal=double.parse(e.feebal);
+                                              miscbal=double.parse(e.feebal!);
                                             }
                                           }
                                           setState((){
@@ -184,8 +184,7 @@ class _StuddentFeeStructureState extends State<StuddentFeeStructure> {
                     SingleChildScrollView(
                       scrollDirection:Axis.horizontal,
                       child: DataTable(
-                          headingRowColor:MaterialStateProperty.all<Color>(Colors
-                              .grey[300]) ,
+                          headingRowColor:MaterialStateProperty.all<Color>(Colors.grey[300]!) ,
                           headingRowHeight: 3.h,
                           columnSpacing: 3.w,
                           border: TableBorder.all(color: Colors.black,),
@@ -197,11 +196,11 @@ class _StuddentFeeStructureState extends State<StuddentFeeStructure> {
                                   (e){
                                 return DataRow(
                                     cells: [
-                                      DataCell(Text(e.feetype)),
+                                      DataCell(Text(e.feetype!)),
                                       DataCell(Column(
                                         children: [
-                                          Text("Fee:-"+e.feeamount),
-                                          Text("Bal:-"+e.feebal,
+                                          Text("Fee:-"+e.feeamount!),
+                                          Text("Bal:-"+e.feebal!,
                                             style:
                                             TextStyle
                                               (color: e.ppaid?Colors.green:Colors.red,
@@ -214,17 +213,17 @@ class _StuddentFeeStructureState extends State<StuddentFeeStructure> {
                                       DataCell(IgnorePointer(
                                         ignoring: e
                                             .ppaid||prevbal!=0||miscbal!=0,
-                                        child: Checkbox(value:e.paid, onChanged: (bool
+                                        child: Checkbox(value:e.paid, onChanged: (bool?
                                         value) {
-                                          double amt=double.parse(e.feebal);
+                                          double amt=double.parse(e.feebal!);
                                           //if(e.installment_no>0&&e.installment_no<11){
-                                          if(e.installment_no>0){
-                                            if(ins_name.isEmpty)
+                                          if(e.installment_no!>0){
+                                            if(ins_name!.isEmpty)
                                             {
                                               if(prevInst+1==e
                                                   .installment_no){
-                                                ins_name=e.feetype+" to "+e.feetype;
-                                                prevInst=e.installment_no;}
+                                                ins_name=e.feetype!+" to "+e.feetype!;
+                                                prevInst=e.installment_no!;}
                                               else{
                                                 ToastWidget.showToast("Invalid "
                                                     "Selection", Colors.red);
@@ -235,29 +234,29 @@ class _StuddentFeeStructureState extends State<StuddentFeeStructure> {
                                             {
                                               if(prevInst+1==e.installment_no)
                                               {//forward direction
-                                                if (e.installment_no - 1 != 0) {
+                                                if (e.installment_no! - 1 != 0) {
                                                   ins_name =
-                                                      ins_name.substring(0, ins_name
+                                                      ins_name!.substring(0, ins_name!
                                                           .indexOf("to")) + ""
-                                                          "to " + (value ? insMonth[e
-                                                          .installment_no] : insMonth[e
-                                                          .installment_no - 1]);
+                                                          "to " + (value! ? insMonth[e
+                                                          .installment_no]! : insMonth[e
+                                                          .installment_no! - 1]!);
                                                 }
                                                 else {
                                                   ins_name = "";
                                                   prevInst=x;
                                                 }
-                                                prevInst=e.installment_no;
+                                                prevInst=e.installment_no!;
                                               }else if(prevInst==e.installment_no)
                                                 //backward direction
                                                   {
-                                                if (e.installment_no - 1 != 0) {
+                                                if (e.installment_no! - 1 != 0) {
                                                   ins_name =
-                                                      ins_name.substring(0, ins_name
+                                                      ins_name!.substring(0, ins_name!
                                                           .indexOf("to")) + ""
                                                           "to " +  insMonth[e
-                                                          .installment_no-1];
-                                                  prevInst=e.installment_no-1;
+                                                          .installment_no!-1]!;
+                                                  prevInst=e.installment_no!-1;
                                                 }
                                                 else {
                                                   ins_name = "";
@@ -272,34 +271,34 @@ class _StuddentFeeStructureState extends State<StuddentFeeStructure> {
                                             }}
                                           if(e.installment_no==-1)
                                           {
-                                            value?summary["prev"]=["Previous Balance",e
+                                            value!?summary["prev"]=["Previous Balance",e
                                                 .feebal]:summary.remove("prev");
                                           }
                                           else if(e.installment_no==0)
                                           {
-                                            value?summary["admission"]=["Admission Fees",e.feebal]
+                                            value!?summary["admission"]=["Admission Fees",e.feebal]
                                                 :summary.remove("admission");
                                           }
                                           else if(e.installment_no==-2)
                                           {
-                                            value?summary["misc"]=["Miscellaneous Fee",e.feebal]
+                                            value!?summary["misc"]=["Miscellaneous Fee",e.feebal]
                                                 :summary.remove("misc");
                                           }
                                           else
                                           {
 
-                                            value?tf=tf+amt:tf=tf-amt;
+                                            value!?tf=tf+amt:tf=tf-amt;
                                             tf!=0?summary["tution_fees"]=[ins_name,
                                               tf.toString()]:summary.remove
                                               ("tution_fees");
                                           }
-                                          if(value)
+                                          if(value!)
                                           {
-                                            famt=famt+double.parse(e.feebal);
+                                            famt=famt+double.parse(e.feebal!);
                                           }
                                           else
                                           {
-                                            famt=famt-double.parse(e.feebal);
+                                            famt=famt-double.parse(e.feebal!);
                                             summary.remove(e.feetype);
                                           }
                                           setState((){
@@ -335,27 +334,27 @@ class _StuddentFeeStructureState extends State<StuddentFeeStructure> {
                                   (e){
                                 return  DataRow(
                                     cells: [
-                                      DataCell(Text(e.feetype)),
+                                      DataCell(Text(e.feetype!)),
                                       DataCell(Column(
                                         children: [
-                                          Text("Fee:-"+e.busamount),
-                                          Text("Bal:-"+e.busbal,style: TextStyle
-                                            (color: e.ppaid?Colors.green:Colors.red,
+                                          Text("Fee:-"+e.busamount!),
+                                          Text("Bal:-"+e.busbal!,style: TextStyle
+                                            (color: e.ppaid!?Colors.green:Colors.red,
                                               fontWeight: FontWeight
                                                   .bold,fontSize: 16),),
                                         ],
                                       )),
                                       DataCell(IgnorePointer(ignoring: e
-                                          .ppaid,
+                                          .ppaid!,
                                         child: Checkbox(value:e.paid,
-                                          onChanged: (bool
+                                          onChanged: (bool?
                                           value) {
-                                            double amt=double.parse(e.busbal);
-                                            value?bf=bf+amt:bf=bf-amt;
+                                            double amt=double.parse(e.busbal!);
+                                            value!?bf=bf+amt:bf=bf-amt;
                                             bf==0?summary.remove("bus_fees")
                                                 :(summary["bus_fees"]=["Bus Fees",
                                               bf.toString()]);
-                                            value?famt=famt+amt:famt=famt-amt;
+                                            value!?famt=famt+amt:famt=famt-amt;
                                             setState((){
                                               e.paid=value;
                                             });
@@ -371,7 +370,7 @@ class _StuddentFeeStructureState extends State<StuddentFeeStructure> {
                         scrollDirection: Axis.horizontal,
                         child: DataTable(
                             headingRowColor:MaterialStateProperty.all<Color>(Colors
-                                .grey[300]) ,
+                                .grey[300]!) ,
                             headingRowHeight: 3.h,
                             columnSpacing: 3.w,
                             dataRowHeight: 4.h,
@@ -521,37 +520,37 @@ class _StuddentFeeStructureState extends State<StuddentFeeStructure> {
     }
   }
 
-  void openGateway(double fmt) async{
-    /*ToastWidget.showLoaderDialog(context,loadingText: "Initializing payment"
-        "...");*/
-
-    DateTime date=DateTime.now().add(Duration(minutes: 5));
-    int closeby=date.millisecondsSinceEpoch ~/ 1000;
-    String des="";
-    var notes={};
-    summary.forEach((key, value) {
-      des=des+" "+summary[key][0];
-      notes[key]=summary[key][1]+"|"+summary[key][0];
-    });
-    String insName=tf==0?"":summary['tution_fees'][0];
-    String inwords=getInWords(famt).trim();
-
-    notes['other']="insname|"+insName+"--branch|"+this.branch+"--rowid|"+this
-        .rowid+"--inwords|"+inwords+"--famt|"+famt.toString();
-
-
-    var postdata={"fname":this.fname,"sname":this.sname,
-      'notes':jsonEncode(notes),"close_by":closeby.toString(),
-      "key":this.key,"secret":this.secret,"branch":this.branch,"fmt":(fmt*100).toString()};
-
-    var url = Uri.parse('http://117.247.90.209/app/kpshome/rz.php');
-    var response = await http.post(url, body: postdata);
-    if(response.statusCode==200)
-    {
-      qrurl=response.body;
-      showAlertDialog(context, qrurl,fmt,sname,fname);
-    }
-  }
+  // void openGateway(double fmt) async{
+  //   /*ToastWidget.showLoaderDialog(context,loadingText: "Initializing payment"
+  //       "...");*/
+  //
+  //   DateTime date=DateTime.now().add(Duration(minutes: 5));
+  //   int closeby=date.millisecondsSinceEpoch ~/ 1000;
+  //   String des="";
+  //   var notes={};
+  //   summary.forEach((key, value) {
+  //     des=des+" "+summary[key][0];
+  //     notes[key]=summary[key][1]+"|"+summary[key][0];
+  //   });
+  //   String insName=tf==0?"":summary['tution_fees'][0];
+  //   String inwords=getInWords(famt).trim();
+  //
+  //   notes['other']="insname|"+insName+"--branch|"+this.branch+"--rowid|"+this
+  //       .rowid+"--inwords|"+inwords+"--famt|"+famt.toString();
+  //
+  //
+  //   var postdata={"fname":this.fname,"sname":this.sname,
+  //     'notes':jsonEncode(notes),"close_by":closeby.toString(),
+  //     "key":this.key,"secret":this.secret,"branch":this.branch,"fmt":(fmt*100).toString()};
+  //
+  //   var url = Uri.parse('http://117.247.90.209/app/kpshome/rz.php');
+  //   var response = await http.post(url, body: postdata);
+  //   if(response.statusCode==200)
+  //   {
+  //     qrurl=response.body;
+  //     showAlertDialog(context, qrurl,fmt,sname,fname);
+  //   }
+  // }
   }
 showAlertDialog(BuildContext context,String qrurl,double fmt,String sname,String fname) {
   // Create button
@@ -710,12 +709,12 @@ showAlertDialog(BuildContext context,String qrurl,double fmt,String sname,String
     return Words;
   }
 class BusFeeData {
-  String feetype,feeamount,busamount,feebal,busbal;
-  int installment_no;
-  bool paid=false,ppaid=false;
+  String? feetype,feeamount,busamount,feebal,busbal;
+  int? installment_no;
+  bool? paid=false,ppaid=false;
   BusFeeData({this.feetype,this.feeamount,this.busamount,this.feebal,this
       .busbal,this.installment_no}){
-    if(double.parse(this.busbal)==0)
+    if(double.parse(this.busbal!)==0)
     {
       this.paid=true;
       this.ppaid=true;
@@ -723,12 +722,12 @@ class BusFeeData {
   }
 }
 class FeeData{
-  String feetype,feeamount,busamount,feebal,busbal,prevbal,admbal,miscbal;
+  String ? feetype,feeamount,busamount,feebal,busbal,prevbal,admbal,miscbal;
   bool paid=false,ppaid=false;
-  int installment_no;
+  int? installment_no;
   FeeData({this.feetype,this.feeamount,this.busamount,this.feebal,this
       .busbal,this.installment_no,this.prevbal,this.admbal,this.miscbal}){
-    if(double.parse(this.feebal)==0)
+    if(double.parse(this.feebal!)==0)
     {
       this.paid=true;
       this.ppaid=true;
@@ -736,12 +735,12 @@ class FeeData{
   }
 }
 class MainFeeData{
-  String feetype,feeamount,busamount,feebal,busbal,prevbal,admbal,miscbal;
+  String? feetype,feeamount,busamount,feebal,busbal,prevbal,admbal,miscbal;
   bool paid=false,ppaid=false;
-  int installment_no;
+  int? installment_no;
   MainFeeData({this.feetype,this.feeamount,this.busamount,this.feebal,this
       .busbal,this.installment_no,this.prevbal,this.admbal,this.miscbal}){
-    if(double.parse(this.feebal)==0)
+    if(double.parse(this.feebal!)==0)
     {
       this.paid=true;
       this.ppaid=true;

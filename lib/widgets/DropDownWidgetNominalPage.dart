@@ -8,7 +8,7 @@ import '../MarksEntryPage.dart';
 class NominalDropDownMenu extends StatefulWidget {
   List<NominalData> data;
   int position;
-  BuildContext cont;
+  late BuildContext cont;
   String selectedRte;
   String selectedGender;
   String selectedcategory;
@@ -43,9 +43,9 @@ class _NominalDropDownMenuState extends State<NominalDropDownMenu> {
       icon: const Icon(Icons.arrow_downward,color: Colors.blue,),
       iconSize: 24,
       elevation: 16,
-      onChanged: (String newValue) async {
+      onChanged: (String? newValue) async {
         setState(() {
-          selectedRte = newValue;
+          selectedRte = newValue!;
           data[position].rte=newValue;
         });
       },
@@ -64,9 +64,9 @@ class _NominalDropDownMenuState extends State<NominalDropDownMenu> {
           icon: const Icon(Icons.arrow_downward,color: Colors.blue),
           iconSize: 24,
           elevation: 16,
-          onChanged: (String newValue) async {
+          onChanged: (String? newValue) async {
             setState(() {
-              selectedcategory = newValue;
+              selectedcategory = newValue!;
               data[position].cat=newValue;
             });
           },
@@ -86,9 +86,9 @@ class _NominalDropDownMenuState extends State<NominalDropDownMenu> {
           icon: const Icon(Icons.arrow_downward,color: Colors.blue,),
           iconSize: 24,
           elevation: 16,
-          onChanged: (String newValue) async {
+          onChanged: (String? newValue) async {
             setState(() {
-              selectedGender = newValue;
+              selectedGender = newValue!;
               data[position].gen=newValue;
             });
           },
@@ -105,6 +105,6 @@ class _NominalDropDownMenuState extends State<NominalDropDownMenu> {
       {
         print("else");
       }
-
+    throw Exception('Invalid position: $position');
   }
 }

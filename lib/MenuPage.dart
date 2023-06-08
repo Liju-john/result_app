@@ -24,8 +24,8 @@ import 'VaccinePanel.dart';
 import 'settings/Settings.dart';
 
 class MenuPage extends StatefulWidget {
-  mysql.MySqlConnection connection;
-  String uid = "", uname = "";
+  mysql.MySqlConnection? connection;
+  String? uid = "", uname = "";
 
   MenuPage({this.connection, this.uid, this.uname});
 
@@ -35,24 +35,24 @@ class MenuPage extends StatefulWidget {
 }
 
 class _MenuPageState extends State<MenuPage> {
-  mysql.MySqlConnection connection;
-  String currentdb = "",
+  mysql.MySqlConnection? connection;
+  String? currentdb = "",
       nextdb = "",
       previousDB = "",
       currentSession = "",
       next_Session="",
       uname;
-  double screenwidth, screenheight;
-  int connectionType;
-  String uid = '121';
+  double? screenwidth, screenheight;
+  int? connectionType;
+  String? uid = '121';
   GlobalKey<FormState> _formKey = GlobalKey();
-  TextEditingController tname, tpwd;
+  TextEditingController? tname, tpwd;
   //String uid='9584935413';
   //String uid='8982437151';
-  String user;
+  String? user;
   bool loading = true, session_visible = false, admnoChange = false;
   MysqlHelper mysqlHelper = MysqlHelper();
-  String selectedclass, selectedsection, sessionRemark;
+  String? selectedclass, selectedsection, sessionRemark;
   List<String> clist = [],
       sectionlist = [],
       branchlist = [],
@@ -61,8 +61,8 @@ class _MenuPageState extends State<MenuPage> {
       sessiondblist = [];
       var branches=new LinkedHashMap();
   //String uname='121';
-  String branch, branchno;
-  String section;
+  String? branch, branchno;
+  String? section;
 
   _MenuPageState(this.connection, this.uid, this.uname);
 
@@ -94,7 +94,7 @@ class _MenuPageState extends State<MenuPage> {
                 color: Colors.grey[600],),
               textAlign: TextAlign.start,
             ),
-            Text("WELCOME " + uname.toUpperCase(),
+            Text("WELCOME " + uname!.toUpperCase(),
                 style: TextStyle(
                     color: Colors.black,
                     fontSize: 12,
@@ -133,11 +133,11 @@ class _MenuPageState extends State<MenuPage> {
                   child: Padding(
                     padding: const EdgeInsets.all(10.0),
                     child: Column(children: [
-                      Text(currentSession,
+                      Text(currentSession!,
                           style: TextStyle(
                               fontSize: 18, fontWeight: FontWeight.w900)),
                       Container(
-                          width: screenwidth * 0.7,
+                          width: screenwidth! * 0.7,
                           padding: EdgeInsets.only(left: 2, right: 2),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -153,7 +153,7 @@ class _MenuPageState extends State<MenuPage> {
                         height: 5,
                       ),
                       Container(
-                          width: screenwidth * 0.7,
+                          width: screenwidth! * 0.7,
                           padding: EdgeInsets.only(left: 2, right: 2),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -168,7 +168,7 @@ class _MenuPageState extends State<MenuPage> {
                         height: 5,
                       ),
                       Container(
-                          width: screenwidth * 0.7,
+                          width: screenwidth! * 0.7,
                           padding: EdgeInsets.only(left: 2, right: 2),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -240,7 +240,7 @@ class _MenuPageState extends State<MenuPage> {
       ),
       iconSize: 24,
       elevation: 16,
-      onChanged: (String newValue) async {
+      onChanged: (String? newValue) async {
         setState(() {
           branch = newValue;
         });
@@ -294,7 +294,7 @@ class _MenuPageState extends State<MenuPage> {
                             Container(
                                 decoration: BoxDecoration(
                                     border: Border.all(
-                                        color: Colors.blueAccent[700],
+                                        color: Colors.blueAccent[700]!,
                                         width: 2),
                                     borderRadius: BorderRadius.circular(10)),
                                 child: TextButton(
@@ -327,7 +327,7 @@ class _MenuPageState extends State<MenuPage> {
       icon: const Icon(Icons.arrow_downward, color: Colors.blue),
       iconSize: 24,
       elevation: 16,
-      onChanged: (String newValue) async {
+      onChanged: (String? newValue) async {
         setState(() {
           currentSession = newValue;
         });
@@ -356,7 +356,7 @@ class _MenuPageState extends State<MenuPage> {
             color: Colors.green, fontSize: 13, fontWeight: FontWeight.bold),
       ),
       value: selectedclass,
-      onChanged: (String newValue) {
+      onChanged: (String? newValue) {
         setState(() {
           selectedsection = null;
           selectedclass = newValue;
@@ -385,7 +385,7 @@ class _MenuPageState extends State<MenuPage> {
             color: Colors.green, fontSize: 13, fontWeight: FontWeight.bold),
       ),
       value: selectedsection,
-      onChanged: (String newValue) {
+      onChanged: (String? newValue) {
         setState(() {
           selectedsection = newValue;
         });
@@ -401,35 +401,35 @@ class _MenuPageState extends State<MenuPage> {
   }
 
   Future getSessionList() async {
-    int rowID;
+    int rowID=0;
     try {
       //await getConnection();
       this.dbList = [];
       List<String> sessiondblist = [];
-      var result = await connection.query(
+      var result = await connection!.query(
           "Select id,db,session from `kpsbspin_master`.`db_names` where remark=1"); // to set the default database
       for (var rows in result) {
         currentSession = rows[2];
         currentdb = rows[1];
         rowID = rows[0];
       }
-      result = await connection.query(
+      result = await connection!.query(
           "Select session,db from `kpsbspin_master`.`db_names` where id=${rowID + 1}"); //to set the next database
       for (var row in result) {
         nextdb = row[1];
         next_Session=row[0];
       }
-      result = await connection.query(
+      result = await connection!.query(
           "Select session,db from `kpsbspin_master`.`db_names` where id=${rowID - 1}"); //to set the previous database
       for (var row in result) {
         previousDB = row[1];
       }
-      result = await connection.query(
+      result = await connection!.query(
           "Select session_permission from `kpsbspin_master`.`login` where id='$uid'"); // to get session_permission of user
       for (var rows in result) {
         if (rows[0] == 1) {
           session_visible = true;
-          result = await connection.query(
+          result = await connection!.query(
               "select session from `kpsbspin_master`.`db_names` where status=1"); // to get the list of session available
           for (rows in result) {
             sessiondblist.add(rows[0]);
@@ -464,7 +464,7 @@ class _MenuPageState extends State<MenuPage> {
     try {
       this.tasklist = [];
       List<String> tasklist = [];
-      String query, checkSearch;
+      String query="", checkSearch="";
       if (user == 'admin') {
         query =
             "select marks,nominal,rollnumber,promote,newstudent,admno_change,"
@@ -478,13 +478,13 @@ class _MenuPageState extends State<MenuPage> {
                 " class_sum,school_sum,vd,outstanding"
                 " from `$currentdb`.`permission` where id='$uid' and branch='$branchno' and class='$selectedclass' and section='$selectedsection'";
       }
-      var addTeacher = await connection.query(
+      var addTeacher = await connection!.query(
           "Select add_teacher from `kpsbspin_master`.`login` where id='$uid'");
       var r = addTeacher.first;
       if (r[0] == 1) {
         tasklist.add("Permission Manager");
       }
-      var result = await connection.query(query);
+      var result = await connection!.query(query);
       for (var row in result) {
         if (row[4] == 1) {
           tasklist.add("Add New Student");
@@ -519,7 +519,7 @@ class _MenuPageState extends State<MenuPage> {
           tasklist.add("Fees Detail");
         }
         if (user == 'admin') {
-          var res = await connection.query(checkSearch);
+          var res = await connection!.query(checkSearch);
           for (row in res) {
             if (row[0] == 1) {
               tasklist.add("Search/Delete");
@@ -556,7 +556,7 @@ class _MenuPageState extends State<MenuPage> {
     try {
       branchlist = [];
       List<String> br = [];
-      var result = await connection.query(
+      var result = await connection!.query(
           "Select DISTINCT t1.branch,t2.branch from `$currentdb`.`permission`"
               " t1,kpsbspin_master.branchinfo t2 where t1.branch=t2.branchno and id='$uid'");
       for (var row in result) {
@@ -603,14 +603,14 @@ class _MenuPageState extends State<MenuPage> {
 
   Future getClasses() async {
     try {
-      String query;
+      String query="";
       branchno=branches[branch];
       this.clist = [];
       setState(() {
         selectedclass = '';
       });
       List<String> clist = [];
-      var result = await connection.query(
+      var result = await connection!.query(
           "Select distinct class from `$currentdb`.`permission` where id='$uid' and branch='$branchno'");
       for (var row in result) {
         if (row[0] == 'ALL') {
@@ -623,7 +623,7 @@ class _MenuPageState extends State<MenuPage> {
           user = 'teacher';
         }
       }
-      var result1 = await connection.query(query);
+      var result1 = await connection!.query(query);
       for (var cn in result1) {
         clist.add(cn[0]);
       }
@@ -655,7 +655,7 @@ class _MenuPageState extends State<MenuPage> {
   }
 
   Future getSection() async {
-    String query;
+    String query="";
     sectionlist.clear();
     try {
       setState(() {
@@ -672,7 +672,7 @@ class _MenuPageState extends State<MenuPage> {
         query =
             "select distinct section from `$currentdb`.`permission` where id='$uid' and class='$selectedclass' and branch='$branchno' order by section";
       }
-      var results = await connection.query(query);
+      var results = await connection!.query(query);
       for (var sec in results) {
         seclist.add(sec[0]);
       }
@@ -712,25 +712,25 @@ class _MenuPageState extends State<MenuPage> {
       nextdb = "";
       previousDB = "";
       int id;
-      var results = await connection.query(
+      var results = await connection!.query(
           "select id,db from `kpsbspin_master`.`db_names` where session='$currentSession'");
       for (var rows in results) {
         id = rows[0];
         currentdb = rows[1];
-        results = await connection.query(
+        results = await connection!.query(
             "select db,session from `kpsbspin_master`.`db_names` where id='${id + 1}'");
         for (rows in results) {
           nextdb = rows[0];
           next_Session=rows[1];
         }
-        results = await connection.query(
+        results = await connection!.query(
             "Select session,db from `kpsbspin_master`.`db_names` where id=${id - 1}"); //to set the previous database
         for (var row in results) {
           previousDB = row[1];
         }
       }
       ToastWidget.showToast("Session Changed", Colors.green);
-      print("Current" + currentdb + " next" + nextdb);
+      print("Current" + currentdb! + " next" + nextdb!);
     } catch (Exception) {
       if (Exception.runtimeType == StateError) {
         if (NetworkStatus.NETWORKTYPE == 0) {
@@ -777,7 +777,7 @@ class _MenuPageState extends State<MenuPage> {
                           Expanded(
                             child: TextFormField(
                               validator: (value) {
-                                return value.isNotEmpty ? null : "*required";
+                                return value!.isNotEmpty ? null : "*required";
                               },
                               controller: tname,
                               textCapitalization: TextCapitalization.characters,
@@ -792,7 +792,7 @@ class _MenuPageState extends State<MenuPage> {
                           Expanded(
                               child: TextFormField(
                                   validator: (value) {
-                                    return value.isNotEmpty ? null : "*required";
+                                    return value!.isNotEmpty ? null : "*required";
                                   },
                                   controller: tpwd,
                                   textCapitalization:
@@ -808,7 +808,7 @@ class _MenuPageState extends State<MenuPage> {
                             child: Text("Save"),
                             onPressed: () async {
                               FocusScope.of(context).requestFocus(FocusNode());
-                              if (_formKey.currentState.validate()) {
+                              if (_formKey.currentState!.validate()) {
                                 Navigator.of(context).pop();
                               }
                             },
@@ -827,7 +827,7 @@ class _MenuPageState extends State<MenuPage> {
       loading = true;
     });
     if (connection != null) {
-      await connection.close();
+      await connection!.close();
       print("Reached");
     }
     connection = await mysqlHelper.Connect();
@@ -844,8 +844,8 @@ class _MenuPageState extends State<MenuPage> {
                 section: selectedsection,
                 cname: selectedclass,
                 branch: branch,
-                screenheight: screenheight,
-                screenwidth: screenwidth,
+                screenheight: screenheight!,
+                screenwidth: screenwidth!,
                 currentdb: currentdb,
                 nextdb: nextdb,branchno: branches[branch],
               )));
@@ -857,8 +857,8 @@ class _MenuPageState extends State<MenuPage> {
                 connection: connection,
                 cname: selectedclass,
                 branch: branchno,
-                screenHeight: screenheight,
-                screenWidth: screenwidth,
+                screenHeight: screenheight!,
+                screenWidth: screenwidth!,
                 previousDB: previousDB,
               )));
     } else if (tasklist == 'Nominal') {
@@ -867,34 +867,34 @@ class _MenuPageState extends State<MenuPage> {
       } else {
         Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => NominalPanel(
-                currentdb: currentdb,
-                nextdb: nextdb,
-                connection: connection,
-                section: selectedsection,
-                cname: selectedclass,
-                branch: branchno,
-                screenheight: screenheight,
-                screenwidth: screenwidth,
+                currentdb: currentdb!,
+                nextdb: nextdb!,
+                connection: connection!,
+                section: selectedsection!,
+                cname: selectedclass!,
+                branch: branchno!,
+                screenheight: screenheight!,
+                screenwidth: screenwidth!,
                 admnoChange: admnoChange,
-                tid: uid)));
+                tid: uid!)));
       }
     }
     else if (tasklist == 'Vaccine Detail') {
       if (nextdb == "") {
         ToastWidget.showToast("No sections available", Colors.red);
       } else {
-        Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => VaccinePanel(
-                currentdb: currentdb,
-                nextdb: nextdb,
-                connection: connection,
-                section: selectedsection,
-                cname: selectedclass,
-                branch: branchno,
-                screenheight: screenheight,
-                screenwidth: screenwidth,
-                admnoChange: admnoChange,
-                tid: uid)));
+        // Navigator.of(context).push(MaterialPageRoute(
+        //     builder: (context) => VaccinePanel(
+        //         currentdb: currentdb!,
+        //         nextdb: nextdb!,
+        //         connection: connection!,
+        //         section: selectedsection!,
+        //         cname: selectedclass!,
+        //         branch: branchno!,
+        //         screenheight: screenheight!,
+        //         screenwidth: screenwidth!,
+        //         admnoChange: admnoChange,
+        //         tid: uid!)));
       }
     }
     else if (tasklist == 'View Class Summary') {
@@ -903,16 +903,16 @@ class _MenuPageState extends State<MenuPage> {
       } else {
         Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => StatsPanel(
-                currentdb: currentdb,
-                nextdb: nextdb,
-                connection: connection,
-                section: selectedsection,
-                cname: selectedclass,
-                branch: branchno,
-                screenheight: screenheight,
-                screenwidth: screenwidth,
+                currentdb: currentdb!,
+                nextdb: nextdb!,
+                connection: connection!,
+                section: selectedsection!,
+                cname: selectedclass!,
+                branch: branchno!,
+                screenheight: screenheight!,
+                screenwidth: screenwidth!,
                 admnoChange: admnoChange,
-                tid: uid,user: user,)));
+                tid: uid!,user: user!,)));
       }
     }
     else if (tasklist == 'View School Summary') {
@@ -921,13 +921,13 @@ class _MenuPageState extends State<MenuPage> {
       } else {
         Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => SchoolStatsPanel(
-              currentdb: currentdb,
-              nextdb: nextdb,
-              connection: connection,
-              branch: branchno,
-              branchname:branch,
-              screenheight: screenheight,
-              screenwidth: screenwidth,
+              currentdb: currentdb!,
+              nextdb: nextdb!,
+              connection: connection!,
+              branch: branchno!,
+              branchname:branch!,
+              screenheight: screenheight!,
+              screenwidth: screenwidth!,
             )));
       }
     }
@@ -937,16 +937,16 @@ class _MenuPageState extends State<MenuPage> {
       } else
         Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => PromoteTC_Panel(
-                  currentdb: currentdb,
-                  nextdb: nextdb,
-                  connection: connection,
-                  section: selectedsection,
-                  cname: selectedclass,
-                  branch: branchno,
-                  screenheight: screenheight,
-                  screenwidth: screenwidth,
-                  nextSession: next_Session,
-              currentSession: currentSession,
+                  currentdb: currentdb!,
+                  nextdb: nextdb!,
+                  connection: connection!,
+                  section: selectedsection!,
+                  cname: selectedclass!,
+                  branch: branchno!,
+                  screenheight: screenheight!,
+                  screenwidth: screenwidth!,
+                  nextSession: next_Session!,
+              currentSession: currentSession!,
                 )));
     } else if (tasklist == "Add New Student") {
       Navigator.of(context).push(MaterialPageRoute(
@@ -956,39 +956,40 @@ class _MenuPageState extends State<MenuPage> {
                 connection: connection,
                 cnameList: clist,
                 branch: branchno,
-                screenheight: screenheight,
-                screenwidth: screenwidth,
+                screenheight: screenheight!,
+                screenwidth: screenwidth!,
             previousDB: previousDB,
               )));
     } else if (tasklist == "Search/Delete") {
       Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => SearchDeletePanel(
-                currentdb: currentdb,
-                nextdb: nextdb,
-                screenheight: screenheight,
-                screenwidth: screenwidth,branches: branches,
+                currentdb: currentdb!,
+                nextdb: nextdb!,
+                screenheight: screenheight!,
+                screenwidth: screenwidth!,branches: branches,
+            connection: connection!,
               )));
     } else if (tasklist == "Permission Manager") {
       Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => PermissionPanel(
-                screenwidth: screenwidth,
-                screenheight: screenheight,
-                currentdb: currentdb,
-                branch: branch,
+                screenwidth: screenwidth!,
+                screenheight: screenheight!,
+                currentdb: currentdb!,
+                branch: branch!,
               )));
     }
     else if(tasklist=="Fees Detail")
       {
         Navigator.of(context).push(MaterialPageRoute(
             builder: (context)=>OutstandingPanel(
-              currentdb: currentdb,
-              nextdb: nextdb,
-              connection: connection,
-              section: selectedsection,
-              cname: selectedclass,
-              branch: branchno,
-              screenheight: screenheight,
-              screenwidth: screenwidth,
+              currentdb: currentdb!,
+              nextdb: nextdb!,
+              connection: connection!,
+              section: selectedsection!,
+              cname: selectedclass!,
+              branch: branchno!,
+              screenheight: screenheight!,
+              screenwidth: screenwidth!,
             )));
       }
   }

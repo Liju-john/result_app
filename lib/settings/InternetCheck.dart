@@ -4,7 +4,7 @@ import 'package:result_app/widgets/ToastWidget.dart';
 import 'package:mysql1/mysql1.dart';
 class NetworkStatus
 {
-  static int NETWORKTYPE;
+  static int NETWORKTYPE=0;
   static void checkStatus()
   {
     Connectivity().onConnectivityChanged.listen((ConnectivityResult result) async {

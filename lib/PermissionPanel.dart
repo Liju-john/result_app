@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
@@ -16,13 +17,13 @@ class PermissionPanel extends StatefulWidget {
       nextdb = "",
       previousDB = "",
       currentSession = "",
-      cname,
-      branch,
-      section,
-      branchNo;
+      cname="",
+      branch="",
+      section="",
+      branchNo="";
 
   PermissionPanel(
-      {this.screenwidth, this.screenheight, this.currentdb, this.branch});
+      {required this.screenwidth, required this.screenheight, required this.currentdb, required this.branch});
 
   @override
   _PermissionPanelState createState() => _PermissionPanelState(
@@ -32,7 +33,7 @@ class PermissionPanel extends StatefulWidget {
 class _PermissionPanelState extends State<PermissionPanel> {
   MysqlHelper mysqlHelper = MysqlHelper();
   bool secA = false, secB = false, secC = false, secD = false, secE = false;
-  String currentdb = "",
+  String? currentdb = "",
       nextdb = "",
       previousDB = "",
       currentSession = "",
@@ -41,16 +42,17 @@ class _PermissionPanelState extends State<PermissionPanel> {
       section,
       branchNo;
   bool nonAdmin = false, sectionVisible = true, loadingClassSection = false;
+  final TextEditingController _searchName=TextEditingController();
   List<Data> data = [];
   int selectedPosition = 0;
   GlobalKey<FormState> _formKey = GlobalKey();
-  List<NameList> nameData = [];
+  List<NameList> nameData = [],dataBackup=[];
   Map branchinfo = {};
-  TextEditingController tname, tid, tpwd;
+  TextEditingController ? tname, tid, tpwd;
   double screenwidth, screenheight;
-  mysql.MySqlConnection connection;
+  mysql.MySqlConnection ? connection;
   List<String> branchClassSection = [];
-  String selectedClass,
+  String? selectedClass,
       classSection = "",
       teacherBranch = "",
       iSelectedBranch,
@@ -93,6 +95,7 @@ class _PermissionPanelState extends State<PermissionPanel> {
           height: screenheight,
           child: Column(
             children: [
+              search(),
               SizedBox(
                   height: screenheight * 0.32,
                   child: Card(
@@ -325,9 +328,9 @@ class _PermissionPanelState extends State<PermissionPanel> {
                 this.data.clear();
                 setState(() {});
                 String query = 'select pname,pcol from permissions';
-                var results = await connection.query(query);
+                var results = await connection!.query(query);
                 for (var rows in results) {
-                  var res = await connection.query(
+                  var res = await connection!.query(
                       "select ${rows[1]} from `$currentdb`.`permission` "
                       "where id='${nameData[position].id}' and class='$iSelectedClass' and section='$iSelectedSection' and branch='${branchinfo[iSelectedBranch]}'");
                   if (res.length > 0) {
@@ -372,7 +375,7 @@ class _PermissionPanelState extends State<PermissionPanel> {
                     "select distinct section from `$currentdb`.`permission` "
                     "where id='${nameData[selectedPosition].id}' and branch='${branchinfo[iSelectedBranch]}'"
                     "and class='$iSelectedClass'";
-                var result = await connection.query(sql);
+                var result = await connection!.query(sql);
                 for (var r in result) {
                   iSection.add(r[0]);
                 }
@@ -411,7 +414,7 @@ class _PermissionPanelState extends State<PermissionPanel> {
                 String sql =
                     "select distinct class from `$currentdb`.`permission` "
                     "where id='${nameData[selectedPosition].id}' and branch='$branch'";
-                var result = await connection.query(sql);
+                var result = await connection!.query(sql);
                 for (var r in result) {
                   iClist.add(r[0]);
                 }
@@ -474,7 +477,7 @@ class _PermissionPanelState extends State<PermissionPanel> {
                         ),
                         iconSize: 24,
                         elevation: 16,
-                        onChanged: (String newValue) async {
+                        onChanged: (String ?newValue) async {
                           setState(() {
                             iSelectedBranch = newValue;
                           });
@@ -507,7 +510,7 @@ class _PermissionPanelState extends State<PermissionPanel> {
                                   fontWeight: FontWeight.bold),
                             ),
                             value: iSelectedClass,
-                            onChanged: (String newValue) async {
+                            onChanged: (String ? newValue) async {
                               setState(() {
                                 iSelectedClass = newValue;
                               });
@@ -537,7 +540,7 @@ class _PermissionPanelState extends State<PermissionPanel> {
                                   fontWeight: FontWeight.bold),
                             ),
                             value: iSelectedSection,
-                            onChanged: (String newValue) async {
+                            onChanged: (String ? newValue) async {
                               setState(() {
                                 iSelectedSection = newValue;
                               });
@@ -567,9 +570,9 @@ class _PermissionPanelState extends State<PermissionPanel> {
                                     title: Text(data[position].pname),
                                     leading: Checkbox(
                                       value: data[position].taskSelected,
-                                      onChanged: (bool value) {
+                                      onChanged: (bool ? value) {
                                         setState(() {
-                                          data[position].taskSelected = value;
+                                          data[position].taskSelected = value!;
                                         });
                                       },
                                     ),
@@ -633,7 +636,7 @@ class _PermissionPanelState extends State<PermissionPanel> {
                         Expanded(
                           child: TextFormField(
                             validator: (value) {
-                              return value.isNotEmpty ? null : "*required";
+                              return value!.isNotEmpty ? null : "*required";
                             },
                             controller: tname,
                             textCapitalization: TextCapitalization.characters,
@@ -648,7 +651,7 @@ class _PermissionPanelState extends State<PermissionPanel> {
                         Expanded(
                             child: TextFormField(
                                 validator: (value) {
-                                  return value.isNotEmpty ? null : "*required";
+                                  return value!.isNotEmpty ? null : "*required";
                                 },
                                 controller: tid,
                                 textCapitalization:
@@ -663,7 +666,7 @@ class _PermissionPanelState extends State<PermissionPanel> {
                         Expanded(
                             child: TextFormField(
                                 validator: (value) {
-                                  return value.isNotEmpty ? null : "*required";
+                                  return value!.isNotEmpty ? null : "*required";
                                 },
                                 controller: tpwd,
                                 textCapitalization:
@@ -679,7 +682,7 @@ class _PermissionPanelState extends State<PermissionPanel> {
                           child: Text("Save"),
                           onPressed: () async {
                             FocusScope.of(context).requestFocus(FocusNode());
-                            if (_formKey.currentState.validate()) {
+                            if (_formKey.currentState!.validate()) {
                               await saveTeacher();
                               Navigator.of(context).pop();
                               await loadNames();
@@ -712,15 +715,15 @@ class _PermissionPanelState extends State<PermissionPanel> {
                       textAlign: TextAlign.center),
               ListTile(
                   title:
-                      Text(selectedClass == null ? "" : selectedClass + " A"),
+                      Text(selectedClass == null ? "" : selectedClass! + " A"),
                   horizontalTitleGap: 5,
                   leading: Checkbox(
                     value: secA,
                     onChanged: (value) async {
                       setState(() {
-                        secA = value;
+                        secA = value!;
                       });
-                      if (value) {
+                      if (value!) {
                         await assignClassSection("A");
                       } else {
                         await deleteClassSection("A");
@@ -731,15 +734,15 @@ class _PermissionPanelState extends State<PermissionPanel> {
                 visible: nonAdmin,
                 child: ListTile(
                   title:
-                      Text(selectedClass == null ? "" : selectedClass + " B"),
+                      Text(selectedClass == null ? "" : selectedClass! + " B"),
                   horizontalTitleGap: 5,
                   leading: Checkbox(
                     value: secB,
                     onChanged: (value) async {
                       setState(() {
-                        secB = value;
+                        secB = value!;
                       });
-                      if (value) {
+                      if (value!) {
                         await assignClassSection("B");
                       } else {
                         await deleteClassSection("B");
@@ -752,15 +755,15 @@ class _PermissionPanelState extends State<PermissionPanel> {
                 visible: nonAdmin,
                 child: ListTile(
                   title:
-                      Text(selectedClass == null ? "" : selectedClass + " C"),
+                      Text(selectedClass == null ? "" : selectedClass! + " C"),
                   horizontalTitleGap: 5,
                   leading: Checkbox(
                     value: secC,
                     onChanged: (value) async {
                       setState(() {
-                        secC = value;
+                        secC = value!;
                       });
-                      if (value) {
+                      if (value!) {
                         await assignClassSection("C");
                       } else {
                         await deleteClassSection("C");
@@ -773,15 +776,15 @@ class _PermissionPanelState extends State<PermissionPanel> {
                 visible: nonAdmin,
                 child: ListTile(
                   title:
-                      Text(selectedClass == null ? "" : selectedClass + " D"),
+                      Text(selectedClass == null ? "" : selectedClass! + " D"),
                   horizontalTitleGap: 5,
                   leading: Checkbox(
                     value: secD,
                     onChanged: (value) async {
                       setState(() {
-                        secD = value;
+                        secD = value!;
                       });
-                      if (value) {
+                      if (value!) {
                         await assignClassSection("D");
                       } else {
                         await deleteClassSection("D");
@@ -794,15 +797,15 @@ class _PermissionPanelState extends State<PermissionPanel> {
                 visible: nonAdmin,
                 child: ListTile(
                     title:
-                        Text(selectedClass == null ? "" : selectedClass + " E"),
+                        Text(selectedClass == null ? "" : selectedClass! + " E"),
                     horizontalTitleGap: 5,
                     leading: Checkbox(
                       value: secE,
                       onChanged: (value) async {
                         setState(() {
-                          secE = value;
+                          secE = value!;
                         });
-                        if (value) {
+                        if (value!) {
                           await assignClassSection("E");
                         } else {
                           await deleteClassSection("E");
@@ -821,7 +824,30 @@ class _PermissionPanelState extends State<PermissionPanel> {
             ],
           );
   }
-
+  Widget search()
+  {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: TextField(
+        textCapitalization:TextCapitalization.characters,
+        onChanged: (String val){
+          this.nameData=dataBackup;
+          final data=this.nameData?.where((data) {
+            final sname=data.name?.toLowerCase();
+            final searchlower=val.toLowerCase();
+            return sname!.contains(searchlower);
+          }).toList();
+          setState(() {
+            this.nameData=data!;
+          });
+        },
+        decoration: InputDecoration(
+            prefixIcon: Icon(Icons.search),
+            hintText: "Type name here to search...",
+            border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(10.0)))
+        ),),
+    );
+  }
   Widget branchListWidget() {
     return DropdownButton<String>(
       value: branch,
@@ -836,7 +862,7 @@ class _PermissionPanelState extends State<PermissionPanel> {
       ),
       iconSize: 24,
       elevation: 16,
-      onChanged: (String newValue) async {
+      onChanged: (String ? newValue) async {
         setState(() {
           branch = newValue;
         });
@@ -872,7 +898,7 @@ class _PermissionPanelState extends State<PermissionPanel> {
             color: Colors.green, fontSize: 13, fontWeight: FontWeight.bold),
       ),
       value: selectedClass,
-      onChanged: (String newValue) async {
+      onChanged: (String ? newValue) async {
         setState(() {
           selectedClass = newValue;
           if (selectedClass == 'Admin') {
@@ -921,10 +947,11 @@ class _PermissionPanelState extends State<PermissionPanel> {
       List<NameList> nameData = [];
       this.nameData.clear();
       String query = 'select id,ucase(name),pwd from `login` order by name';
-      var results = await connection.query(query);
+      var results = await connection!.query(query);
       for (var rows in results) {
         nameData.add(NameList(id: rows[0], name: rows[1], pwd: rows[2]));
       }
+      dataBackup=nameData;
       setState(() {
         this.nameData = nameData;
       });
@@ -963,7 +990,7 @@ class _PermissionPanelState extends State<PermissionPanel> {
           "class='${selectedClass == "Admin" ? "ALL" : selectedClass}' and id='${nameData[selectedPosition].id}'"
           " and branch='${branchinfo[branch]}'";
       print(sql);
-      var result = await connection.query(sql);
+      var result = await connection!.query(sql);
       for (var r in result) {
         if (r[0] == "A")
           secA = true;
@@ -1072,7 +1099,7 @@ class _PermissionPanelState extends State<PermissionPanel> {
           "select DISTINCT t1.branch,t2.branch from  `$currentdb`.`permission`"
           " t1,kpsbspin_master.branchinfo t2 where t1.branch=t2.branchno and "
           "id='${nameData[position].id}'";
-      var result = await connection.query(sql);
+      var result = await connection!.query(sql);
       for (var r in result) {
         //branch = branch + "  " + '"${branchMap[r[0]]}"';
         branch = branch + "  " + '"${r[1]}"';
@@ -1080,7 +1107,7 @@ class _PermissionPanelState extends State<PermissionPanel> {
         String temp = "";
         sql =
             "select class,section from `$currentdb`.`permission` where id='${nameData[position].id}' and branch='${r[0]}'";
-        var res = await connection.query(sql);
+        var res = await connection!.query(sql);
         for (var cr in res) {
           temp = temp + " " + cr[0] + "-" + cr[1];
         }
@@ -1123,7 +1150,7 @@ class _PermissionPanelState extends State<PermissionPanel> {
       clist.clear();
       String sql =
           "select cname from classdetail where branch like '%$branchno%'";
-      var results = await connection.query(sql);
+      var results = await connection!.query(sql);
       clist.add("Admin");
       for (var r in results) {
         clist.add(r[0]);
@@ -1155,19 +1182,19 @@ class _PermissionPanelState extends State<PermissionPanel> {
   }
 
   Future saveTeacher() async {
-    var postData = {"tname": tname.text, "tid": tid.text, "tpwd": tpwd.text};
+    var postData = {"tname": tname!.text, "tid": tid!.text, "tpwd": tpwd!.text};
     var url = Uri.parse('http://117.247.90.209/app/result/addTeacher.php');
     var response = await http.post(url, body: postData);
     if (response.statusCode == 200) {
       ToastWidget.showToast(response.body, Colors.red);
     } else {
-      ToastWidget.showToast(response.reasonPhrase, Colors.red);
+      ToastWidget.showToast(response.reasonPhrase!, Colors.red);
     }
   }
 
   Future getConnection() async {
     if (connection != null) {
-      await connection.close();
+      await connection!.close();
     }
     connection = await mysqlHelper.Connect();
   }
@@ -1187,8 +1214,8 @@ class _PermissionPanelState extends State<PermissionPanel> {
             "where id='${nameData[selectedPosition].id}' "
             "and class='$selectedClass' and section='$sec' and branch='${branchinfo[branch]}'";
       }
-      var result = await connection.query(sql);
-      if (result.affectedRows >= 1) {
+      var result = await connection!.query(sql);
+      if (result.affectedRows! >= 1) {
         ToastWidget.showToast("Deleted!!", Colors.green);
       } else {
         ToastWidget.showToast("Something went wrong", Colors.red);
@@ -1234,8 +1261,8 @@ class _PermissionPanelState extends State<PermissionPanel> {
             "insert into `$currentdb`.`permission` (`id`,`branch`,`class`,`section`)"
             "values('${nameData[selectedPosition].id}','${branchinfo[branch]}','$selectedClass','$sec')";
       }
-      var result = await connection.query(sql);
-      if (result.affectedRows >= 1) {
+      var result = await connection!.query(sql);
+      if (result.affectedRows! >= 1) {
         ToastWidget.showToast("Updated!!", Colors.green);
       } else {
         ToastWidget.showToast("Something went wrong", Colors.red);
@@ -1313,9 +1340,9 @@ class _PermissionPanelState extends State<PermissionPanel> {
       sql = sql.substring(0, sql.lastIndexOf(",")) +
           " where id='${nameData[selectedPosition].id}' and branch='${branchinfo[iSelectedBranch]}' "
               "and class='$iSelectedClass' and section='$iSelectedSection'";
-      var result = await connection.query(sql);
+      var result = await connection!.query(sql);
       print(sql);
-      if (result.affectedRows >= 1) {
+      if (result.affectedRows! >= 1) {
         ToastWidget.showToast("Data Updated!!!", Colors.green);
       } else {
         ToastWidget.showToast("Not saved!!!", Colors.red);
@@ -1343,7 +1370,7 @@ class _PermissionPanelState extends State<PermissionPanel> {
     branchinfo.clear();
     try {
       String sql = "Select * from branchinfo";
-      var results = await connection.query(sql);
+      var results = await connection!.query(sql);
       for (var rows in results) {
         branchinfo.addAll({rows[1].toString(): rows[0]});
       }
@@ -1377,11 +1404,11 @@ class Data {
   String pname, pcol;
   bool taskSelected;
 
-  Data({this.pname, this.pcol, this.taskSelected});
+  Data({required this.pname, required this.pcol, required this.taskSelected});
 }
 
 class NameList {
   String name, id, pwd;
 
-  NameList({this.name, this.id, this.pwd});
+  NameList({required this.name, required this.id, required this.pwd});
 }

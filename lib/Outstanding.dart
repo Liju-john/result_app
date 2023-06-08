@@ -14,8 +14,9 @@ class OutstandingPanel extends StatefulWidget {
   mysql.MySqlConnection connection;
   double screenheight,screenwidth;
   String cname,section,branch;
-  OutstandingPanel({Key key,this.currentdb,this.nextdb,this.connection,
-    this.cname,this.section,this.branch,this.screenheight,this.screenwidth}) : super(key: key);
+  OutstandingPanel({Key? key,required this.currentdb,required this.nextdb,required this.connection,
+    required this.cname,required this.section,required this.branch,
+    required this.screenheight,required this.screenwidth}) : super(key: key);
 
   @override
   State<OutstandingPanel> createState() => _OutstandingPanelState(this.currentdb,
@@ -28,7 +29,7 @@ class _OutstandingPanelState extends State<OutstandingPanel> {
   String url="assets/images/logo.png";
   List <Data> data=[];
   String insno="";
-  String _selectedMonth;
+  String? _selectedMonth;
   Map<String, String> months = {
     'April': "1",
     'June': "2",
@@ -74,10 +75,10 @@ class _OutstandingPanelState extends State<OutstandingPanel> {
                     child: DropdownButton(
                       hint: Text('Select a month'),
                       value: _selectedMonth,
-                      onChanged: (newValue) {
+                      onChanged: (String ? newValue) {
                         setState(() {
-                          _selectedMonth = newValue;
-                          insno=months[newValue];
+                          _selectedMonth = newValue!;
+                          insno=months[newValue]!;
                         });
                         loadData();
                       },
@@ -215,6 +216,7 @@ class _OutstandingPanelState extends State<OutstandingPanel> {
 }
 class Data{
   String sname,rollno,rte,total,paid,balance,mobileno,rowid,fname;
-  Data({this.sname,this.rollno,
-    this.rte,this.total,this.paid,this.balance,this.mobileno,this.rowid,this.fname}){}
+  Data({required this.sname,required this.rollno,
+    required this.rte,required this.total,required this.paid,
+    required this.balance,required this.mobileno,required this.rowid,required this.fname}){}
 }

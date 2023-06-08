@@ -16,14 +16,14 @@ import 'package:http/http.dart' as http;
 import 'MysqlHelper.dart';
 
 class AddNewStudent extends StatefulWidget {
-  String previousDB,currentdb = "", nextdb = "";
-  mysql.MySqlConnection connection;
-  double screenheight, screenwidth;
-  String branch;
-  List<String> cnameList = [];
+  String ?previousDB="",currentdb = "", nextdb = "";
+  mysql.MySqlConnection? connection;
+  double ?screenheight, screenwidth;
+  String ?branch;
+  List<String> ?cnameList = [];
 
   AddNewStudent(
-      {Key key,
+      {Key? key,
       this.currentdb,
       this.nextdb,
       this.connection,
@@ -55,11 +55,11 @@ class _AddNewStudentState extends State<AddNewStudent> {
   DateTime selectedDate = DateTime.now();
   var myFormat = DateFormat('dd-MM-yyyy');
   String getdate = "";
-  String previousDB,currentdb = "", nextdb = "", _cat, _gen, _rte,
+  String ?previousDB,currentdb = "", nextdb = "", _cat, _gen, _rte,
   selectedClass, admno;
-  mysql.MySqlConnection connection;
-  double screenheight, screenwidth;
-  List<String> cnameList = [];
+  mysql.MySqlConnection? connection;
+  double? screenheight, screenwidth;
+  List<String>? cnameList = [];
   TextEditingController nameController = TextEditingController();
   TextEditingController fnameController = TextEditingController();
   TextEditingController mnameController = TextEditingController();
@@ -69,7 +69,7 @@ class _AddNewStudentState extends State<AddNewStudent> {
   TextEditingController doaController = TextEditingController();
   TextEditingController casteController = TextEditingController();
   TextEditingController aadharController = TextEditingController();
-  String branch;
+  String ?branch;
   GlobalKey<FormState> _formKey = GlobalKey();
 
   _AddNewStudentState(this.currentdb, this.nextdb, this.connection,
@@ -78,7 +78,7 @@ class _AddNewStudentState extends State<AddNewStudent> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    selectedClass = cnameList[0];
+    selectedClass = cnameList?[0];
   }
 
   @override
@@ -89,7 +89,7 @@ class _AddNewStudentState extends State<AddNewStudent> {
           title: Text(
             'New Student',
             style: GoogleFonts.playball(
-              fontSize: screenheight / 30,
+              fontSize: screenheight! / 30,
               fontWeight: FontWeight.bold,
               color: Colors.grey[600],
             ),
@@ -234,7 +234,7 @@ class _AddNewStudentState extends State<AddNewStudent> {
                               keyboardType: TextInputType.number,
                               controller: aadharController,
                               validator: (value) {
-                                return value.isNotEmpty
+                                return value!.isNotEmpty
                                     ? value.length == 12
                                         ? null
                                         : "12 digits required"
@@ -267,7 +267,7 @@ class _AddNewStudentState extends State<AddNewStudent> {
                               flex: 1,
                               child: TextFormField(
                                 validator: (value) {
-                                  return value.isNotEmpty ? null : "*required";
+                                  return value!.isNotEmpty ? null : "*required";
                                 },
                                 readOnly: true,
                                 controller: doaController,
@@ -312,7 +312,7 @@ class _AddNewStudentState extends State<AddNewStudent> {
                               flex: 1,
                               child: TextFormField(
                                 validator: (value) {
-                                  return value.isNotEmpty ? null : "*required";
+                                  return value!.isNotEmpty ? null : "*required";
                                 },
                                 readOnly: true,
                                 controller: dobController,
@@ -413,7 +413,7 @@ class _AddNewStudentState extends State<AddNewStudent> {
                               padding: EdgeInsets.only(left: 2, right: 2),
                               decoration: BoxDecoration(
                                   border: Border.all(
-                                      color: Colors.grey[300], width: 2),
+                                      color: Colors.grey[300]!, width: 2),
                                   borderRadius: BorderRadius.circular(15)),
                               child: DropdownButton<String>(
                                 value: _cat,
@@ -432,7 +432,7 @@ class _AddNewStudentState extends State<AddNewStudent> {
                                     color: Colors.blue),
                                 iconSize: 24,
                                 elevation: 16,
-                                onChanged: (String newValue) {
+                                onChanged: (String? newValue) {
                                   setState(() {
                                     FocusScope.of(context)
                                         .requestFocus(FocusNode());
@@ -466,7 +466,7 @@ class _AddNewStudentState extends State<AddNewStudent> {
                               padding: EdgeInsets.only(left: 2, right: 2),
                               decoration: BoxDecoration(
                                   border: Border.all(
-                                      color: Colors.grey[300], width: 2),
+                                      color: Colors.grey[300]!, width: 2),
                                   borderRadius: BorderRadius.circular(15)),
                               child: DropdownButton<String>(
                                 value: _rte,
@@ -485,7 +485,7 @@ class _AddNewStudentState extends State<AddNewStudent> {
                                     color: Colors.blue),
                                 iconSize: 24,
                                 elevation: 16,
-                                onChanged: (String newValue) {
+                                onChanged: (String? newValue) {
                                   setState(() {
                                     FocusScope.of(context)
                                         .requestFocus(FocusNode());
@@ -531,7 +531,7 @@ class _AddNewStudentState extends State<AddNewStudent> {
                                 padding: EdgeInsets.only(left: 2, right: 2),
                                 decoration: BoxDecoration(
                                     border: Border.all(
-                                        color: Colors.grey[300], width: 2),
+                                        color: Colors.grey[300]!, width: 2),
                                     borderRadius: BorderRadius.circular(15)),
                                 child: DropdownButton<String>(
                                   value: _gen,
@@ -552,7 +552,7 @@ class _AddNewStudentState extends State<AddNewStudent> {
                                       color: Colors.blue),
                                   iconSize: 24,
                                   elevation: 16,
-                                  onChanged: (String newValue) {
+                                  onChanged: (String ?newValue) {
                                     setState(() {
                                       FocusScope.of(context)
                                           .requestFocus(FocusNode());
@@ -598,7 +598,7 @@ class _AddNewStudentState extends State<AddNewStudent> {
                                                 _rte != null ||
                                                 _gen != null) {
                                               if (_formKey.currentState
-                                                  .validate()) {
+                                                  !.validate()) {
                                                 await _saveNominal();
                                               }
                                             } else {
@@ -618,7 +618,7 @@ class _AddNewStudentState extends State<AddNewStudent> {
                                       backgroundColor: Colors.red,
                                     ),
                               SizedBox(
-                                width: screenwidth * 0.2,
+                                width: screenwidth! * 0.2,
                               )
                             ]), //gender,dob
                         SizedBox(
@@ -646,13 +646,13 @@ class _AddNewStudentState extends State<AddNewStudent> {
             title: Center(
               child: Text('Student List',
                 style: GoogleFonts.playball(
-                  fontSize: screenheight / 30,
+                  fontSize: screenheight! / 30,
                   fontWeight: FontWeight.bold,
                   color: Colors.grey[600],
                 ),),
             ),
             content:Container(
-              height: screenheight*0.5,
+              height: screenheight!*0.5,
               child: ListView.builder(itemCount: data.length,itemBuilder: (context,
                   position){
                 return Card(
@@ -662,50 +662,50 @@ class _AddNewStudentState extends State<AddNewStudent> {
                     child: Column(children: [
                     Row(
                     children: [Text("Session:-"),
-                    Text(data[position].session,style: TextStyle(fontWeight: FontWeight.w900)),
+                    Text(data[position].session!,style: TextStyle(fontWeight: FontWeight.w900)),
                     ],
                   ),Row(
                       children: [Text("Admno:-"),
                         Text(data[position]
-                            .admno,style: TextStyle(fontWeight: FontWeight.w900),),
+                            .admno!,style: TextStyle(fontWeight: FontWeight.w900),),
                       ],
                     ),Row(
                       children: [Text("Name:-"),
                         Expanded(
                           child: Text(data[position]
-                            .sname,style: TextStyle(fontWeight: FontWeight.w900),),
+                            .sname!,style: TextStyle(fontWeight: FontWeight.w900),),
                         ),
                       ],
                     ),Row(
                       children: [Text("Father Name:-"),
-                        Expanded(child: Text(data[position].fname,style: TextStyle(fontWeight: FontWeight.w900))),
+                        Expanded(child: Text(data[position].fname!,style: TextStyle(fontWeight: FontWeight.w900))),
                       ],
                     ),Row(
                       children: [
                         Text("Mother Name:-"),
                         Expanded(
                           child: Text(data[position]
-                            .mname,style: TextStyle(fontWeight: FontWeight.w900)),
+                            .mname!,style: TextStyle(fontWeight: FontWeight.w900)),
                         ),
                       ],
                     ),Row(
                       children: [Text("DOB:-"),
-                        Expanded(child: Text(data[position].dob,style: TextStyle(fontWeight: FontWeight.w900))),
+                        Expanded(child: Text(data[position].dob!,style: TextStyle(fontWeight: FontWeight.w900))),
                       ],
                     ),Row(
                       children: [Text("Branch:-"),
-                        Text(data[position].branch,style: TextStyle(fontWeight:
+                        Text(data[position].branch!,style: TextStyle(fontWeight:
                         FontWeight.w900)),
                       ],
                     )
                       ,Row(
                   children: [Text("Class:-"),
-                    Text(data[position].cname,style: TextStyle
+                    Text(data[position].cname!,style: TextStyle
                       (fontWeight: FontWeight.w900)),]),
                       Row(
                       children: [Text("Session Status:-"),
                         Expanded(
-                          child: Text(data[position].session_satus,style: TextStyle
+                          child: Text(data[position].session_satus!,style: TextStyle
                             (fontWeight: FontWeight.w900)),
                         ),
                       ],
@@ -737,7 +737,7 @@ class _AddNewStudentState extends State<AddNewStudent> {
           : null,
       validator: validationRequired
           ? (value) {
-              return value.isNotEmpty ? null : "*required";
+              return value!.isNotEmpty ? null : "*required";
             }
           : null,
       decoration: InputDecoration(
@@ -757,7 +757,7 @@ class _AddNewStudentState extends State<AddNewStudent> {
       keyboardType: TextInputType.phone,
       controller: controller,
       validator: (value) {
-        return value.isNotEmpty
+        return value!.isNotEmpty
             ? value.length == 10
                 ? null
                 : "10 digits required"
@@ -791,7 +791,7 @@ class _AddNewStudentState extends State<AddNewStudent> {
       },
       controller: controller,
       validator: (value) {
-        return value.isNotEmpty ? null : "*required";
+        return value!.isNotEmpty ? null : "*required";
       },
       inputFormatters: <TextInputFormatter>[
         FilteringTextInputFormatter.allow(RegExp('[0-9]+'))
@@ -813,13 +813,13 @@ class _AddNewStudentState extends State<AddNewStudent> {
       iconSize: 24,
       elevation: 16,
       value: selectedClass,
-      onChanged: (String newValue) {
+      onChanged: (String ?newValue) {
         setState(() {
           FocusScope.of(context).requestFocus(FocusNode());
           selectedClass = newValue;
         });
       },
-      items: cnameList.map<DropdownMenuItem<String>>((String value) {
+      items: cnameList!.map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
           child: Row(
@@ -836,7 +836,7 @@ class _AddNewStudentState extends State<AddNewStudent> {
   }
 
   Future<void> _selectDate(BuildContext context) async {
-    final DateTime picked = await showDatePicker(
+    final DateTime? picked = await showDatePicker(
         context: context,
         initialDate: selectedDate,
         firstDate: DateTime(1990, 8),
@@ -849,7 +849,7 @@ class _AddNewStudentState extends State<AddNewStudent> {
   }
 
   static void showDateDialog(BuildContext context,
-          {Widget child, VoidCallback onClicked}) =>
+          {required Widget  child, required VoidCallback onClicked}) =>
       showCupertinoModalPopup(
           context: context,
           builder: (context) => CupertinoActionSheet(
@@ -933,7 +933,7 @@ class _AddNewStudentState extends State<AddNewStudent> {
             _cat = null;
           });
         } else {
-          ToastWidget.showToast(response.reasonPhrase, Colors.green);
+          ToastWidget.showToast(response.reasonPhrase!, Colors.green);
         }
       }
       setState(() {
@@ -1029,7 +1029,7 @@ class _AddNewStudentState extends State<AddNewStudent> {
       setState(() {
         checkAdmnoLoading = false;
       });
-      var results = await connection.query("select count(*) from "
+      var results = await connection!.query("select count(*) from "
           "`kpsbspin_master`.`studmaster` where admno='${this.admno}'");
       for (var row in results) {
         count = row[0];
@@ -1084,7 +1084,7 @@ class _AddNewStudentState extends State<AddNewStudent> {
 }
 class Data
 {
-  String rowid="",admno="",sname="",fname="",mname="",dob="",session="",
+  String ? rowid="",admno="",sname="",fname="",mname="",dob="",session="",
       session_satus='',cname='',branch='';
   Data({this.rowid,this.admno,this.sname,this.fname,this.mname,this.dob,this
       .session,this.session_satus,this.cname,this.branch});

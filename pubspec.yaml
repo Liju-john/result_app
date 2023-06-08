@@ -18,7 +18,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.7.0 <3.0.4"
+  sdk: ">=2.12.0 <3.0.4"
 
 dependencies:
   flutter:
@@ -31,7 +31,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   mysql1: ^0.19.2
   flutter_svg: ^0.22.0
-  google_fonts: ^2.2.0
+  google_fonts: ^4.0.4
   url_launcher: ^6.0.9
   sizer: ^2.0.15
   lottie: ^1.4.2
@@ -39,7 +39,6 @@ dependencies:
   path_provider: ^2.0.13
   share_plus: ^6.3.1
   flutter_pdfview: ^1.2.5
-  age: ^0.0.1
   font_awesome_flutter: ^9.1.0
   table_calendar: ^3.0.0
   intl: ^0.17.0
@@ -48,7 +47,6 @@ dependencies:
   connectivity: ^3.0.3
   scroll_to_index: ^2.1.1
   flutter_typeahead: ^3.2.4
-  flutter_cupertino_date_picker: ^1.0.26+2
   scrollable_positioned_list: ^0.2.3
   indexed_list_view: ^2.0.1
   image_picker: ^0.8.4+4

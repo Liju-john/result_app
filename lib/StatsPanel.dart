@@ -13,6 +13,7 @@ import 'package:result_app/settings/InternetCheck.dart';
 import 'package:result_app/settings/Settings.dart';
 import 'package:result_app/widgets/ToastWidget.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:sizer/sizer.dart';
 
 class StatsPanel extends StatefulWidget {
   String currentdb = "", nextdb = "";
@@ -22,17 +23,17 @@ class StatsPanel extends StatefulWidget {
   String cname, section, branch, tid,user;
 
   StatsPanel(
-      {Key key,
-      this.currentdb,
-      this.nextdb,
-      @required this.connection,
-      @required this.cname,
-      @required this.section,
-      @required this.branch,
-      this.screenheight,
-      this.screenwidth,
-      this.admnoChange,
-      this.tid,this.user})
+      {Key? key,
+        required this.currentdb,
+        required this.nextdb,
+      required this.connection,
+      required this.cname,
+      required this.section,
+      required this.branch,
+        required this.screenheight,
+        required this.screenwidth,
+        required this.admnoChange,
+        required this.tid,required this.user})
       : super(key: key);
 
   @override
@@ -534,7 +535,7 @@ class _StatsPanelState extends State<StatsPanel> {
     }
   }
   Widget dataBox({String data="",double borderWidth=1,double margin=0,double
-  height=30,double width,double fsize=15, bool border=true,Color
+  height=30,double? width,double fsize=15, bool border=true,Color
   borderColor=Colors.black,Color textColor=Colors.black,Color
   backColor=Colors.white,bool bold=false})
   {

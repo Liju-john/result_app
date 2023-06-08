@@ -10,10 +10,10 @@ import 'package:result_app/settings/Settings.dart';
 import 'package:result_app/widgets/ToastWidget.dart';
 
 class MarksEntryPannel extends StatefulWidget {
-  mysql.MySqlConnection connection;
-  String currentdb = "", nextdb = "";
-  double screenheight, screenwidth;
-  String cname, section, branch,branchno;
+  mysql.MySqlConnection? connection;
+  String? currentdb = "", nextdb = "";
+  double? screenheight, screenwidth;
+  String? cname, section, branch,branchno;
   MarksEntryPannel(
       {this.connection,
       this.cname,
@@ -36,18 +36,18 @@ class MarksEntryPannel extends StatefulWidget {
 }
 class _MarksEntryPannelState extends State<MarksEntryPannel> {
   MysqlHelper mysqlHelper = MysqlHelper();
-  String currentdb = "", nextdb = "";
-  double screenheight, screenwidth;
-  String subject, cat, markscolname, cname, section, branch, branchno;
-  String tabname, classflag;
-  String term;
+  String? currentdb = "", nextdb = "";
+  double? screenheight, screenwidth;
+  String? subject, cat, markscolname, cname, section, branch, branchno;
+  String tabname="", classflag="";
+  String ?term;
   List<String> sublist = [], catlist = [];
   bool loading = true;
   bool catlodaing = true;
   String mm = '';
   List<TextEditingController> _controllers = [];
   List<Data> data = [];
-  mysql.MySqlConnection connection;
+  mysql.MySqlConnection? connection;
   _MarksEntryPannelState(this.connection, this.cname, this.section, this.branch,
       this.currentdb, this.nextdb, this.screenheight, this.screenwidth,this
           .branchno);
@@ -83,9 +83,9 @@ class _MarksEntryPannelState extends State<MarksEntryPannel> {
         {
           sql="update `$currentdb`.`$updateTab` set $markscolname='$marks' where rowid='$rowid' and rollno='$rollno'";
         }
-          var results=await connection.query(sql);
-          if(results.affectedRows>=0) {
-            ToastWidget.showToast("saved", Colors.green[400]);
+          var results=await connection!.query(sql);
+          if(results.affectedRows!>=0) {
+            ToastWidget.showToast("saved", Colors.green[400]!);
           }
     } catch (Exception) {}
   }
@@ -93,7 +93,7 @@ class _MarksEntryPannelState extends State<MarksEntryPannel> {
   void dispose() {
     super.dispose();
     controllerDispose();
-    //connection.close();
+    //connection!.close();
   }
 
   String validateMarks(String text) {
@@ -129,7 +129,7 @@ class _MarksEntryPannelState extends State<MarksEntryPannel> {
         appBar: AppBar(
           elevation: 0,
           title: Text('Marks Entry Panel',style: GoogleFonts.playball(
-            fontSize: screenheight / 30,
+            fontSize: screenheight! / 30,
             fontWeight: FontWeight.bold,
             color: Colors.grey[600],),),
           backgroundColor: AppColor.NAVIGATIONBAR,
@@ -244,9 +244,9 @@ class _MarksEntryPannelState extends State<MarksEntryPannel> {
                     icon: const Icon(Icons.arrow_downward),
                     iconSize: 24,
                     elevation: 16,
-                    onChanged: (String newValue) async {
+                    onChanged: (String? newValue) async {
                       setState(() {
-                        term = newValue;
+                        term = newValue!;
                       });
                       await getSubject();
                     },
@@ -255,7 +255,7 @@ class _MarksEntryPannelState extends State<MarksEntryPannel> {
                       return DropdownMenuItem<String>(
                         value: value,
                         child: SizedBox(
-                            width: screenwidth * 0.2, child: Text(value)),
+                            width: screenwidth! * 0.2, child: Text(value)),
                       );
                     }).toList(),
                   ),
@@ -283,11 +283,11 @@ class _MarksEntryPannelState extends State<MarksEntryPannel> {
                     ),
                     hint: Text("Select subject"),
                     value: subject,
-                    onChanged: (String newValue) {
+                    onChanged: (String? newValue) {
                       setState(() {
                         subject = newValue;
                       });
-                      getCategory(subject);
+                      getCategory(subject!);
                     },
                     items:
                         sublist.map<DropdownMenuItem<String>>((String value) {
@@ -330,7 +330,7 @@ class _MarksEntryPannelState extends State<MarksEntryPannel> {
                               fontWeight: FontWeight.bold),
                         ),
                         value: cat,
-                        onChanged: (String newValue) {
+                        onChanged: (String? newValue) {
                           setState(() {
                             cat = newValue;
                           });
@@ -341,7 +341,7 @@ class _MarksEntryPannelState extends State<MarksEntryPannel> {
                           return DropdownMenuItem<String>(
                             value: value,
                             child: SizedBox(
-                                width: screenwidth * 0.5,
+                                width: screenwidth! * 0.5,
                                 child: Text(
                                   value,
                                   softWrap: true,
@@ -408,7 +408,7 @@ class _MarksEntryPannelState extends State<MarksEntryPannel> {
         tabname = 'xi_xii';
         classflag = "('xitoxii')";
       }
-      var results = await connection.query(
+      var results = await connection!.query(
           "select distinct(subname) from `$currentdb`.`subjectstructure` where classflag in $classflag and examname='$term'");
       for (var row in results) {
         sublis.add(row[0]);
@@ -417,19 +417,20 @@ class _MarksEntryPannelState extends State<MarksEntryPannel> {
         sublist = sublis;
         subject = sublist[0];
       });
-      await getCategory(subject);
+      await getCategory(subject!);
       return sublist;
     } catch (Exception) {}
+    throw Exception("Error in code");
   }
 
   Future<List<Data>> _loadSubjectMarks() async {
-    String sql;
+    String sql="";
     try {
       setState(() {
         data.clear();
       });
 
-      var colQuery = await connection.query(
+      var colQuery = await connection!.query(
           "select colname,mm from `$currentdb`.`subjectstructure` where subname='$subject' "
           "and cat='$cat' and examname='$term' and classflag in $classflag");
       for (var row in colQuery) {
@@ -458,7 +459,7 @@ class _MarksEntryPannelState extends State<MarksEntryPannel> {
                 "and session_status not in('Not active','after term I') order"
                 " by t1.rollno";
           }
-        var results = await connection.query(sql);
+        var results = await connection!.query(sql);
         setState(() {
           for (var row in results) {
             Data data = Data(
@@ -488,7 +489,7 @@ class _MarksEntryPannelState extends State<MarksEntryPannel> {
                 " and t1.branch= '$branchno' and session_status not in('Not "
                 "active','after term I') order by t1.rollno";
           }
-        var results = await connection.query(sql);
+        var results = await connection!.query(sql);
         setState(() {
           for (var row in results) {
             Data data = Data(
@@ -502,7 +503,7 @@ class _MarksEntryPannelState extends State<MarksEntryPannel> {
         setState(() {
           loading = false;
         });
-        //connection.close();
+        //connection!.close();
         return this.data;
       } else if (cname == 'VI' || cname == 'VII' || cname == 'VIII') {
 
@@ -540,7 +541,7 @@ class _MarksEntryPannelState extends State<MarksEntryPannel> {
             }
 
         }
-        var results = await connection.query(sql);
+        var results = await connection!.query(sql);
         setState(() {
           for (var row in results) {
             Data data = Data(
@@ -555,10 +556,10 @@ class _MarksEntryPannelState extends State<MarksEntryPannel> {
         setState(() {
           loading = false;
         });
-        //connection.close();
+        //connection!.close();
         return this.data;
       } else if (cname == 'IX'|| cname == 'X') {
-        String sql;
+        String sql="";
         if (subject == "coscholastic") {
           if(term=='term1')
             {
@@ -594,7 +595,8 @@ class _MarksEntryPannelState extends State<MarksEntryPannel> {
                 "rollno";
           }
         }
-        var results = await connection.query(sql);
+        print(sql);
+        var results = await connection!.query(sql);
         setState(() {
           for (var row in results) {
             Data data = Data(
@@ -612,7 +614,7 @@ class _MarksEntryPannelState extends State<MarksEntryPannel> {
 
         return this.data;
       } else if (cname == 'XI'||cname == 'XII') {
-        String sql;
+        String sql="";
         if (subject == "coscholastic") {
           if(term=='term1')
           {
@@ -649,7 +651,7 @@ class _MarksEntryPannelState extends State<MarksEntryPannel> {
           }
 
         }
-        var results = await connection.query(sql);
+        var results = await connection!.query(sql);
         setState(() {
           for (var row in results) {
             Data data = Data(
@@ -664,12 +666,13 @@ class _MarksEntryPannelState extends State<MarksEntryPannel> {
         setState(() {
           loading = false;
         });
-        //connection.close();
+        //connection!.close();
         return this.data;
       }
     } catch (Exception) {
       print(Exception.toString());
     }
+    throw Exception("Error in code");
   }
 
   Future getCategory(String subject) async {
@@ -678,7 +681,7 @@ class _MarksEntryPannelState extends State<MarksEntryPannel> {
         catlist.clear();
       });
       List<String> cat = [];
-      var results = await connection.query(
+      var results = await connection!.query(
           "select cat from `$currentdb`.`subjectstructure` where examname='$term' and classflag in $classflag and subname='" +
               subject +
               "'");
@@ -696,18 +699,14 @@ class _MarksEntryPannelState extends State<MarksEntryPannel> {
 
   Future getConnection() async {
     if (connection != null) {
-      await connection.close();
+      await connection!.close();
     }
     connection = await mysqlHelper.Connect();
   }
 }
 
 class Data {
-  String rollno;
-  String marks;
-  String subno;
-  String rowid;
-  String name;
+  String? rollno,marks,subno,rowid,name;
   Color err;
   Data(
       {this.rollno,

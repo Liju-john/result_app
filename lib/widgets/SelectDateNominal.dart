@@ -35,8 +35,8 @@ class _SelectDateState extends State<SelectDateRow> {
         getdate=myFormat.format(selectedDate).toString();
       });
   }*/
-  static void showDateDialog(BuildContext context,{Widget child,
-  VoidCallback onClicked})=>showCupertinoModalPopup(context: context,
+  static void showDateDialog(BuildContext context,{required Widget child,
+  required VoidCallback onClicked})=>showCupertinoModalPopup(context: context,
       builder: (context)=>CupertinoActionSheet(
         actions: [child],
         cancelButton: CupertinoActionSheetAction(child: Text("Done"),

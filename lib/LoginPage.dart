@@ -12,15 +12,15 @@ import 'package:result_app/widgets/ToastWidget.dart';
 import 'MysqlHelper.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({Key key}) : super(key: key);
+  const LoginPage({Key? key}) : super(key: key);
 
   @override
   _LoginPageState createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
-  String id, password;
-  mysql.MySqlConnection connection;
+  String id="", password="";
+  mysql.MySqlConnection? connection;
   MysqlHelper mysqlHelper = MysqlHelper();
 
   @override
@@ -260,7 +260,7 @@ class _LoginPageState extends State<LoginPage> {
 
   Future getConnection() async {
     if (connection != null) {
-      await connection.close();
+      await connection!.close();
     }
     connection = await mysqlHelper.Connect();
   }
@@ -292,19 +292,19 @@ class _LoginPageState extends State<LoginPage> {
       showLoaderDialog(context);
       await getConnection();
       String check = "select status from appinfo where version='2.7'";
-      var res = await connection.query(check);
+      var res = await connection!.query(check);
       var r1 = res.first;
       if (r1[0] == 1) {
         String sql = "select count(*),name from login where id='$id'"
             " and pwd='$password'";
-        var result = await connection.query(sql);
+        var result = await connection!.query(sql);
         //print(sql);
         var row = result.first;
         Navigator.pop(context);
         if (row[0] == 1) {
           Navigator.of(context).push(MaterialPageRoute(
               builder: (context) => MenuPage(
-                    connection: connection,
+                    connection: connection!,
                     uid: id,
                     uname: row[1],
                   )));

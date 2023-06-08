@@ -15,11 +15,11 @@ import 'package:result_app/widgets/ToastWidget.dart';
 import 'MysqlHelper.dart';
 
 class AssignRollnoSection_TC_Panel extends StatefulWidget {
-  String previousDB,currentDB="",nextDB="";
-  mysql.MySqlConnection connection;
-  double screenHeight,screenWidth;
-  String cname,branch;
-  AssignRollnoSection_TC_Panel({Key key,this.currentDB,this.nextDB,this.connection,
+  String? previousDB,currentDB="",nextDB="";
+  mysql.MySqlConnection? connection;
+  double? screenHeight,screenWidth;
+  String? cname,branch;
+  AssignRollnoSection_TC_Panel({Key? key,this.currentDB,this.nextDB,this.connection,
     this.cname,this.branch,this.screenHeight,this.screenWidth,this.previousDB}) : super(key: key);
 
   @override
@@ -33,14 +33,14 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
   String query="";
   final TextEditingController _searchName=TextEditingController();
   int maleCount=0,femaleCount=0,nonActiveCount=0,nonClearedCount=0;
-  String previousDB="",currentDB="",nextDB="",getdate="";
+  String? previousDB="",currentDB="",nextDB="",getdate="";
   List<bool> saving=[],savingTC=[],loadingSubject=[];
   DateTime selectedDate = DateTime.now();
   var myFormat = DateFormat('yyyy-MM-dd');
-  mysql.MySqlConnection connection;
-  double screenHeight,screenWidth;
-  String cname,branch,_selectedSection,_selectedSubject5,_selectedSubject6,_selectedMainSubject;
-  List<Data> data,dataBackup=[];
+  mysql.MySqlConnection? connection;
+  double? screenHeight,screenWidth;
+  String? cname,branch,_selectedSection,_selectedSubject5,_selectedSubject6,_selectedMainSubject;
+  List<Data>? data,dataBackup=[];
   List<String> nameList=[];
   List<String> _subject5=[],_subject6=[],_mainSubject=[];
   final List<TextEditingController> rollController=[];
@@ -63,7 +63,7 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
         appBar: AppBar(
           elevation: 0,
           title: Text('Assign rollno and section',style: GoogleFonts.playball(
-            fontSize: screenHeight / 30,
+            fontSize: screenHeight! / 30,
             fontWeight: FontWeight.bold,
             color: Colors.grey[600],),),
           backgroundColor: AppColor.NAVIGATIONBAR,
@@ -71,14 +71,14 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
         body:Column(
           children: [
             Row(mainAxisAlignment: MainAxisAlignment.center,
-              children: [Text("Class:-  "+cname,
+              children: [Text("Class:-  "+cname!,
                 style: TextStyle(fontWeight: FontWeight.w900,color: Colors.teal,
                     fontSize: 18),)],),
             searchList(),
             legends(),
             SizedBox(height: 5,),
-            dataBackup.isEmpty?Center(child: CircularProgressIndicator
-              (backgroundColor: Colors.red,)):data.isEmpty?Text("Oops!!!!!"
+            dataBackup!.isEmpty?Center(child: CircularProgressIndicator
+              (backgroundColor: Colors.red,)):data!.isEmpty?Text("Oops!!!!!"
                 "\nNo "
                 "such "
                 "student found!!!",style: TextStyle(fontWeight: FontWeight
@@ -88,10 +88,10 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
               flex: 1,
               child: ListView.builder(
                   scrollDirection: Axis.vertical,
-                  itemCount: data.length,
+                  itemCount: data!.length,
                   padding: const EdgeInsets.all(5.0),
                   itemBuilder: (context,position){
-                    _selectedSection=data[position].section==""?null:data[position].section;
+                    _selectedSection=data?[position].section==""?null:data?[position].section;
                     return rowData(position);
                   }),
             ),
@@ -107,10 +107,10 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
         textCapitalization:TextCapitalization.characters,
         onChanged: (String val){
           this.data=dataBackup;
-          final data=this.data.where((data) {
-            final sname=data.sname.toLowerCase();
+          final data=this.data?.where((data) {
+            final sname=data.sname?.toLowerCase();
             final searchlower=val.toLowerCase();
-            return sname.contains(searchlower);
+            return sname!.contains(searchlower);
           }).toList();
           setState(() {
             this.data=data;
@@ -134,8 +134,8 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
           Form(
             key: this._formKey,
             child: Container(
-              height: (screenHeight/100)*7,
-              margin: EdgeInsets.symmetric(vertical: screenHeight/100),
+              height: (screenHeight!/100)*7,
+              margin: EdgeInsets.symmetric(vertical: screenHeight!/100),
               child: TypeAheadFormField(
                 suggestionsCallback: (pattern)=> nameList.where((item) =>
                 item.toUpperCase().contains(pattern.toUpperCase())),
@@ -254,8 +254,8 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
     loadingSubject.add(false);
     return
         Card(
-          color: data[position].gen=='F'?Colors.green[200]:
-          data[position].gen=='M'?Colors.amber:(data[position].notpromoted?Colors.redAccent:Colors.blueGrey),
+          color: data?[position].gen=='F'?Colors.green[200]:
+          data?[position].gen=='M'?Colors.amber:(data![position].notpromoted!?Colors.redAccent:Colors.blueGrey),
           child: Container(
             padding: EdgeInsets.only(left: 5,right: 2,top: 5,bottom: 5),
             child: Column(
@@ -264,59 +264,59 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
                   children: [Text((position+1).toString()+".",style:
                   TextStyle
                     (fontWeight: FontWeight.w900),),SizedBox(width: 2,),
-                    Text("Admno:- ",style: TextStyle(color:data[position].gen==null?Colors.white:Colors.grey[700],fontWeight: FontWeight.bold)),
-                    SizedBox(width:screenWidth*0.13,child: Text(data[position].admno,style: TextStyle(fontWeight: FontWeight.w900))),
+                    Text("Admno:- ",style: TextStyle(color:data?[position].gen==null?Colors.white:Colors.grey[700],fontWeight: FontWeight.bold)),
+                    SizedBox(width:screenWidth!*0.13,child: Text(data![position].admno!,style: TextStyle(fontWeight: FontWeight.w900))),
                     SizedBox(width: 5,),
-                    Text("Name:- ",style: TextStyle(color:data[position].gen==null?Colors.white:Colors.grey[700],fontWeight: FontWeight.bold)),
+                    Text("Name:- ",style: TextStyle(color:data?[position].gen==null?Colors.white:Colors.grey[700],fontWeight: FontWeight.bold)),
                     Expanded(
-                      child: SizedBox(width:screenWidth*0.4,child: Text(data[position].sname,
+                      child: SizedBox(width:screenWidth!*0.4,child: Text(data![position].sname!,
                           style: TextStyle(fontWeight: FontWeight.w900))),
                     )
                   ],
                 ),//admno,name
                 Visibility(
-                  visible:data[position].gen==null?false:true,
+                  visible:data?[position].gen==null?false:true,
                   child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Rollno:- ",style: TextStyle(color:data[position].gen==null?Colors.white:Colors.grey[700],fontWeight: FontWeight.bold)),
-                    SizedBox(width: screenWidth*0.2,child: rollTextField(position),),SizedBox(width: 5,),
-                    Text("Section:- ",style: TextStyle(color:data[position].gen==null?Colors.white:Colors.grey[700],fontWeight: FontWeight.bold)),
+                    Text("Rollno:- ",style: TextStyle(color:data?[position].gen==null?Colors.white:Colors.grey[700],fontWeight: FontWeight.bold)),
+                    SizedBox(width: screenWidth!*0.2,child: rollTextField(position),),SizedBox(width: 5,),
+                    Text("Section:- ",style: TextStyle(color:data?[position].gen==null?Colors.white:Colors.grey[700],fontWeight: FontWeight.bold)),
                     sectionDropDown(position)
                   ],
                 ),),//rollno,section
                 Visibility(
-                  visible: data[position].tcEditButonVisibility,
+                  visible: data![position].tcEditButonVisibility!,
                   child: Row(children: [Text('Edit TC details'),
                     IconButton(icon: Icon(Icons.edit_rounded), onPressed: (){
                       setState(() {
-                        data[position].tcMenuVisibility=true;
+                        data?[position].tcMenuVisibility=true;
                       });
                     })
                   ],),
                 ),
                 Visibility(
-                  visible: data[position].nonactive||data[position].notpromoted,
-                  child: Text("Previous Section:-"+(data[position].section=="Not active"||data[position].section==""?
-                  "Not Assigned":data[position].section),style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white),),
+                  visible: data![position].nonactive!||data![position].notpromoted!,
+                  child: Text("Previous Section:-"+(data![position].section=="Not active"||data![position].section==""?
+                  "Not Assigned":data![position].section!),style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white),),
                 ),
                 Visibility(
-                  visible: data[position].nonactive||data[position].notpromoted,
-                  child: Text("Previous Status:-"+(data[position].sessionStatus),style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white),),
+                  visible: data![position].nonactive!||data![position].notpromoted!,
+                  child: Text("Previous Status:-"+(data![position].sessionStatus!),style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white),),
                 ),
                 Visibility(
-                  visible: data[position].tcMenuVisibility||data[position]
-                      .tcEditButonVisibility||data[position]
-                      .gen==null||data[position]
-                      .sessionStatus=='Not active'||data[position]
-                      .sessionStatus=='TC'||data[position]
-                      .sessionStatus=='Not active'||data[position].assignButton?false:true,
+                  visible: data![position].tcMenuVisibility!||data![position]
+                      .tcEditButonVisibility!||data?[position]
+                      .gen==null||data?[position]
+                      .sessionStatus=='Not active'||data?[position]
+                      .sessionStatus=='TC'||data?[position]
+                      .sessionStatus=='Not active'||data![position].assignButton!?false:true,
                   child: Row(
                     children: [
-                      saving[position]?CircularProgressIndicator():TextButton(child: Text( data[position].previousSection==""?"Assign":"Update"
+                      saving[position]?CircularProgressIndicator():TextButton(child: Text( data?[position].previousSection==""?"Assign":"Update"
                       ,style: TextStyle(fontWeight: FontWeight.bold,fontSize: 16),),onPressed: ()async{
                         setState((){
                           FocusScope.of(context).requestFocus(FocusNode());
-                          data[position].previousSection=data[position].section;
+                          data?[position].previousSection=data![position].section;
                         });
                         await assignSectionRollNo(position);
                       },),
@@ -342,13 +342,13 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
   Widget rollTextField(int position)
   {
           rollController.add(new TextEditingController());
-          rollController[position].text=data[position].rollno;
+          rollController[position].text=data![position].rollno!;
           return new TextFormField(style:TextStyle(fontWeight: FontWeight.w900),
             inputFormatters: <TextInputFormatter>[FilteringTextInputFormatter.allow(RegExp('[0-9A-Z]+'))],
             controller: rollController[position],
               textCapitalization:TextCapitalization.characters ,
               onChanged: (value){
-                data[position].rollno=value;
+                data?[position].rollno=value;
           },
           );
   }
@@ -363,11 +363,11 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
       String query="select rowid,sname,rollno,section,admno,gen,session_status,cno"
           " from `$currentDB`.`nominal` where "
           "cname='$cname' and branch='$branch' and status=1 order by gen,sname";
-      var results=await connection.query(query);
+      var results=await connection!.query(query);
       for (var rows in results) {
         cno=rows[7];
         if (rows[6] == 'After Term I') {
-          var result = await connection.query(
+          var result = await connection!.query(
               "select rowid,tcno,tcdate,reason from `kpsbspin_master`.`tcdetail` where rowid='${rows[0]}'");
           for (var row in result) {
             data.add(Data(
@@ -414,7 +414,7 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
       // String q1="select rowid,sname,rollno,section,admno,gen,session_status,cno"
       //     " from `$previousDB`.`nominal` where "
       //     "cno='$cno' and branch='$branch' and session_status in('Not active') order by gen,sname";
-      // var r1=await connection.query(q1);
+      // var r1=await connection!.query(q1);
       // for (var rows in r1)
       //   {
       //     data.add(Data(sname: rows[1].toString(),admno: rows[4].toString(),
@@ -425,7 +425,7 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
       // String q2="select rowid,sname,rollno,section,admno,gen,session_status,cno"
       //     " from `$previousDB`.`nominal` where "
       //     "cno='$cno' and branch='$branch' and session_status in('Not yet promoted') order by gen,sname";
-      // var r2=await connection.query(q2);
+      // var r2=await connection!.query(q2);
       // for (var rows in r2)
       // {
       //   data.add(Data(sname: rows[1].toString(),admno: rows[4].toString(),
@@ -442,19 +442,19 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
       int d=0;
       for (d=0;d<data.length;d++)
         {
-          nameList.add(data[d].sname);
+          nameList.add(data![d].sname!);
         }
       dataBackup=this.data;
-      int maleCount=dataBackup.where((d){
+      int maleCount=dataBackup!.where((d){
         final x=d.gen==null?"":d.gen;
-        return x.contains("M");
+        return x!.contains("M");
       }).toList().length;
-      int femaleCount=dataBackup.where((d){
+      int femaleCount=dataBackup!.where((d){
         final x=d.gen==null?"":d.gen;
-        return x.contains("F");
+        return x!.contains("F");
       }).toList().length;
-      this.nonActiveCount=dataBackup.where((d){
-        return d.sessionStatus.contains("Not active");
+      this.nonActiveCount=dataBackup!.where((d){
+        return d.sessionStatus!.contains("Not active");
       }).toList().length;
       print(nonActiveCount);
       print(nonClearedCount);
@@ -528,7 +528,7 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
   Future getConnection()async  {
     if(connection!=null)
     {
-      await connection.close();
+      await connection!.close();
     }
     connection=await mysqlHelper.Connect();
   }
@@ -538,11 +538,11 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
     tcdatecontroller.add(TextEditingController());
     tcnocontroller.add(TextEditingController());
     tcreasoncontroller.add(TextEditingController());
-    tcnocontroller[position].text=data[position].tcno;
-    tcreasoncontroller[position].text=data[position].tcreason;
-    tcdatecontroller[position].text=data[position].tcdate;
+    tcnocontroller[position].text=(data![position].tcno!=null?data![position].tcno:"")!;
+    tcreasoncontroller[position].text=(data![position].tcreason!=null?data![position].tcreason:"")!;
+    tcdatecontroller[position].text=(data![position].tcdate!=null?data![position].tcdate:"")!;
     return Visibility(
-        visible: data[position].tcMenuVisibility?true:false,
+        visible: data![position].tcMenuVisibility!?true:false,
         child: Card(
           elevation: 10,
         shape:RoundedRectangleBorder(
@@ -557,10 +557,10 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
                   title: const Text('After Term I'),
                   leading: Radio<String>(
                       value:"After Term I",
-                      groupValue: data[position].sessionStatus,
+                      groupValue: data?[position].sessionStatus,
                       onChanged:(value){
                         setState((){
-                          data[position].sessionStatus=value;
+                          data?[position].sessionStatus=value!;
                         });
                       }
                   ),
@@ -569,10 +569,10 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
                   title: const Text('Before Term I'),
                   leading: Radio<String>(
                     value:"TC",
-                    groupValue: data[position].sessionStatus,
+                    groupValue: data?[position].sessionStatus,
                     onChanged:(value){
                       setState((){
-                        data[position].sessionStatus=value;
+                        data?[position].sessionStatus=value!;
                       });
                     },
                   ),
@@ -594,21 +594,21 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
                       {
                         FocusScope.of(context).requestFocus(FocusNode());
                         selectedDate=
-                        data[position].tcdate==null?DateTime.now():(new
+                        data?[position].tcdate==null?DateTime.now():(new
                         DateFormat
-                          ("yyyy-MM-dd hh:mm:ss").parse(data[position]
-                            .tcdate+" "
+                          ("yyyy-MM-dd hh:mm:ss").parse(data![position]
+                            .tcdate!+" "
                             "00:00:00"));
                         showDateDialog(context,child: datePicker(),onClicked: (){
                           setState(() {
-                            if(getdate.isNotEmpty)
-                              data[position].tcdate=getdate;
+                            if(getdate!.isNotEmpty)
+                              data?[position].tcdate=getdate!;
                           });
                           Navigator
                               .pop(context);});
                         setState(() {
-                          if(getdate.isNotEmpty) {
-                            data[position].tcdate = getdate;
+                          if(getdate!.isNotEmpty) {
+                            data?[position].tcdate = getdate!;
                             getdate='';
                           }
                         });
@@ -629,8 +629,8 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
                     }
                     else
                     {
-                      data[position].tcreason=tcreasoncontroller[position].text;
-                      data[position].tcno=tcnocontroller[position].text;
+                      data?[position].tcreason=tcreasoncontroller[position].text;
+                      data?[position].tcno=tcnocontroller[position].text;
                      // await uploadTC(position);
                     }
 
@@ -642,8 +642,8 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
           ),
         ));
   }
-  static void showDateDialog(BuildContext context,{Widget child,
-    VoidCallback onClicked})=>showCupertinoModalPopup(context: context,
+  static void showDateDialog(BuildContext context,{required Widget child,
+    required VoidCallback onClicked})=>showCupertinoModalPopup(context: context,
       builder: (context)=>CupertinoActionSheet(
         actions: [child],
         cancelButton: CupertinoActionSheetAction(child: Text("Done"),
@@ -664,11 +664,11 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
   );
   Future assignSectionRollNo(int position)async
   {
-    print(data[position].section);
+    print(data?[position].section);
     setState(() {
       saving[position]=true;
     });
-    if((data[position].section==""||data[position].rollno=="") && data[position].section!='Not active')
+    if((data?[position].section==""||data?[position].rollno=="") && data?[position].section!='Not active')
     {
       ToastWidget.showToast("Either section is not selected or Rollno is missing",Colors.red);
       setState(() {
@@ -680,12 +680,12 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
     var url;
     var postData={
       "branch":branch,
-      "rollNo":data[position].rollno,
-      "section":data[position].section,
-      "rowid":data[position].rowid,
+      "rollNo":data?[position].rollno,
+      "section":data?[position].section,
+      "rowid":data?[position].rowid,
       "cname":cname,
       "current_db":currentDB,
-      "cno":data[position].cno
+      "cno":data?[position].cno
     };
     if(cname=='I'|| cname=='II'|| cname=='III'|| cname=='IV'|| cname=='V'||
         cname=='KGI' || cname=='KGII'|| cname=='NUR')
@@ -700,37 +700,37 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
     }
     else if(cname=='IX'||cname=='X')
     {
-      if((data[position].subject5==null)&&data[position].section!='Not active')
+      if((data?[position].subject5==null)&&data?[position].section!='Not active')
       {
         await loadAdditionalSubject(position);
-        if(data[position].subject5==null)
+        if(data?[position].subject5==null)
           {
             ToastWidget.showToast("Error in loading Subjects", Colors.red);
             return;
           }
       }
       postData.addAll({
-        'subject5':data[position].subject5,
-        'subject6':data[position].subject6
+        'subject5':data?[position].subject5,
+        'subject6':data?[position].subject6
       });
       url = Uri.parse(
           'http://117.247.90.209/app/result/rollno_assign/ix_x.php');
     }
     else if(cname=='XI'||cname=='XII')
     {
-      if(data[position].mainSubject==null&&data[position].section!='Not active')
+      if(data?[position].mainSubject==null&&data?[position].section!='Not active')
       {
         await loadAdditionalSubject(position);
-        if(data[position].mainSubject==null)
+        if(data?[position].mainSubject==null)
         {
           ToastWidget.showToast("Error in loading Subjects", Colors.red);
           return;
         }
       }
       postData.addAll({
-        'mainSubject':data[position].mainSubject,
-        'subject5':data[position].subject5,
-        'subject6':data[position].subject6
+        'mainSubject':data?[position].mainSubject,
+        'subject5':data?[position].subject5,
+        'subject6':data?[position].subject6
       });
       url = Uri.parse(
           'http://117.247.90.209/app/result/rollno_assign/xi_xii.php');
@@ -754,7 +754,7 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
     }
     else
     {
-      ToastWidget.showToast(response.reasonPhrase,Colors.red);
+      ToastWidget.showToast(response.reasonPhrase!,Colors.red);
     }
     setState(() {
       saving[position]=false;
@@ -767,8 +767,8 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
       savingTC[position]=true;
     });
     var url;
-    print(data[position].sessionStatus);
-    if(!(data[position].sessionStatus=='TC' || data[position].sessionStatus=='After Term I'))
+    print(data?[position].sessionStatus);
+    if(!(data?[position].sessionStatus=='TC' || data?[position].sessionStatus=='After Term I'))
       {
         ToastWidget.showToast("Select any one from above option", Colors.red);
         setState(() {
@@ -777,15 +777,15 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
         return;
       }
     var postData={
-      "rowid":data[position].rowid,
+      "rowid":data?[position].rowid,
       "cname":cname,
       "current_db":currentDB,
-      "cno":data[position].cno,
-      "sessionStatus":data[position].sessionStatus,
+      "cno":data?[position].cno,
+      "sessionStatus":data?[position].sessionStatus,
       "previous_db":previousDB,
-      "tcdate":data[position].tcdate,
-      "tcno":data[position].tcno,
-      "tcreason":data[position].tcreason
+      "tcdate":data?[position].tcdate,
+      "tcno":data?[position].tcno,
+      "tcreason":data?[position].tcreason
     };
     url = Uri.parse(
         'http://117.247.90.209/app/result/rollno_assign/tc_assign.php');
@@ -798,12 +798,12 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
         }
       else{
         setState(() {
-          data[position].tcMenuVisibility=false;
-          data[position].tcEditButonVisibility=true;
+          data?[position].tcMenuVisibility=false;
+          data?[position].tcEditButonVisibility=true;
           ToastWidget.showToast(response.body, Colors.green);
         });
       }
-      if(data[position].sessionStatus=='TC')
+      if(data?[position].sessionStatus=='TC')
         {
           await loadData();
         }
@@ -826,13 +826,13 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
     if(cname=='IX'||cname=='X')
     {
       querysub5="select distinct upper(subname) from `$currentDB`.`subjectList` where subno=5 and classflag like '%9to10%'";
-      var sublist=await connection.query(querysub5);
+      var sublist=await connection!.query(querysub5);
       for(var subrows in sublist)
       {
         subject5.add(subrows[0]);
       }
       querysub6="select distinct upper(subname) from `$currentDB`.`subjectList` where subno in ('6','7') and classflag like '%9to10%'";
-      sublist=await connection.query(querysub6);
+      sublist=await connection!.query(querysub6);
       for(var subrows in sublist)
         {
           subject6.add(subrows[0]);
@@ -843,7 +843,7 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
     else if(cname=='XI'||cname=='XII')
     {
       querysub5="select distinct upper(subname) from `$currentDB`.`subjectList` where subno=5 and classflag like '%11to12%'";
-      var sublist=await connection.query(querysub5);
+      var sublist=await connection!.query(querysub5);
       for(var subrows in sublist)
       {
         subject5.add(subrows[0]);
@@ -852,7 +852,7 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
       subject6.add("NA");
       _subject5=subject5;
       _subject6=subject6;
-      var mainsublist=await connection.query("select distinct(subname) from `$currentDB`.`subjectList` where subno=2 and classflag like '%11to12%'");
+      var mainsublist=await connection!.query("select distinct(subname) from `$currentDB`.`subjectList` where subno=2 and classflag like '%11to12%'");
       for(var subrows in mainsublist)
       {
         mainSubject.add(subrows[0]);
@@ -870,28 +870,28 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
             icon: const Icon(Icons.arrow_downward),
             iconSize: 24,
             elevation: 16,
-            onChanged: (String newValue) async {
+            onChanged: (String? newValue) async {
               setState(() {
-                data[position].rollno=rollController[position].text;
+                data?[position].rollno=rollController[position].text;
                 if(newValue=='TC'||newValue=='Not active')
                   {
-                    //data[position].tcMenuVisibility=true;
-                    //data[position].rollno="";
-                    data[position].assignButton=true;
-                    data[position].tcMenuVisibility=false;
+                    //data?[position].tcMenuVisibility=true;
+                    //data?[position].rollno="";
+                    data?[position].assignButton=true;
+                    data?[position].tcMenuVisibility=false;
                   }
                 else
                   {
-                    data[position].tcMenuVisibility=false;
-                    //data[position].sessionStatus="";
-                    data[position].assignButton=false;
+                    data?[position].tcMenuVisibility=false;
+                    //data?[position].sessionStatus="";
+                    data?[position].assignButton=false;
                     /*if(newValue=='Not active')
                       {
-                        data[position].rollno="";
+                        data?[position].rollno="";
                       }*/
                   }
                 _selectedSection = newValue;
-                data[position].section = newValue;
+                data?[position].section = newValue!;
                 FocusScope.of(context).requestFocus(FocusNode());
               });
               if ((cname == 'IX' || cname == 'X'||cname =='XI'||cname=='XII')
@@ -916,9 +916,9 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
   }
   Future<void> subjectSelection(int position) async
   {
-    _selectedSubject5=data[position].subject5;
-    _selectedSubject6=data[position].subject6;
-    _selectedMainSubject=data[position].mainSubject;
+    _selectedSubject5=data?[position].subject5;
+    _selectedSubject6=data?[position].subject6;
+    _selectedMainSubject=data?[position].mainSubject;
     print(_selectedSubject5);
     return showDialog<void>(
         context: context,
@@ -938,7 +938,7 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
                             children: <Widget>[
                               Row(mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Text(data[position].sname,style:TextStyle(fontWeight: FontWeight.w900,fontSize: 12)),
+                                  Text(data![position].sname!,style:TextStyle(fontWeight: FontWeight.w900,fontSize: 12)),
                                 ],
                               ),//name of student
                               (cname=='XI'||cname=='XII')?Text("Main Subject",style: TextStyle(fontWeight: FontWeight.w900,fontSize: 12),):Center(),
@@ -948,17 +948,17 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
                                 icon: const Icon(Icons.arrow_downward),
                                 iconSize: 24,
                                 elevation: 16,
-                                onChanged: (String newValue) async {
+                                onChanged: (String? newValue) async {
                                   setState(() {
-                                    data[position].mainSubject=newValue;
-                                    _selectedMainSubject=data[position].mainSubject;
+                                    data?[position].mainSubject=newValue;
+                                    _selectedMainSubject=data?[position].mainSubject;
                                   });
                                 },
                                 items: _mainSubject
                                     .map<DropdownMenuItem<String>>((String value) {
                                   return DropdownMenuItem<String>(
                                     value: value,
-                                    child: SizedBox(width:screenWidth*0.5,child: Text(value)),
+                                    child: SizedBox(width:screenWidth!*0.5,child: Text(value)),
                                   );
                                 }).toList(),
                               ):Center(),//main subject
@@ -969,17 +969,17 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
                                 icon: const Icon(Icons.arrow_downward),
                                 iconSize: 24,
                                 elevation: 16,
-                                onChanged: (String newValue) async {
+                                onChanged: (String? newValue) async {
                                   setState(() {
-                                    data[position].subject5=newValue;
-                                    _selectedSubject5=data[position].subject5;
+                                    data?[position].subject5=newValue!;
+                                    _selectedSubject5=data?[position].subject5;
                                   });
                                 },
                                 items: _subject5
                                     .map<DropdownMenuItem<String>>((String value) {
                                   return DropdownMenuItem<String>(
                                     value: value,
-                                    child: SizedBox(width:screenWidth*0.5,child: Text(value)),
+                                    child: SizedBox(width:screenWidth!*0.5,child: Text(value)),
                                   );
                                 }).toList(),
                               ),//V subject
@@ -990,17 +990,17 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
                                 icon: const Icon(Icons.arrow_downward),
                                 iconSize: 24,
                                 elevation: 16,
-                                onChanged: (String newValue) async {
+                                onChanged: (String? newValue) async {
                                   setState(() {
-                                    data[position].subject6=newValue;
-                                    _selectedSubject6=data[position].subject6;
+                                    data?[position].subject6=newValue!;
+                                    _selectedSubject6=data?[position].subject6;
                                   });
                                 },
                                 items: _subject6
                                     .map<DropdownMenuItem<String>>((String value) {
                                   return DropdownMenuItem<String>(
                                     value: value,
-                                    child: SizedBox(width: screenWidth*0.5,child: Text(value)),
+                                    child: SizedBox(width: screenWidth!*0.5,child: Text(value)),
                                   );
                                 }).toList(),
                               ),//VI subject
@@ -1017,15 +1017,15 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
   }
   Future loadAdditionalSubject(int position) async
   {
-    String sub5,sub6,mainSub;
+    String sub5="",sub6="",mainSub="";
     if(cname=='IX' ||cname=='X')
     {
-      var subject=await connection.query("Select distinct subname from `$currentDB`.`ix_x` where subno='5' and rowid='${data[position].rowid}'");
+      var subject=await connection!.query("Select distinct subname from `$currentDB`.`ix_x` where subno='5' and rowid='${data?[position].rowid}'");
       for (var rows in subject)
       {
         sub5=rows[0];
       }
-      subject=await connection.query("Select distinct subname from `$currentDB`.`ix_x` where subno='6' and rowid='${data[position].rowid}'");
+      subject=await connection!.query("Select distinct subname from `$currentDB`.`ix_x` where subno='6' and rowid='${data?[position].rowid}'");
       for (var rows in subject)
       {
         sub6=rows[0];
@@ -1033,31 +1033,31 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
     }
     else if(cname=='XI' ||cname=='XII')
     {
-      var subject=await connection.query("Select distinct subname from `$currentDB`.`xi_xii` where subno='2' and rowid='${data[position].rowid}'");
+      var subject=await connection!.query("Select distinct subname from `$currentDB`.`xi_xii` where subno='2' and rowid='${data?[position].rowid}'");
       for (var rows in subject)
       {
         mainSub=rows[0];
       }
-      subject=await connection.query("Select distinct subname from `$currentDB`.`xi_xii` where subno='5' and rowid='${data[position].rowid}'");
+      subject=await connection!.query("Select distinct subname from `$currentDB`.`xi_xii` where subno='5' and rowid='${data?[position].rowid}'");
       for (var rows in subject)
       {
         sub5=rows[0];
       }
-      subject=await connection.query("Select distinct subname from `$currentDB`.`xi_xii` where subno='6' and rowid='${data[position].rowid}'");
+      subject=await connection!.query("Select distinct subname from `$currentDB`.`xi_xii` where subno='6' and rowid='${data?[position].rowid}'");
       for (var rows in subject)
       {
         sub6=rows[0];
       }
     }
     setState(() {
-      data[position].mainSubject=mainSub;
-      data[position].subject5=sub5;
-      data[position].subject6=sub6;
+      data?[position].mainSubject=mainSub;
+      data?[position].subject5=sub5;
+      data?[position].subject6=sub6;
       loadingSubject[position]=false;
     });
   }
   Future<void> _selectDate(BuildContext context) async {
-    final DateTime picked = await showDatePicker(
+    final DateTime? picked = await showDatePicker(
         context: context,
         initialDate: selectedDate,
         firstDate: DateTime(1990, 8),
@@ -1072,7 +1072,7 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
 
    Future resetRollno(int position) async {
     var postData={
-      "rowid":data[position].rowid,
+      "rowid":data?[position].rowid,
       "current_db":currentDB
     };
     var url = Uri.parse(
@@ -1084,8 +1084,8 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
       if(!(response.body.toString()=="Error"))
         {
           setState((){
-            data[position].rollno="";
-            data[position].section="";
+            data?[position].rollno="";
+            data?[position].section="";
           });
         }
     }
@@ -1098,10 +1098,10 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
 }
 class Data
 {
-  String sname,rollno="",section="",rowid,admno="",gen,previousSection="",
+  String? sname,rollno="",section="",rowid,admno="",gen,previousSection="",
       previousRollno="", subject5="",subject6="",mainSubject="",sessionStatus="",cno="";
-  String tcno="",tcdate="",tcreason="";
-  bool tcMenuVisibility=false,tcEditButonVisibility=false,nonactive=false,
+  String? tcno="",tcdate="",tcreason="";
+  bool? tcMenuVisibility=false,tcEditButonVisibility=false,nonactive=false,
       notpromoted=false,assignButton=false;
   Data({this.rowid,this.sname,this.rollno,this.section,this.admno,this.gen,
     this.previousRollno,this.previousSection,this.subject5="",this.subject6="",

@@ -26,17 +26,17 @@ class NominalPanel extends StatefulWidget {
   String cname, section, branch, tid;
 
   NominalPanel(
-      {Key key,
-      this.currentdb,
-      this.nextdb,
-      @required this.connection,
-      @required this.cname,
-      @required this.section,
-      @required this.branch,
-      this.screenheight,
-      this.screenwidth,
-      this.admnoChange,
-      this.tid})
+      {Key? key,
+      required this.currentdb,
+      required this.nextdb,
+      required this.connection,
+      required this.cname,
+      required this.section,
+      required this.branch,
+        required this.screenheight,
+        required this.screenwidth,
+        required this.admnoChange,
+        required this.tid})
       : super(key: key);
 
   @override
@@ -59,7 +59,7 @@ class _NominalPanelState extends State<NominalPanel> {
   List<VaccineData> vData = [];
   List gencount=[];
   int tcCount=0;
-  File cameraFile;
+  File ? cameraFile;
   double screenheight, screenwidth;
   bool correctadmno = true, saveProgress = true, admnoChange = false;
   var myFormat = DateFormat('dd-MM-yyyy');
@@ -105,32 +105,32 @@ class _NominalPanelState extends State<NominalPanel> {
           ? Center(child: CircularProgressIndicator())
           : Column(
             children: [
-              Row(children: [dataBox(backColor: AppColor.BACKGROUND,border:
+              Row(children: [dataBox(backColor: AppColor.BACKGROUND!,border:
               false,height: 5)],),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                dataBox(data:"Girls",backColor: AppColor.BACKGROUND,border:
+                dataBox(data:"Girls",backColor: AppColor.BACKGROUND!,border:
                 false,),dataBox(data:gencount[0][1].toString(),backColor:
-                AppColor.BACKGROUND,borderWidth: 2,bold: true),dataBox(data:
-                  " +",border: false,backColor: AppColor.BACKGROUND),
+                AppColor.BACKGROUND!,borderWidth: 2,bold: true),dataBox(data:
+                  " +",border: false,backColor: AppColor.BACKGROUND!),
                   dataBox
                     (data:"Boys",
                       backColor:
                   AppColor
-                      .BACKGROUND,border:
+                      .BACKGROUND!,border:
                   false),dataBox(data:gencount[1][1].toString(),backColor:
-                  AppColor.BACKGROUND,borderWidth: 2,bold: true),dataBox(data:
-                  " =",border: false,backColor: AppColor.BACKGROUND),
+                  AppColor.BACKGROUND!,borderWidth: 2,bold: true),dataBox(data:
+                  " =",border: false,backColor: AppColor.BACKGROUND!),
                   dataBox
                     (data:"Total",
                       backColor:
                       AppColor
-                          .BACKGROUND,border:
+                          .BACKGROUND!,border:
                       false),dataBox(data:(gencount[1][1]+gencount[0][1])
                         .toString(),
                       backColor:
-                  AppColor.BACKGROUND,borderWidth: 2,bold: true,fsize: 18),
+                  AppColor.BACKGROUND!,borderWidth: 2,bold: true,fsize: 18),
               ],),
               SizedBox(height: 4,),
               Visibility(visible: tcCount>0?true:false, child: Column(
@@ -142,11 +142,11 @@ class _NominalPanelState extends State<NominalPanel> {
                     dataBox(data: "Taken TC After Term I",border: false,
                         backColor:
                     AppColor
-                        .BACKGROUND,textColor: Colors.red),dataBox(data: tcCount
+                        .BACKGROUND!,textColor: Colors.red),dataBox(data: tcCount
                       .toString(),
                       borderWidth:
                       2,bold: true,borderColor: Colors.red,textColor: Colors.red,
-                      backColor: AppColor.BACKGROUND
+                      backColor: AppColor.BACKGROUND!
                   )],),
                   SizedBox(height: 4,),
                 ],
@@ -238,7 +238,7 @@ class _NominalPanelState extends State<NominalPanel> {
                                       Expanded(
                                           child: TextFormField(
                                         validator: (value) {
-                                          return value.isNotEmpty
+                                          return value!.isNotEmpty
                                               ? null
                                               : "*required";
                                         },
@@ -263,7 +263,7 @@ class _NominalPanelState extends State<NominalPanel> {
                                       Expanded(
                                           child: TextFormField(
                                         validator: (value) {
-                                          return value.isNotEmpty
+                                          return value!.isNotEmpty
                                               ? null
                                               : "*required";
                                         },
@@ -288,7 +288,7 @@ class _NominalPanelState extends State<NominalPanel> {
                                       Expanded(
                                           child: TextFormField(
                                         validator: (value) {
-                                          return value.isNotEmpty
+                                          return value!.isNotEmpty
                                               ? null
                                               : "*required";
                                         },
@@ -297,7 +297,23 @@ class _NominalPanelState extends State<NominalPanel> {
                                         controller: mnamecontroller[position],
                                       ))
                                     ],
-                                  ), //for mname
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(0,10,0,10),
+                                    child: Row(
+                                      children: [ SizedBox(
+                                        child: Text(
+                                          "Age",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w900),
+                                        ),
+                                          width:screenwidth * 0.22
+                                      ),
+                                        SizedBox(width: 10,),
+                                        Text(data[position].age,style: TextStyle(fontSize: 18),),
+                                      ],
+                                    ),
+                                  ),//for age
                                   Row(
                                     children: [
                                       SizedBox(
@@ -314,7 +330,7 @@ class _NominalPanelState extends State<NominalPanel> {
                                           child: TextFormField(
                                         readOnly: admnoChange ? false : true,
                                         validator: (value) {
-                                          return value.isNotEmpty
+                                          return value!.isNotEmpty
                                               ? correctadmno
                                                   ? null
                                                   : "Admission number already Exists"
@@ -326,13 +342,14 @@ class _NominalPanelState extends State<NominalPanel> {
                                       )),
                                     ],
                                   ), //for admno
-                                  Row(children: [ Text(
-                                    "Date of Adm",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w900),
-                                  ),
-                                    SizedBox(width: 10,),
-                                    SelectDateRow(data, position,'doa'),],),
+                                  Row(
+                                    children: [ Text(
+                                      "Date of Adm",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w900),
+                                    ),
+                                      SizedBox(width: 10,),
+                                      SelectDateRow(data, position,'doa'),],),
                                   Row(
                                     children: [
                                       Text(
@@ -361,7 +378,7 @@ class _NominalPanelState extends State<NominalPanel> {
                                       Expanded(
                                           child: TextFormField(
                                               validator: (value) {
-                                                return value.isNotEmpty
+                                                return value!.isNotEmpty
                                                     ? (value
                                                     .length==10?null:"invalid number")
                                                     :"*required";
@@ -470,8 +487,8 @@ class _NominalPanelState extends State<NominalPanel> {
                                       Expanded(
                                           child: TextFormField(
                                             validator: (value) {
-                                              return value.isNotEmpty
-                                                  ? (value
+                                              return value!.isNotEmpty
+                                                  ? (value!
                                                   .length==12?null:"invalid aadhar "
                                                   "no")
                                                   : null;
@@ -575,7 +592,7 @@ class _NominalPanelState extends State<NominalPanel> {
     );
   }
   Widget dataBox({String data="",double borderWidth=1,double margin=0,double
-  height=30,double width,double fsize=15, bool border=true,Color
+  height=30,double ? width,double fsize=15, bool border=true,Color
   borderColor=Colors.black,Color textColor=Colors.black,Color
   backColor=Colors.white,bool bold=false})
   {
@@ -633,201 +650,201 @@ class _NominalPanelState extends State<NominalPanel> {
     }
   }
 
-  Future<void> documentUploadWidget(int position) async {
-    this.phyData.clear();
-    bool showLoadingProgress=false;
-    XFile cameraFile = null;
-    String doctype = null;
-    return showDialog<void>(
-        context: this.context,
-        barrierDismissible: false,
-        builder: (context) {
-          return StatefulBuilder(builder: (context, setState) {
-            Future downloadDocument() async {
-              try {
-                List<PhyDocData> pdata = [];
-                setState(() {});
-                String query = "select doctype,doc from phydoc where "
-                    "rowid='${data[position].rowid}'";
-                var results = await connection.query(query);
-                for (var rows in results) {
-                  pdata
-                      .add(PhyDocData(dtype: rows[0], doc: rows[1].toString()));
-                }
-                this.phyData = pdata;
-                setState(() {});
-              } catch (Exception) {
-                print(Exception);
-              }
-            }
-
-            return AlertDialog(
-              elevation: 10,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20.0),
-              ),
-              title: Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      data[position].rollno,
-                      style: TextStyle(fontWeight: FontWeight.w900),
-                    ),
-                    Text(data[position].sname)
-                  ],
-                ),
-              ),
-              content: SingleChildScrollView(
-                child: SizedBox(
-                  height: screenheight * 0.7,
-                  width: screenwidth * 0.9,
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          DropdownButton<String>(
-                            value: doctype,
-                            hint: Text("Document type"),
-                            icon: const Icon(
-                              Icons.arrow_downward,
-                              color: Colors.blue,
-                            ),
-                            iconSize: 24,
-                            elevation: 16,
-                            onChanged: (String newValue) async {
-                              setState(() {
-                                doctype = newValue;
-                              });
-                            },
-                            items: <String>[
-                              'Photo',
-                              'TC',
-                              'BC',
-                              'CC',
-                              'Adhar'
-                                  ' Number',
-                              'Other'
-                            ].map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
-                          ),
-                          Visibility(
-                            visible: doctype == null ? false : true,
-                            child: ElevatedButton(
-                                style: ButtonStyle(
-                                    backgroundColor:
-                                        MaterialStateProperty.all<Color>(
-                                            Colors.deepPurpleAccent),
-                                    shape: MaterialStateProperty.all<
-                                            RoundedRectangleBorder>(
-                                        RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(18.0),
-                                    ))),
-                                onPressed: () async {
-                                  cameraFile = await ImagePicker().pickImage(
-                                      source: ImageSource.camera,
-                                      imageQuality: 10);
-                                  setState(() {});
-                                },
-                                child: Icon(Icons.camera)),
-                          ),
-                          ElevatedButton(
-                              style: ButtonStyle(
-                                  backgroundColor:
-                                      MaterialStateProperty.all<Color>(
-                                          Colors.deepPurpleAccent),
-                                  shape: MaterialStateProperty.all<
-                                          RoundedRectangleBorder>(
-                                      RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(18.0),
-                                  ))),
-                              onPressed: () async {
-                                showLoadingProgress=true;
-                                downloadDocument();
-                                setState(() {});
-                              },
-                              child: Text("Load"))
-                        ],
-                      ),
-                      cameraFile == null
-                          ? Text("")
-                          : Column(
-                              children: [
-                                new Image.file(
-                                  File(cameraFile.path),
-                                  height: screenheight * 0.2,
-                                  width: screenwidth * 0.2,
-                                ),
-                                ElevatedButton(
-                                    style: ButtonStyle(
-                                        backgroundColor:
-                                            MaterialStateProperty.all<Color>(
-                                                Colors.deepPurpleAccent),
-                                        shape: MaterialStateProperty.all<
-                                                RoundedRectangleBorder>(
-                                            RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(18.0),
-                                        ))),
-                                    onPressed: () async {
-                                      uploadDocument(
-                                          cameraFile.path, position, doctype);
-                                      await downloadDocument();
-                                      cameraFile=null;
-                                      setState((){});
-                                    },
-                                    child: Icon(Icons.cloud_upload)),
-                              ],
-                            ),
-                      Expanded(
-                        child: showLoadingProgress==false?Text(""):phyData
-                            .isEmpty
-                            ? Center(child: CircularProgressIndicator())
-                            : ListView.builder(
-                                scrollDirection: Axis.vertical,
-                                itemCount: phyData.length,
-                                itemBuilder: (context, position) {
-                                  return Column(
-                                    children: [
-                                      Text(
-                                        phyData[position].dtype,
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w900),
-                                      ),
-                                      InkWell(
-                                        child: Image.memory(
-                                          base64Decode(phyData[position].doc),
-                                          height: screenheight * 0.2,
-                                          width: screenwidth * 0.2,
-                                        ),
-                                        onTap: () {
-                                          Navigator.of(context).push(
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      ShowImage(
-                                                        data: base64Decode(
-                                                            phyData[position]
-                                                                .doc),
-                                                      )));
-                                        },
-                                      ),
-                                    ],
-                                  );
-                                }),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            );
-          });
-        });
-  }
+  // Future<void> documentUploadWidget(int position) async {
+  //   this.phyData.clear();
+  //   bool showLoadingProgress=false;
+  //   XFile cameraFile = null;
+  //   String doctype = null;
+  //   return showDialog<void>(
+  //       context: this.context,
+  //       barrierDismissible: false,
+  //       builder: (context) {
+  //         return StatefulBuilder(builder: (context, setState) {
+  //           Future downloadDocument() async {
+  //             try {
+  //               List<PhyDocData> pdata = [];
+  //               setState(() {});
+  //               String query = "select doctype,doc from phydoc where "
+  //                   "rowid='${data[position].rowid}'";
+  //               var results = await connection.query(query);
+  //               for (var rows in results) {
+  //                 pdata
+  //                     .add(PhyDocData(dtype: rows[0], doc: rows[1].toString()));
+  //               }
+  //               this.phyData = pdata;
+  //               setState(() {});
+  //             } catch (Exception) {
+  //               print(Exception);
+  //             }
+  //           }
+  //
+  //           return AlertDialog(
+  //             elevation: 10,
+  //             shape: RoundedRectangleBorder(
+  //               borderRadius: BorderRadius.circular(20.0),
+  //             ),
+  //             title: Center(
+  //               child: Row(
+  //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                 children: [
+  //                   Text(
+  //                     data[position].rollno,
+  //                     style: TextStyle(fontWeight: FontWeight.w900),
+  //                   ),
+  //                   Text(data[position].sname)
+  //                 ],
+  //               ),
+  //             ),
+  //             content: SingleChildScrollView(
+  //               child: SizedBox(
+  //                 height: screenheight * 0.7,
+  //                 width: screenwidth * 0.9,
+  //                 child: Column(
+  //                   children: [
+  //                     Row(
+  //                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                       children: [
+  //                         DropdownButton<String>(
+  //                           value: doctype,
+  //                           hint: Text("Document type"),
+  //                           icon: const Icon(
+  //                             Icons.arrow_downward,
+  //                             color: Colors.blue,
+  //                           ),
+  //                           iconSize: 24,
+  //                           elevation: 16,
+  //                           onChanged: (String newValue) async {
+  //                             setState(() {
+  //                               doctype = newValue;
+  //                             });
+  //                           },
+  //                           items: <String>[
+  //                             'Photo',
+  //                             'TC',
+  //                             'BC',
+  //                             'CC',
+  //                             'Adhar'
+  //                                 ' Number',
+  //                             'Other'
+  //                           ].map<DropdownMenuItem<String>>((String value) {
+  //                             return DropdownMenuItem<String>(
+  //                               value: value,
+  //                               child: Text(value),
+  //                             );
+  //                           }).toList(),
+  //                         ),
+  //                         Visibility(
+  //                           visible: doctype == null ? false : true,
+  //                           child: ElevatedButton(
+  //                               style: ButtonStyle(
+  //                                   backgroundColor:
+  //                                       MaterialStateProperty.all<Color>(
+  //                                           Colors.deepPurpleAccent),
+  //                                   shape: MaterialStateProperty.all<
+  //                                           RoundedRectangleBorder>(
+  //                                       RoundedRectangleBorder(
+  //                                     borderRadius: BorderRadius.circular(18.0),
+  //                                   ))),
+  //                               onPressed: () async {
+  //                                 cameraFile = await ImagePicker().pickImage(
+  //                                     source: ImageSource.camera,
+  //                                     imageQuality: 10);
+  //                                 setState(() {});
+  //                               },
+  //                               child: Icon(Icons.camera)),
+  //                         ),
+  //                         ElevatedButton(
+  //                             style: ButtonStyle(
+  //                                 backgroundColor:
+  //                                     MaterialStateProperty.all<Color>(
+  //                                         Colors.deepPurpleAccent),
+  //                                 shape: MaterialStateProperty.all<
+  //                                         RoundedRectangleBorder>(
+  //                                     RoundedRectangleBorder(
+  //                                   borderRadius: BorderRadius.circular(18.0),
+  //                                 ))),
+  //                             onPressed: () async {
+  //                               showLoadingProgress=true;
+  //                               downloadDocument();
+  //                               setState(() {});
+  //                             },
+  //                             child: Text("Load"))
+  //                       ],
+  //                     ),
+  //                     cameraFile == null
+  //                         ? Text("")
+  //                         : Column(
+  //                             children: [
+  //                               new Image.file(
+  //                                 File(cameraFile.path),
+  //                                 height: screenheight * 0.2,
+  //                                 width: screenwidth * 0.2,
+  //                               ),
+  //                               ElevatedButton(
+  //                                   style: ButtonStyle(
+  //                                       backgroundColor:
+  //                                           MaterialStateProperty.all<Color>(
+  //                                               Colors.deepPurpleAccent),
+  //                                       shape: MaterialStateProperty.all<
+  //                                               RoundedRectangleBorder>(
+  //                                           RoundedRectangleBorder(
+  //                                         borderRadius:
+  //                                             BorderRadius.circular(18.0),
+  //                                       ))),
+  //                                   onPressed: () async {
+  //                                     uploadDocument(
+  //                                         cameraFile.path, position, doctype);
+  //                                     await downloadDocument();
+  //                                     cameraFile=null;
+  //                                     setState((){});
+  //                                   },
+  //                                   child: Icon(Icons.cloud_upload)),
+  //                             ],
+  //                           ),
+  //                     Expanded(
+  //                       child: showLoadingProgress==false?Text(""):phyData
+  //                           .isEmpty
+  //                           ? Center(child: CircularProgressIndicator())
+  //                           : ListView.builder(
+  //                               scrollDirection: Axis.vertical,
+  //                               itemCount: phyData.length,
+  //                               itemBuilder: (context, position) {
+  //                                 return Column(
+  //                                   children: [
+  //                                     Text(
+  //                                       phyData[position].dtype,
+  //                                       style: TextStyle(
+  //                                           fontWeight: FontWeight.w900),
+  //                                     ),
+  //                                     InkWell(
+  //                                       child: Image.memory(
+  //                                         base64Decode(phyData[position].doc),
+  //                                         height: screenheight * 0.2,
+  //                                         width: screenwidth * 0.2,
+  //                                       ),
+  //                                       onTap: () {
+  //                                         Navigator.of(context).push(
+  //                                             MaterialPageRoute(
+  //                                                 builder: (context) =>
+  //                                                     ShowImage(
+  //                                                       data: base64Decode(
+  //                                                           phyData[position]
+  //                                                               .doc),
+  //                                                     )));
+  //                                       },
+  //                                     ),
+  //                                   ],
+  //                                 );
+  //                               }),
+  //                     )
+  //                   ],
+  //                 ),
+  //               ),
+  //             ),
+  //           );
+  //         });
+  //       });
+  // }
   Future<void> vacineDetailWidget(int position) async {
     return showDialog<void>(
         context: this.context,
@@ -927,6 +944,21 @@ class _NominalPanelState extends State<NominalPanel> {
           "not in ('',' ') and rollno is not null order by rollno";
       var results = await connection.query(query);
       for (var rows in results) {
+        DateTime birthDate=new DateFormat("dd-MM-yyyy").parse(rows[6]==""?"29-01-2022":rows[6]);
+        DateTime currentDate = DateTime.now();
+        int years = currentDate.year - birthDate.year;
+        int months = currentDate.month - birthDate.month;
+        int days = currentDate.day - birthDate.day;
+
+        if (days < 0) {
+          months--;
+          days += DateTime(currentDate.year, currentDate.month - 1, 0).day;
+        }
+
+        if (months < 0) {
+          years--;
+          months += 12;
+        }
         data.add(NominalData(
             rowid: rows[0].toString(),
             rollno: rows[1].toString(),
@@ -941,7 +973,9 @@ class _NominalPanelState extends State<NominalPanel> {
             mobileno: rows[10],
             rte: rows[11],
             doa:rows[12],
-            addhar:rows[13],session_status: rows[14]));
+            addhar:rows[13],
+            session_status: rows[14],
+        age: "${years} years ${months} months ${days} days"));
         if(rows[14]=='After Term I')
           {
             tcCount+=1;
@@ -1062,39 +1096,41 @@ class NominalData {
       mobileno,
       rte,
       doa,
-      addhar,session_status;
+      addhar,session_status,age;
 
   NominalData(
       {
-        this.rowid,
-        this.rollno,
-        this.admno,
-        this.sname,
-        this.mname,
-        this.fname,
-        this.dob,
-        this.cat,
-        this.caste,
-        this.gen,
-        this.mobileno,
-        this.rte,
-        this.doa,
-        this.addhar,this.session_status});
+        required this.rowid,
+        required this.rollno,
+        required this.admno,
+        required this.sname,
+        required this.mname,
+        required this.fname,
+        required this.dob,
+        required this.cat,
+        required this.caste,
+        required this.gen,
+        required this.mobileno,
+        required this.rte,
+        required this.doa,
+        required this.addhar,
+        required this.session_status,
+      required this.age});
 }
 
 class PhyDocData {
   String dtype, doc, rowid;
 
-  PhyDocData({this.dtype, this.doc, this.rowid});
+  PhyDocData({required this.dtype, required this.doc, required this.rowid});
 }
 class VaccineData
 {
   String vname,dov1,dov2,remark;
-  VaccineData({this.vname,this.dov1,this.dov2,this.remark});
+  VaccineData({required this.vname,required this.dov1,required this.dov2,required this.remark});
 }
 
 class ShowImage extends StatefulWidget {
-  ShowImage({Key key, this.data}) : super(key: key);
+  ShowImage({Key? key, required this.data}) : super(key: key);
   Uint8List data;
 
   @override
@@ -1102,12 +1138,12 @@ class ShowImage extends StatefulWidget {
 }
 
 class _ShowImageState extends State<ShowImage> {
-  Uint8List data = null;
+  Uint8List ? data = null;
 
   _ShowImageState(this.data);
 
   @override
   Widget build(BuildContext context) {
-    return Container(child: Image.memory(data));
+    return Container(child: Image.memory(data!));
   }
 }

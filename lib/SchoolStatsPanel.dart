@@ -8,15 +8,15 @@ class SchoolStatsPanel extends StatefulWidget {
   String currentdb = "", nextdb = "";
   double screenheight, screenwidth;
   mysql.MySqlConnection connection;
-  String  branch,user,branchname;
+  String  branch,user="",branchname;
   SchoolStatsPanel (
-      {Key key,
-        this.currentdb,
-        this.nextdb,
-        @required this.connection,
-        @required this.branch,this.branchname,
-        this.screenheight,
-        this.screenwidth})
+      {Key? key,
+        required this.currentdb,
+        required this.nextdb,
+        required this.connection,
+        required this.branch,required this.branchname,
+        required this.screenheight,
+        required this.screenwidth})
       : super(key: key);
 
   @override
@@ -34,7 +34,7 @@ class _SchoolStatsPanelState extends State<SchoolStatsPanel> {
   bool loading=true;
   int sum=0;
   mysql.MySqlConnection connection;
-  String  branch,user,branchname;
+  String  branch,user="",branchname;
   List data=[],genderData=[];
   _SchoolStatsPanelState(this.currentdb,
       this.nextdb,
@@ -68,7 +68,7 @@ class _SchoolStatsPanelState extends State<SchoolStatsPanel> {
         children: [
           Row(mainAxisAlignment: MainAxisAlignment.center,
           children: [dataBox(data: branchname,border: false,bold: true,
-              backColor: AppColor.BACKGROUND)],),
+              backColor: AppColor.BACKGROUND!)],),
           Row(mainAxisAlignment: MainAxisAlignment.center,
             children: [dataBox(data: "Class",bold: true,height: 50,
               width: 50),
@@ -116,7 +116,7 @@ class _SchoolStatsPanelState extends State<SchoolStatsPanel> {
               );
             }),
           ),
-          dataBox(height: 15,border: false,backColor: AppColor.BACKGROUND),
+          dataBox(height: 15,border: false,backColor: AppColor.BACKGROUND!),
           Row(mainAxisAlignment: MainAxisAlignment.center,
             children: [dataBox(data: "Class",bold: true,height: 50,
               width: 50),
@@ -135,7 +135,7 @@ class _SchoolStatsPanelState extends State<SchoolStatsPanel> {
                 scrollDirection: Axis.vertical,
                 itemBuilder: (context, position) {
                   double fs=15;
-                  Color col=position%2==0?Colors.grey[400]:Colors.grey[350];
+                  Color col=position%2==0?Colors.grey[400]!:Colors.grey[350]!;
                 return  Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [dataBox(data: genderData[position][0]
@@ -189,7 +189,7 @@ class _SchoolStatsPanelState extends State<SchoolStatsPanel> {
       ),);
   }
   Widget dataBox({String data="",double borderWidth=1,double margin=0,double
-  height=30,double width,double fsize=15, bool border=true,Color
+  height=30,double? width,double fsize=15, bool border=true,Color
   borderColor=Colors.black,Color textColor=Colors.black,Color
   backColor=Colors.white,bool bold=false})
   {
@@ -251,7 +251,8 @@ class _SchoolStatsPanelState extends State<SchoolStatsPanel> {
             for(var count in r2)
               {
                 gen.add([count[0],count[1]]);
-                sum=sum+count[1];
+                int p=count[1];
+                sum=sum+p;
               }
             if(gen.length<2) {
               if (gen[0] == 'F')
