@@ -223,7 +223,17 @@ class _PermissionPanelState extends State<PermissionPanel> {
                                                     ),
                                                   );
                                                 }),
-                                      )
+                                      ),
+                                OutlinedButton(style:OutlinedButton.styleFrom(
+                                  foregroundColor: Colors.red, side: BorderSide(color: Colors.red),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                ) ,
+                                    child: Text("Delete Teacher",),
+                                    onPressed: (){
+                                      deleteTeacherAlert(selectedPosition);
+                                    },),
                               ],
                             ))
                       ],
@@ -311,7 +321,45 @@ class _PermissionPanelState extends State<PermissionPanel> {
       ),
     );
   }
+  Future<void> deleteTeacherAlert(int position) async
+  {
+    FocusScope.of(context).unfocus();
+    return showDialog<void>(
+        context: context,
+        barrierDismissible: false, // user must tap button!
+        builder: (context) {
+          return StatefulBuilder(
+              builder: (context,setState){
+                return AlertDialog(
+                    elevation: 10,
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                      BorderRadius.circular(20.0),),
+                    title: Text(
+                        'Alert', style: TextStyle(fontWeight: FontWeight.w900)),
+                    content: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            Text("You are about to delete ${nameData[selectedPosition].name}. "
+                                "Are you sure about this?",style: TextStyle
+                              (fontWeight: FontWeight.bold),),
+                            Row( mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                TextButton(onPressed: () async {
+                                 await deleteTeacher();
+                                  Navigator.of(context).pop();
+                                 await loadNames();
+                                }, child: Text("Ok",style: TextStyle(fontWeight: FontWeight.w900,color: Colors.green,fontSize: 17),)),
+                                TextButton(onPressed: (){Navigator.of(context).pop();}, child: Text("Cancel",style: TextStyle(fontWeight: FontWeight.w900,color: Colors.red,fontSize: 17)))],)
 
+                          ],
+                        )
+                    )
+                );
+              });
+        }
+    );
+  }
   Future<void> permissionWidget() async {
     data.clear();
     iSelectedBranch = null;
@@ -610,6 +658,7 @@ class _PermissionPanelState extends State<PermissionPanel> {
   }
 
   Future<void> addTeacher() {
+    FocusScope.of(context).unfocus();
     tname = TextEditingController();
     tid = TextEditingController();
     tpwd = TextEditingController();
@@ -681,7 +730,7 @@ class _PermissionPanelState extends State<PermissionPanel> {
                         TextButton(
                           child: Text("Save"),
                           onPressed: () async {
-                            FocusScope.of(context).requestFocus(FocusNode());
+                            //FocusScope.of(context).requestFocus(FocusNode());
                             if (_formKey.currentState!.validate()) {
                               await saveTeacher();
                               Navigator.of(context).pop();
@@ -698,7 +747,6 @@ class _PermissionPanelState extends State<PermissionPanel> {
           );
         });
   }
-
   Widget sectionWidget() {
     return sectionVisible
         ? Column(
@@ -946,6 +994,7 @@ class _PermissionPanelState extends State<PermissionPanel> {
       await getConnection();
       List<NameList> nameData = [];
       this.nameData.clear();
+      this.dataBackup.clear();
       String query = 'select id,ucase(name),pwd from `login` order by name';
       var results = await connection!.query(query);
       for (var rows in results) {
@@ -1184,6 +1233,17 @@ class _PermissionPanelState extends State<PermissionPanel> {
   Future saveTeacher() async {
     var postData = {"tname": tname!.text, "tid": tid!.text, "tpwd": tpwd!.text};
     var url = Uri.parse('http://117.247.90.209/app/result/addTeacher.php');
+    var response = await http.post(url, body: postData);
+    if (response.statusCode == 200) {
+      ToastWidget.showToast(response.body, Colors.red);
+    } else {
+      ToastWidget.showToast(response.reasonPhrase!, Colors.red);
+    }
+  }
+  Future deleteTeacher() async {
+    var postData = {"tname": nameData[selectedPosition].name,
+      "tid": nameData[selectedPosition].id};
+    var url = Uri.parse('http://117.247.90.209/app/result/deleteTeacher.php');
     var response = await http.post(url, body: postData);
     if (response.statusCode == 200) {
       ToastWidget.showToast(response.body, Colors.red);

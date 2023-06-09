@@ -12,6 +12,7 @@ import 'package:intl/intl.dart';
 import 'package:mysql1/mysql1.dart' as mysql;
 import 'package:result_app/DocumentPanel.dart';
 import 'package:result_app/MysqlHelper.dart';
+import 'package:result_app/ViewDocs.dart';
 import 'package:result_app/settings/InternetCheck.dart';
 import 'package:result_app/widgets/DropDownWidgetNominalPage.dart';
 import 'package:result_app/widgets/SelectDateNominal.dart';
@@ -74,8 +75,11 @@ class _NominalPanelState extends State<NominalPanel> {
   List<GlobalKey<FormState>> gk = [];
   List<NominalData> data = [];
   String cname, section, branch;
+  bool dataChecked=false;
   String selectedgen = "", selectedcat = "", selectedate = "", selectedRte = "";
   mysql.MySqlConnection connection;
+
+  bool loading_docs=true;
 
   _NominalPanelState(
       this.currentdb,
@@ -102,7 +106,12 @@ class _NominalPanelState extends State<NominalPanel> {
         backgroundColor: AppColor.NAVIGATIONBAR,
       ),
       body: data.isEmpty
-          ? Center(child: CircularProgressIndicator())
+          ? (!dataChecked?Center(child: CircularProgressIndicator()):
+      Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text("Rollno not assigned to students in this section!!!",
+          style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18),),
+      ))
           : Column(
             children: [
               Row(children: [dataBox(backColor: AppColor.BACKGROUND!,border:
@@ -507,6 +516,35 @@ class _NominalPanelState extends State<NominalPanel> {
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
+                                      OutlinedButton(
+                                        style: OutlinedButton.styleFrom(
+                                          foregroundColor: Colors.green,
+                                          side: BorderSide(color: Colors.green),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(8.0),
+                                          ),
+                                        ),
+                                        onPressed: () async {
+                                                int i=await fetchDocument(position);
+                                                if(i==1)
+                                                  {
+                                                    await showDocsList(position);
+                                                  }
+                                        },
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Icon(Icons.insert_drive_file), // Add the document icon here
+                                            SizedBox(width: 8), // Add some space between the icon and text
+                                            Row(
+                                              children: [
+                                               loading_docs?Text("View Documents"):CircularProgressIndicator(),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      )
+
                                       /*Container(
                                         decoration: BoxDecoration(
                                             border: Border.all(
@@ -611,7 +649,53 @@ class _NominalPanelState extends State<NominalPanel> {
           fontWeight: bold?FontWeight.w900:null),),
     );
   }
-
+Future<void> showDocsList(int position) async
+{
+  return
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          title: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(data[position].sname),
+              Text('Available Documents',style: TextStyle(fontSize: 15),),
+            ],
+          ),
+          content: Container(
+            width: double.maxFinite,
+            child: ListView.builder(
+        itemCount: phyData.length,
+                shrinkWrap: true,
+        padding: const EdgeInsets.all(5),
+        itemBuilder: (context, pos) {
+            return TextButton(child:Text(phyData[pos].doc_name,style: TextStyle(
+              color: Colors.blue,
+              decoration: TextDecoration.underline,
+            ),),onPressed: (){
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => ViewDocs(screenheight: this.screenheight,
+                      rowid:phyData[pos].rowid,doc_name: phyData[pos].doc_name,
+                    sname: data[position].sname,)));
+            },);
+        }),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+}
   void controllerDispose() {
     for (int i = 0; i < snamecontroller.length; i++) {
       snamecontroller[i].dispose();
@@ -648,6 +732,42 @@ class _NominalPanelState extends State<NominalPanel> {
     } else {
       ToastWidget.showToast("Please try again!!!", Colors.red);
     }
+  }
+  Future fetchDocument(int position)async{
+    setState(() {
+    });
+    loading_docs=false;
+    int ret=0;
+    this.phyData.clear();
+    List<PhyDocData> phyData=[];
+   var postData={"rowid":data[position].rowid};
+   var url = Uri.parse('http://117.247.90.209/app/result/viewDocument.php');
+   var response=await http.post(url,body: postData);
+   if (response.statusCode == 200) {
+         var contentType = response.headers['content-type'];
+         if (contentType!.contains('application/json')) {
+           var data = jsonDecode(response.body);
+           for(var rows in data)
+           {
+             phyData.add(PhyDocData(doc_name: rows["doc_name"],
+                 upload_date: rows["upload_date"],
+                 changed_date: rows["changed_date"],
+                 rowid: rows["rowid"]));
+            ret=1;
+           }
+         } else if (contentType.contains('text/html')) {
+           var res = response.body;
+           ToastWidget.showToast(res, Colors.red);
+           ret=0;
+         } else {
+            ret=0;
+         }
+   }
+   loading_docs=true;
+   this.phyData=phyData;
+   setState(() {
+   });
+    return ret;
   }
 
   // Future<void> documentUploadWidget(int position) async {
@@ -991,7 +1111,7 @@ class _NominalPanelState extends State<NominalPanel> {
       {
         gencount.add([rows[0],rows[1]]);
       }
-      if(gencount.length<2)
+      if(gencount.length>=1)
         {
           if(gencount[0]=='M')
             {
@@ -1003,6 +1123,8 @@ class _NominalPanelState extends State<NominalPanel> {
             }
         }
       this.data=data;
+      dataChecked=true;
+      print(data.length);
       setState(() {});
     } catch (Exception) {
       if (Exception.runtimeType == StateError) {
@@ -1119,9 +1241,9 @@ class NominalData {
 }
 
 class PhyDocData {
-  String dtype, doc, rowid;
-
-  PhyDocData({required this.dtype, required this.doc, required this.rowid});
+  String doc_name,upload_date,changed_date,rowid;
+  PhyDocData({required this.doc_name, required this.upload_date,
+    required this.changed_date,required this.rowid});
 }
 class VaccineData
 {

@@ -490,6 +490,7 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
   }
   Future<void> resetRollnoAlert(int position) async
   {
+    FocusScope.of(context).unfocus();
     return showDialog<void>(
         context: context,
         barrierDismissible: false, // user must tap button!
