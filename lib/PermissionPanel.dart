@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
@@ -20,14 +19,15 @@ class PermissionPanel extends StatefulWidget {
       cname="",
       branch="",
       section="",
-      branchNo="";
+      branchNo="",uid="";
 
   PermissionPanel(
-      {required this.screenwidth, required this.screenheight, required this.currentdb, required this.branch});
+      {required this.screenwidth, required this.screenheight, required this.currentdb, required this.branch,required this.uid});
 
   @override
   _PermissionPanelState createState() => _PermissionPanelState(
-      this.screenwidth, this.screenheight, this.currentdb, this.branch);
+      this.screenwidth, this.screenheight,
+      this.currentdb, this.branch,this.uid);
 }
 
 class _PermissionPanelState extends State<PermissionPanel> {
@@ -40,14 +40,14 @@ class _PermissionPanelState extends State<PermissionPanel> {
       cname,
       branch,
       section,
-      branchNo;
+      branchNo,uid;
   bool nonAdmin = false, sectionVisible = true, loadingClassSection = false;
   final TextEditingController _searchName=TextEditingController();
   List<Data> data = [];
   int selectedPosition = 0;
   GlobalKey<FormState> _formKey = GlobalKey();
   List<NameList> nameData = [],dataBackup=[];
-  Map branchinfo = {};
+  Map branchinfo = {},newBranchinfo={};
   TextEditingController ? tname, tid, tpwd;
   double screenwidth, screenheight;
   mysql.MySqlConnection ? connection;
@@ -61,17 +61,20 @@ class _PermissionPanelState extends State<PermissionPanel> {
   List<String> clist = [], iClist = [], iBranch = [], iSection = [];
 
   _PermissionPanelState(
-      this.screenwidth, this.screenheight, this.currentdb, this.branch);
+      this.screenwidth, this.screenheight,
+      this.currentdb, this.branch,this.uid);
 
   void initState() {
     super.initState();
     loadNames();
+    //newGetBranch();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        elevation: 0,
         backgroundColor: AppColor.NAVIGATIONBAR,
         title: Text("Permission Panel",style: GoogleFonts.playball(
           fontSize: screenheight / 30,
@@ -124,6 +127,7 @@ class _PermissionPanelState extends State<PermissionPanel> {
                                           itemCount: nameData.length,
                                           itemBuilder: (context, position) {
                                             return TextButton(
+                                              autofocus: false,
                                               child: Text(
                                                 nameData[position].name,
                                                 style: TextStyle(
@@ -994,7 +998,7 @@ class _PermissionPanelState extends State<PermissionPanel> {
       await getConnection();
       List<NameList> nameData = [];
       this.nameData.clear();
-      this.dataBackup.clear();
+      this.dataBackup=[];
       String query = 'select id,ucase(name),pwd from `login` order by name';
       var results = await connection!.query(query);
       for (var rows in results) {
@@ -1425,7 +1429,41 @@ class _PermissionPanelState extends State<PermissionPanel> {
       }
     }
   }
-
+// Future newGetBranch() async{
+//     await getConnection();
+//     newBranchinfo.clear();
+//     try {
+//       String sql = "Select DISTINCT t1.branch,t2.branch from `$currentdb`.`permission`"
+//           " t1,kpsbspin_master.branchinfo t2 where t1.branch=t2.branchno and id='$uid'";
+//       var results = await connection!.query(sql);
+//       for (var rows in results) {
+//         newBranchinfo.addAll({rows[1].toString(): rows[0]});
+//       }
+//       print(newBranchinfo);
+//       setState(() {});
+//       await getClasses(1);
+//     } catch (Exception) {
+//       if (Exception.runtimeType == StateError) {
+//         if (NetworkStatus.NETWORKTYPE == 0) {
+//           ToastWidget.showToast("No internet connection", Colors.red);
+//         } else {
+//           ToastWidget.showToast(
+//               "Reconnecting to server, please wait!!!", Colors.red);
+//           await newGetBranch();
+//         }
+//       } else if (Exception.runtimeType == TimeoutException ||
+//           Exception.runtimeType == SocketException) {
+//         ToastWidget.showToast(
+//             "Not able to connect!! Restart the application", Colors.red);
+//       } else {
+//         ToastWidget.showToast(
+//             Exception.runtimeType.toString() + " " + Exception.toString(),
+//             Colors.red);
+//         print(Exception.toString());
+//       }
+//     }
+//
+// }
   Future getBranch() async {
     branchinfo.clear();
     try {

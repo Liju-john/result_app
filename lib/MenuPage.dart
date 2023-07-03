@@ -664,6 +664,7 @@ class _MenuPageState extends State<MenuPage> {
 
       List<String> seclist = [];
       if (user == 'admin') {
+        seclist.add("ALL");
         query =
             "select distinct section from `$currentdb`.`nominal` where "
                 "cname='$selectedclass' and section not in ('') and section "
@@ -976,6 +977,7 @@ class _MenuPageState extends State<MenuPage> {
                 screenheight: screenheight!,
                 currentdb: currentdb!,
                 branch: branch!,
+                uid: uid!,
               )));
     }
     else if(tasklist=="Fees Detail")

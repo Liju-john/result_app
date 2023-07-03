@@ -50,6 +50,8 @@ dependencies:
   scrollable_positioned_list: ^0.2.3
   indexed_list_view: ^2.0.1
   image_picker: ^0.8.4+4
+  flutter_inappwebview: ^5.7.2+3
+  encrypt: ^5.0.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

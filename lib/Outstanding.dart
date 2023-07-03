@@ -25,9 +25,10 @@ class OutstandingPanel extends StatefulWidget {
 }
 
 class _OutstandingPanelState extends State<OutstandingPanel> {
+  bool beforedrop=true;
   String currentdb="",nextdb="";
   String url="assets/images/logo.png";
-  List <Data> data=[];
+  List <Data> data=[],searchData=[];
   String insno="";
   String? _selectedMonth;
   Map<String, String> months = {
@@ -50,7 +51,6 @@ class _OutstandingPanelState extends State<OutstandingPanel> {
       this.section,this.branch,this.screenheight,this.screenwidth);
   void initState(){
     super.initState();
-    //loadData();
   }
   @override
   Widget build(BuildContext context) {
@@ -75,12 +75,13 @@ class _OutstandingPanelState extends State<OutstandingPanel> {
                     child: DropdownButton(
                       hint: Text('Select a month'),
                       value: _selectedMonth,
-                      onChanged: (String ? newValue) {
+                      onChanged: (String ? newValue) async {
                         setState(() {
                           _selectedMonth = newValue!;
                           insno=months[newValue]!;
+                          beforedrop=false;
                         });
-                        loadData();
+                        await loadData();
                       },
                       items: months.keys.map((month) {
                         return DropdownMenuItem(
@@ -113,6 +114,13 @@ class _OutstandingPanelState extends State<OutstandingPanel> {
                 ],
               ),
             ),
+            Visibility(visible: !beforedrop,child: search()),
+            beforedrop?Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text("Select month!!!",
+                style: TextStyle(fontWeight: FontWeight.bold,color: Colors.red,
+                    fontSize: 18),),
+            ):
             data.isEmpty?Center(child: CircularProgressIndicator()):Expanded(
               child: ListView.builder(
     scrollDirection: Axis.vertical,
@@ -126,6 +134,30 @@ class _OutstandingPanelState extends State<OutstandingPanel> {
           ],
         ),
       ),
+    );
+  }
+  Widget search()
+  {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: TextField(
+        textCapitalization:TextCapitalization.characters,
+        onChanged: (String val){
+          this.data=searchData;
+          final data=this.data?.where((data) {
+            final sname=data.sname?.toLowerCase();
+            final searchlower=val.toLowerCase();
+            return sname!.contains(searchlower);
+          }).toList();
+          setState(() {
+            this.data=data!;
+          });
+        },
+        decoration: InputDecoration(
+            prefixIcon: Icon(Icons.search),
+            hintText: "Type name here to search...",
+            border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(10.0)))
+        ),),
     );
   }
   Widget rowData(int position)
@@ -194,6 +226,7 @@ class _OutstandingPanelState extends State<OutstandingPanel> {
   {
     List<Data> data=[];
     this.data=[];
+    this.searchData=[];
     var postdata={"branch":this.branch,"cname":this.cname,
       "section":this.section,"insno":insno,
       "current_db":this.currentdb};
@@ -209,6 +242,7 @@ class _OutstandingPanelState extends State<OutstandingPanel> {
                rte: rows["rte"],mobileno: rows['mobileno'],rowid: rows['rowid'],fname: rows['fname']));
           }
       }
+    searchData=data;
     setState(() {
       this.data=data;
     });

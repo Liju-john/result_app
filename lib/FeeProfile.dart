@@ -7,9 +7,12 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
+import 'package:result_app/settings/EncDecReq.dart';
 import 'package:result_app/widgets/ToastWidget.dart';
 import 'package:lottie/lottie.dart';
 import 'package:sizer/sizer.dart';
+
+import 'CCGateWayWebView.dart';
 
 class StuddentFeeStructure extends StatefulWidget {
   double? mheight,mwidth;
@@ -24,7 +27,7 @@ class StuddentFeeStructure extends StatefulWidget {
 }
 
 class _StuddentFeeStructureState extends State<StuddentFeeStructure> {
-  String key="",secret="",qrurl="";
+  String key="",secret="",qrurl="",pg="";
   double mheight=0,mwidth=0,tf=0,af=0,pf=0,bf=0,famt=0,service=0;
   String orderid="",payid="";
   double prevbal=0,miscbal=0;
@@ -415,10 +418,20 @@ class _StuddentFeeStructureState extends State<StuddentFeeStructure> {
                                   toastLength: Toast.LENGTH_SHORT);
                             }
                             else{
-                              //openGateway(famt);
+                              if(pg=='cca')
+                              {
+                                String url=await openGatewayCC(famt);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) =>
+                                      CCGateWayWebView(paymentURL: url,
+                                        branch: this.branch!,
+                                      )),
+                                );
+                              }
                             }
                           },
-                          child: Text('Generate QR',style: TextStyle(fontWeight: FontWeight
+                          child: Text('Proceed',style: TextStyle(fontWeight: FontWeight
                               .bold,
                               fontSize: 15
                           ),),
@@ -505,8 +518,7 @@ class _StuddentFeeStructureState extends State<StuddentFeeStructure> {
             rows['admbal'],miscbal: rows['miscbal'],prevbal: rows['prevbal'],));
           /* print(rows['feetype'].toString());*/
         }
-        key=rows['key'];
-        secret=rows['secret'];
+        pg=rows['pg'];
       }
       setState((){
         x=prevInst;
@@ -519,7 +531,61 @@ class _StuddentFeeStructureState extends State<StuddentFeeStructure> {
       });
     }
   }
+  Future openGatewayCC(double fmt) async{
+    String urlr="";
+    ToastWidget.showLoaderDialog(context,loadingText: "Initializing payment"
+        "...");
+    String des="";
+    var notes={};
+    summary.forEach((key, value) {
+      des=des+" "+summary[key][0];
+      notes[key]=summary[key][1]+"|"+summary[key][0];
+    });
+    String insName=tf==0?"":summary['tution_fees'][0];
+    String inwords=getInWords(famt).trim();
+    String notesData="";
+    for ( var key in notes.keys)
+    {
+      notesData+="#"+key+","+notes[key].toString();
+    }
+    notesData=notesData.substring(1);
+    var postData={
+      "amount":fmt.toString(),
+      "inwords":inwords,
+      "branch":this.branch.toString(),
+      "rowid":this.rowid.toString(),
+      "insname":insName,
+      "notes":notesData
+    };
+    String d=encrypt(postData.toString());
+    postData={"data":d};
+    try {
+      var url = Uri.parse('https://kpsinfosys.in/app/kpshome/avenue/encRequest.php');
+      var response = await http.post(url, body: postData);
+      if (response.statusCode == 200) {
+        String enc = "";
+        String access_code = "";
+        var jasonData = json.decode(response.body);
+        for (var rows in jasonData) {
+          enc = rows['enc_text'];
+          //print(enc);
+          access_code = rows['access_code'];
+        }
+        // urlr =
+        //     "https://test.ccavenue.com/transaction/transaction.do?command=initiateTransaction"
+        //         "&encRequest=" + enc + "&access_code=${access_code}";
+        urlr =
+            "https://secure.ccavenue.com/transaction/transaction.do?command=initiateTransaction"
+                "&encRequest=" + enc + "&access_code=${access_code}";
+      }
+      else
+        print(response.body);
+      Navigator.of(context).pop();
+    }catch(Exception){
 
+    }
+    return urlr;
+  }
   // void openGateway(double fmt) async{
   //   /*ToastWidget.showLoaderDialog(context,loadingText: "Initializing payment"
   //       "...");*/
