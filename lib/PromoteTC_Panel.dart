@@ -35,9 +35,10 @@ class _PromoteTC_PanelState extends State<PromoteTC_Panel> {
   MysqlHelper mysqlHelper=MysqlHelper();
   var myFormat = DateFormat('yyyy-MM-dd');
   double screenheight,screenwidth;
-String ?_selectedtask,_previousSelectedStatus,nextSession,currentSession;
+String ?_selectedtask="",_previousSelectedStatus,nextSession,currentSession;
   final List<TextEditingController> tcnocontroller=[],tcdatecontroller=[],tcreasoncontroller=[];
   List <Data> data=[];
+  int onroll=0,migrated=0;
   mysql.MySqlConnection connection;
   String cname,section,branch,selectedate="",getdate="";
   _PromoteTC_PanelState(this.currentdb,this.nextdb,this.connection,this.cname,
@@ -57,18 +58,36 @@ String ?_selectedtask,_previousSelectedStatus,nextSession,currentSession;
       backgroundColor: AppColor.BACKGROUND,
       appBar: AppBar(
         backgroundColor: AppColor.NAVIGATIONBAR,
-        title: Text('Promote/Tc Panel',style: GoogleFonts.playball(
+        title: Text('Migration Panel',style: GoogleFonts.playball(
           fontSize: screenheight / 30,
           fontWeight: FontWeight.bold,
           color: Colors.grey[600],),),
       ),
-      body: data.isEmpty?Center(child: CircularProgressIndicator()):ListView.builder(
-        scrollDirection: Axis.vertical,
-          itemCount: data.length,
-          padding: const EdgeInsets.all(5.0),
-          itemBuilder: (context,position){
-        return rowData(position);
-      }),
+      body: Column(
+        children: [
+          Row( children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 18),
+              child: Text("On roll: "),
+            ),Text(onroll.toString(),
+              style: TextStyle(fontWeight: FontWeight.bold,fontSize: 15),),Padding(
+              padding: const EdgeInsets.only(left: 5),
+              child: Text("Migrated Students: "),
+            ),Expanded(
+              child: Text(migrated.toString(),
+                style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18),),
+            )],),
+          data.isEmpty?Center(child: CircularProgressIndicator()):Expanded(
+            child: ListView.builder(
+              scrollDirection: Axis.vertical,
+                itemCount: data.length,
+                padding: const EdgeInsets.all(5.0),
+                itemBuilder: (context,position){
+              return rowData(position);
+            }),
+          ),
+        ],
+      ),
     );
   }
   Widget rowData(int position)
@@ -98,7 +117,7 @@ String ?_selectedtask,_previousSelectedStatus,nextSession,currentSession;
               child: Row(
                 children: [Text('Select'),SizedBox(width: 10,),
                   DropdownButton<String>(
-                    value:_selectedtask,
+                    value:_selectedtask==""?null:_selectedtask,
                     hint: Text('Change'),
                     icon: const Icon(Icons.arrow_downward),
                     iconSize: 24,
@@ -189,36 +208,17 @@ String ?_selectedtask,_previousSelectedStatus,nextSession,currentSession;
       this.data = [];
       //session_status not in ('TC after term1')
       var results = await connection.query(
-          "Select rowid,rollno,sname,session_status,cno,cname,busstop from "
-              "`$currentdb`.`nominal` where cname='$cname' and section='$section'"
+          "Select rowid,rollno,sname,session_status,cno,cname,busstop,"
+              "dis_remark,discount_type"
+              " from `$currentdb`.`nominal` where cname='$cname' and section='$section'"
               " and branch='$branch'  and rollno is not"
               " null and status =1 order by rollno asc");
       for (var rows in results) {
-        /*if (rows[3] == 'Promote and TC'||rows[3] == 'Failed and TC') {
-          var result = await connection.query(
-              "select rowid,tcno,tcdate,reason from `kpsbspin_master`.`tcdetail` where rowid='${rows[0]}'");
-          for (var row in result) {
-            data.add(Data(
-                rowid: rows[0],
-                rollno: rows[1],
-                name: rows[2],
-                status: rows[3],
-                cno: rows[4],
-                cname: rows[5],
-                tcno: row[1],
-                tcdate: row[2],
-                tcreason: row[3]));
+        onroll=onroll+1;
+        if(rows[3]!='Not yet promoted')
+          {
+            migrated=migrated+1;
           }
-        }
-        else {
-          data.add(Data(
-              rowid: rows[0],
-              rollno: rows[1],
-              name: rows[2],
-              status: rows[3],
-              cno: rows[4],
-              cname: rows[5]));
-        }*/
         data.add(Data(
             rowid: rows[0],
             rollno: rows[1],
@@ -226,7 +226,10 @@ String ?_selectedtask,_previousSelectedStatus,nextSession,currentSession;
             status: rows[3],
             cno: rows[4],
             cname: rows[5],
-            busstop: rows[6]));
+            busstop: rows[6],
+            sibling_rid: rows[7],
+            discount_type: rows[8]),
+        );
       }
       setState(() {
         this.data = data;
@@ -254,6 +257,17 @@ String ?_selectedtask,_previousSelectedStatus,nextSession,currentSession;
           ToastWidget.showToast(Exception.runtimeType.toString()+" "+Exception.toString(), Colors.red);
     }
     }
+  }
+  void countMigrated()
+  {
+    migrated=0;
+    data.forEach((element) {
+
+      if(element.status!='Not yet promoted')
+        {
+          migrated=migrated+1;
+        }
+    });
   }
   Widget tcControlPanel(int position)
  {
@@ -377,6 +391,8 @@ String ?_selectedtask,_previousSelectedStatus,nextSession,currentSession;
         "busstop":data[position].busstop,
         "newstatus":st,
         "branchno":branch,
+        "sibling_rid":data[position].sibling_rid,
+        "discount_type":data[position].discount_type
       };
       if(data[position].selectstat=='Reset')
       {
@@ -387,10 +403,11 @@ String ?_selectedtask,_previousSelectedStatus,nextSession,currentSession;
         var response=await http.post(url,body: postData);
         if(response.statusCode==200)
           {
-            ToastWidget.showToast(response.body,Colors.green);
+            showAlertDialog(context, response.body,data[position].stcolor as Color);
             data[position].selectstat="";
             data[position].status="Not yet promoted";
             data[position].stcolor=Colors.purple;
+            migrated=migrated==0?0:migrated-1;
           }
         setState(() {
           data[position].saveProgress=true;
@@ -406,6 +423,7 @@ String ?_selectedtask,_previousSelectedStatus,nextSession,currentSession;
           setState(() {
             data[position].saveProgress=false;
           });
+          print(postData);
           var url=Uri.parse('http://117.247.90.209/app/result/promotenew.php');
           var response=await http.post(url,body: postData);
           if(response.statusCode==200)
@@ -423,154 +441,55 @@ String ?_selectedtask,_previousSelectedStatus,nextSession,currentSession;
               {
                 data[position].stcolor=Colors.red;
               }
-            ToastWidget.showToast(response.body,Colors.green);
+            showAlertDialog(context, response.body,data[position].stcolor as Color);
+            countMigrated();
+            print(response.body);
+            //ToastWidget.showToast(response.body,Colors.green);
           }
           else
           {
-            ToastWidget.showToast("Something Went Wrong, try again !!!!${response.reasonPhrase}",Colors.red);
+            showAlertDialog(context, "Something Went Wrong, try again !!!!${response.reasonPhrase}",Colors.red);
+            //ToastWidget.showToast("Something Went Wrong, try again !!!!${response.reasonPhrase}",Colors.red);
           }
           setState(() {
             data[position].saveProgress=true;
           });
           //_previousSelectedStatus=data[position].selectstat;
         }
-      /*String deletetcquery="delete from `kpsbspin_master`.`tcdetail` where rowid='${data[position].rowid}'";
-      await connection.query(deletetcquery);
-      await connection.query("update session_tab  set session_status='Not yet promoted' where rowid='${data[position].rowid}'");
-      await connection.query("update `kpsbspin_master`.`studmaster` set stat='' where rowid='${data[position].rowid}'");*/
     }
-    /*else{
-      ToastWidget.showToast("Option not available",Colors.red);
-    }*/
-   /* else if(data[position].selectstat=='Promote and TC'||data[position].selectstat=='Failed and TC')
-    {
-      var postData= {
-        "current_db":currentdb,
-        "next_db":nextdb,
-      "rowid":data[position].rowid.toString(),
-        "tcdate":data[position].tcdate,
-        "tcno":data[position].tcno,
-        "cname":data[position].cname,
-        "tcreason":data[position].tcreason,
-        "cno":data[position].cno.toString(),
-        "newstatus":data[position].selectstat
-      };
-      if(_previousSelectedStatus!=null)// if promote is already not selected
-      {
-        setState(() {
-          data[position].saveProgress=false;
-        });
-          var url=Uri.parse('http://117.247.90.209/app/result/tc.php');
-          var response=await http.post(url,body: postData);
-          if(response.statusCode==200)
-          {
-            data[position].stcolor=Colors.red;
-            data[position].status=data[position].selectstat;
-            print(response.body);
-            ToastWidget.showToast(response.body,Colors.green);
-          }
-          else
-          {
-            ToastWidget.showToast("Something Went Wrong, try again !!!!",Colors.red);
-          }
-        setState(() {
-          data[position].saveProgress=true;
-        });
-      }
-      else
-        {
-          ToastWidget.showToast("No changes made!!!!",Colors.purpleAccent);
-        }
-      *//*String tcinsertquery="insert into `kpsbspin_master`.`tcdetail` values('${data[position].rowid}','${data[position].tcdate}','${data[position].tcno}','TC taken after ${data[position].cname}','${data[position].tcreason}','${data[position].cno}')";
-      String checktcquery="select count(*) from `kpsbspin_master`.`tcdetail` where rowid='${data[position].rowid}'";
-      String deletetcquery="delete from `kpsbspin_master`.`tcdetail` where rowid='${data[position].rowid}'";
-      var results=await connection.query(checktcquery);
-      for (var rows in results)
-        {
-          if(rows[0]>=1)
-            {
-              await connection.query(deletetcquery);
-            }
-          await connection.query(tcinsertquery);
-          await connection.query("update `kpsbspin_master`.`studmaster` set stat='TC' where rowid='${data[position].rowid}'");
-          await connection.query("update session_tab  set session_status='${data[position].status}' where rowid='${data[position].rowid}'");
-        }*//*
-    }
-    else if(data[position].selectstat=='Repeat')
-    {
-      var postData= {
-        "current_db":currentdb,
-        "next_db":nextdb,
-        "previous_status": _previousSelectedStatus,
-        "rowid":data[position].rowid.toString(),
-        "cno":data[position].cno.toString(),
-        "newstatus":data[position].selectstat,
-        "branchno":branch
-      };
-      if(_previousSelectedStatus==null||_previousSelectedStatus==data[position].selectstat)
-      {
-        ToastWidget.showToast("No changes made!!!!",Colors.purpleAccent);
-      }
-      else
-      {
-        setState(() {
-          data[position].saveProgress=false;
-        });
-        var url=Uri.parse('http://117.247.90.209/app/result/repeat.php');
-        var response=await http.post(url,body: postData);
-        if(response.statusCode==200)
-        {
-          data[position].stcolor=Colors.blue;
-          data[position].status='Repeat';
-          ToastWidget.showToast(response.body,Colors.green);
-        }
-        else
-        {
-          ToastWidget.showToast("Something Went Wrong, try again !!!!",Colors.red);
-        }
-        setState(() {
-          data[position].saveProgress=true;
-        });
-    }
-    }
-    else if(data[position].selectstat=='Not active')
-      {
-        var postData= {
-          "current_db":currentdb,
-          "next_db":nextdb,
-          "previous_status": _previousSelectedStatus,
-          "rowid":data[position].rowid.toString(),
-          "cno":data[position].cno.toString(),
-          "newstatus":data[position].selectstat,
-          "branchno":branch
-        };
-        if(_previousSelectedStatus==null||_previousSelectedStatus==data[position].selectstat)
-        {
-          ToastWidget.showToast("No changes made!!!!",Colors.purpleAccent);
-        }
-        else
-        {
-          setState(() {
-            data[position].saveProgress=false;
-          });
-          var url=Uri.parse('http://117.247.90.209/app/result/notActive.php');
-          var response=await http.post(url,body: postData);
-          if(response.statusCode==200)
-          {
-            data[position].stcolor=Colors.teal[900];
-            data[position].status='Not active';
-            ToastWidget.showToast(response.body,Colors.green);
-          }
-          else
-          {
-            ToastWidget.showToast("Something Went Wrong, try again !!!!",Colors.red);
-          }
-          setState(() {
-            data[position].saveProgress=true;
-          });
-        }
-      }*/
+   }
+
+  showAlertDialog(BuildContext context,String msg,Color col) {
+    AlertDialog alert = AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20.0), // Rounded border
+      ),
+      title: Text('Message'),
+      content: Text(msg,style:
+      TextStyle(fontWeight: FontWeight.bold,color:col),),
+      actions: [
+        // Download Button
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+            // Close the dialog
+          },
+          child: Text('Okay', style: TextStyle(
+            fontSize: 18, // Increase button font size
+            color: Colors.blue, // Change button text color
+          ),),
+        ),
+      ],
+    );
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
   }
+
   Future getConnection()async  {
     if(connection!=null)
     {
@@ -583,13 +502,15 @@ class Data
 {
   int rowid=0;
   bool tcMenuVisibility=false,tcEditButonVisibility=false,saveProgress=true;
-  String rollno,name,status,selectstat="",cname,busstop;
+  String rollno,name,status,selectstat="",cname,busstop,sibling_rid,
+      discount_type;
   String ?tcno="",tcdate="",tcreason="";
   Color? stcolor;
   int cno=0;
   Data({required this.rowid,required this.rollno,required this.name,
     required this.status, this.tcno,this.tcdate,this.tcreason,
-    required this.cno,required this.cname,required this.busstop})
+    required this.cno,required this.cname,
+    required this.busstop,required this.sibling_rid,required this.discount_type})
   {
     if(this.status=='Not yet promoted')
       {
@@ -623,6 +544,5 @@ class Data
       //tcEditButonVisibility=true;
       stcolor=Colors.red;
     }
-
   }
 }

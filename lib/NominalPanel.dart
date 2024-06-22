@@ -2,14 +2,17 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:mysql1/mysql1.dart' as mysql;
+import 'package:permission_handler/permission_handler.dart';
 import 'package:result_app/DocumentPanel.dart';
 import 'package:result_app/MysqlHelper.dart';
 import 'package:result_app/ViewDocs.dart';
@@ -18,9 +21,10 @@ import 'package:result_app/widgets/DropDownWidgetNominalPage.dart';
 import 'package:result_app/widgets/SelectDateNominal.dart';
 import 'package:result_app/settings/Settings.dart';
 import 'package:result_app/widgets/ToastWidget.dart';
+import 'package:sizer/sizer.dart';
 
 class NominalPanel extends StatefulWidget {
-  String currentdb = "", nextdb = "";
+  String currentdb = "", nextdb = "",currentSession="";
   bool admnoChange;
   double screenheight, screenwidth;
   mysql.MySqlConnection connection;
@@ -37,7 +41,7 @@ class NominalPanel extends StatefulWidget {
         required this.screenheight,
         required this.screenwidth,
         required this.admnoChange,
-        required this.tid})
+        required this.tid,required this.currentSession})
       : super(key: key);
 
   @override
@@ -51,13 +55,14 @@ class NominalPanel extends StatefulWidget {
       this.screenheight,
       this.screenwidth,
       this.admnoChange,
-      this.tid);
+      this.tid,this.currentSession);
 }
 
 class _NominalPanelState extends State<NominalPanel> {
-  String currentdb = "", nextdb = "", tid = "";
+  String currentdb = "", nextdb = "", tid = "",currentSession="";
   List<PhyDocData> phyData = [];
   List<VaccineData> vData = [];
+  List<String> houses=[];
   List gencount=[];
   int tcCount=0;
   File ? cameraFile;
@@ -71,12 +76,13 @@ class _NominalPanelState extends State<NominalPanel> {
       admnocontroller = [],
       mobcontroller = [],
       castecontroller = [],
-      aadharcontroller=[];
+      aadharcontroller=[],pencontroller=[],
+      addrcontroller=[],busnocontroller=[],housecontroller=[];
   List<GlobalKey<FormState>> gk = [];
   List<NominalData> data = [];
   String cname, section, branch;
   bool dataChecked=false;
-  String selectedgen = "", selectedcat = "", selectedate = "", selectedRte = "";
+  String selectedhouse="",selectedgen = "", selectedcat = "", selectedate = "", selectedRte = "";
   mysql.MySqlConnection connection;
 
   bool loading_docs=true;
@@ -91,342 +97,395 @@ class _NominalPanelState extends State<NominalPanel> {
       this.screenheight,
       this.screenwidth,
       this.admnoChange,
-      this.tid);
+      this.tid,this.currentSession);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColor.BACKGROUND,
-      appBar: AppBar(
-        title: Text('Nominal',style: GoogleFonts.playball(
-          fontSize: screenheight / 30,
-          fontWeight: FontWeight.bold,
-          color: Colors.grey[600],),
+    return Sizer(
+        builder: (context, orientation, deviceType) {
+      return Scaffold(
+        backgroundColor: AppColor.BACKGROUND,
+        appBar: AppBar(
+          title: Text('Nominal',style: GoogleFonts.playball(
+            fontSize: screenheight / 30,
+            fontWeight: FontWeight.bold,
+            color: Colors.grey[600],),
+          ),
+          backgroundColor: AppColor.NAVIGATIONBAR,
         ),
-        backgroundColor: AppColor.NAVIGATIONBAR,
-      ),
-      body: data.isEmpty
-          ? (!dataChecked?Center(child: CircularProgressIndicator()):
-      Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Text("Rollno not assigned to students in this section!!!",
-          style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18),),
-      ))
-          : Column(
-            children: [
-              Row(children: [dataBox(backColor: AppColor.BACKGROUND!,border:
-              false,height: 5)],),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                dataBox(data:"Girls",backColor: AppColor.BACKGROUND!,border:
-                false,),dataBox(data:gencount[0][1].toString(),backColor:
-                AppColor.BACKGROUND!,borderWidth: 2,bold: true),dataBox(data:
-                  " +",border: false,backColor: AppColor.BACKGROUND!),
-                  dataBox
-                    (data:"Boys",
-                      backColor:
-                  AppColor
-                      .BACKGROUND!,border:
-                  false),dataBox(data:gencount[1][1].toString(),backColor:
+        body: data.isEmpty
+            ? (!dataChecked?Center(child: CircularProgressIndicator()):
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text("Rollno not assigned to students in this section!!!",
+            style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18),),
+        ))
+            : Column(
+              children: [
+                Row(children: [dataBox(backColor: AppColor.BACKGROUND!,border:
+                false,height: 5)],),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                  dataBox(data:"Girls",backColor: AppColor.BACKGROUND!,border:
+                  false,),dataBox(data:gencount[0][1].toString(),backColor:
                   AppColor.BACKGROUND!,borderWidth: 2,bold: true),dataBox(data:
-                  " =",border: false,backColor: AppColor.BACKGROUND!),
-                  dataBox
-                    (data:"Total",
-                      backColor:
-                      AppColor
-                          .BACKGROUND!,border:
-                      false),dataBox(data:(gencount[1][1]+gencount[0][1])
-                        .toString(),
-                      backColor:
-                  AppColor.BACKGROUND!,borderWidth: 2,bold: true,fsize: 18),
-              ],),
-              SizedBox(height: 4,),
-              Visibility(visible: tcCount>0?true:false, child: Column(
-                children: [
-                  Row
-                    (mainAxisAlignment: MainAxisAlignment.center, children:
-                  [SizedBox
-                    (width: 5,),
-                    dataBox(data: "Taken TC After Term I",border: false,
+                    " +",border: false,backColor: AppColor.BACKGROUND!),
+                    dataBox
+                      (data:"Boys",
                         backColor:
                     AppColor
-                        .BACKGROUND!,textColor: Colors.red),dataBox(data: tcCount
-                      .toString(),
-                      borderWidth:
-                      2,bold: true,borderColor: Colors.red,textColor: Colors.red,
-                      backColor: AppColor.BACKGROUND!
-                  )],),
-                  SizedBox(height: 4,),
-                ],
-              )),
-              Expanded(
-                  flex: 1,
-                child: ListView.builder(
-                    scrollDirection: Axis.vertical,
-                    shrinkWrap: true,
-                    itemCount: data.length,
-                    padding: const EdgeInsets.all(10.0),
-                    itemBuilder: (context, position) {
-                      selectedgen = data[position].gen;
-                      selectedRte = data[position].rte;
-                      selectedate = data[position].rte;
-                      selectedcat = data[position].cat;
-                      snamecontroller.add(TextEditingController());
-                      fnameController.add(TextEditingController());
-                      mnamecontroller.add(TextEditingController());
-                      admnocontroller.add(TextEditingController());
-                      mobcontroller.add(TextEditingController());
-                      castecontroller.add(TextEditingController());
-                      aadharcontroller.add(TextEditingController());
-                      gk.add(GlobalKey<FormState>());
-                      snamecontroller[position].text = data[position].sname;
-                      fnameController[position].text = data[position].fname;
-                      mnamecontroller[position].text = data[position].mname;
-                      admnocontroller[position].text = data[position].admno;
-                      mobcontroller[position].text = data[position].mobileno;
-                      castecontroller[position].text = data[position].caste;
-                      aadharcontroller[position].text=data[position].addhar;
-                      if (selectedcat == "") {
-                        selectedcat = "NA";
-                      }
-                      snamecontroller[position].addListener(() {
-                        data[position].sname = snamecontroller[position].text;
-                      });
-                      return ExpansionTile(
-                        collapsedBackgroundColor:
-                            data[position].session_status=='After Term I'?Colors.limeAccent:(
-                            position % 2 == 0 ?
-                            Colors.blue[100] :
-                            Colors
-                        .blue[200]),
-                        backgroundColor: Colors.grey[300],
-                        leading: Text(
-                          data[position].rollno.toString(),
-                          style: TextStyle(
-                              color: Colors.teal,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold),
-                        ),
-                        title: Text(
-                          data[position].sname.toString(),
-                          style: TextStyle(
-                              color: Colors.grey[700],
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold),
-                        ),
-                        maintainState: true,
-                        children: [
-                          Form(
-                            key: gk[position],
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 8.0, right: 5.0),
-                              child: Column(
-                                children:  [
-                                  Visibility(
-                                    visible: data[position].session_status=='After Term I'?true:false,
-                                      child: Text("Current status:- Taken TC "
-                                          "after "
-                                          "term I",style:
-                                      TextStyle(
-                                          fontWeight: FontWeight.w900,color: Colors
-                                          .red),)),
-                                  SizedBox(width: 5),
-                                  Row(
-                                    children: [
-                                      SizedBox(
+                        .BACKGROUND!,border:
+                    false),dataBox(data:gencount[1][1].toString(),backColor:
+                    AppColor.BACKGROUND!,borderWidth: 2,bold: true),dataBox(data:
+                    " =",border: false,backColor: AppColor.BACKGROUND!),
+                    dataBox
+                      (data:"Total",
+                        backColor:
+                        AppColor
+                            .BACKGROUND!,border:
+                        false),dataBox(data:(gencount[1][1]+gencount[0][1])
+                          .toString(),
+                        backColor:
+                    AppColor.BACKGROUND!,borderWidth: 2,bold: true,fsize: 18),
+                ],),
+                SizedBox(height: 4,),
+                Visibility(visible: tcCount>0?true:false, child: Column(
+                  children: [
+                    Row
+                      (mainAxisAlignment: MainAxisAlignment.center, children:
+                    [SizedBox
+                      (width: 5,),
+                      dataBox(data: "Taken TC After Term I",border: false,
+                          backColor:
+                      AppColor
+                          .BACKGROUND!,textColor: Colors.red),dataBox(data: tcCount
+                        .toString(),
+                        borderWidth:
+                        2,bold: true,borderColor: Colors.red,textColor: Colors.red,
+                        backColor: AppColor.BACKGROUND!
+                    )],),
+                    SizedBox(height: 4,),
+                  ],
+                )),
+                Expanded(
+                    flex: 1,
+                  child: ListView.builder(
+                      scrollDirection: Axis.vertical,
+                      shrinkWrap: true,
+                      itemCount: data.length,
+                      padding: const EdgeInsets.all(10.0),
+                      itemBuilder: (context, position) {
+                        selectedgen = data[position].gen;
+                        selectedRte = data[position].rte;
+                        selectedate = data[position].rte;
+                        selectedcat = data[position].cat;
+                        selectedhouse = data[position].house;
+                        snamecontroller.add(TextEditingController());
+                        fnameController.add(TextEditingController());
+                        mnamecontroller.add(TextEditingController());
+                        admnocontroller.add(TextEditingController());
+                        mobcontroller.add(TextEditingController());
+                        castecontroller.add(TextEditingController());
+                        aadharcontroller.add(TextEditingController());
+                        busnocontroller.add(TextEditingController());
+                        pencontroller.add(TextEditingController());
+                        addrcontroller.add(TextEditingController());
+                        gk.add(GlobalKey<FormState>());
+                        snamecontroller[position].text = data[position].sname;
+                        fnameController[position].text = data[position].fname;
+                        mnamecontroller[position].text = data[position].mname;
+                        admnocontroller[position].text = data[position].admno;
+                        mobcontroller[position].text = data[position].mobileno;
+                        castecontroller[position].text = data[position].caste;
+                        aadharcontroller[position].text=data[position].addhar;
+                        addrcontroller[position].text=data[position].addr;
+                        busnocontroller[position].text=data[position].busno;
+                        pencontroller[position].text=data[position].pen;
+                        if (selectedcat == "") {
+                          selectedcat = "NA";
+                        }
+                        snamecontroller[position].addListener(() {
+                          data[position].sname = snamecontroller[position].text;
+                        });
+                        return ExpansionTile(
+                          collapsedBackgroundColor:
+                              data[position].session_status=='After Term I'?Colors.limeAccent:(
+                              position % 2 == 0 ?
+                              Colors.blue[100] :
+                              Colors
+                          .blue[200]),
+                          backgroundColor: Colors.grey[300],
+                          leading: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                (position+1).toString(),
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                data[position].rollno.toString(),
+                                style: TextStyle(
+                                    color: Colors.teal,
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                          title: Text(
+                            data[position].sname.toString(),
+                            style: TextStyle(
+                                color: Colors.grey[700],
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          maintainState: true,
+                          children: [
+                            Form(
+                              key: gk[position],
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 8.0, right: 5.0),
+                                child: Column(
+                                  children:  [
+                                    Visibility(
+                                      visible: data[position].session_status=='After Term I'?true:false,
+                                        child: Text("Current status:- Taken TC "
+                                            "after "
+                                            "term I",style:
+                                        TextStyle(
+                                            fontWeight: FontWeight.w900,color: Colors
+                                            .red),)),
+                                    SizedBox(width: 5),
+                                    Row(
+                                      children: [
+                                        SizedBox(
+                                            child: Text(
+                                              'Name',
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.w900),
+                                            ),
+                                            width: screenwidth * 0.22),
+                                        SizedBox(
+                                          width: 10,
+                                        ),
+                                        Expanded(
+                                            child: TextFormField(
+                                          validator: (value) {
+                                            return value!.isNotEmpty
+                                                ? null
+                                                : "*required";
+                                          },
+                                          textCapitalization:
+                                              TextCapitalization.characters,
+                                          controller: snamecontroller[position],
+                                        ))
+                                      ],
+                                    ), // for name
+                                    Row(
+                                      children: [
+                                        SizedBox(
+                                            child: Text(
+                                              "Father Name",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.w900),
+                                            ),
+                                            width: screenwidth * 0.22),
+                                        SizedBox(
+                                          width: 10,
+                                        ),
+                                        Expanded(
+                                            child: TextFormField(
+                                          validator: (value) {
+                                            return value!.isNotEmpty
+                                                ? null
+                                                : "*required";
+                                          },
+                                          textCapitalization:
+                                              TextCapitalization.characters,
+                                          controller: fnameController[position],
+                                        ))
+                                      ],
+                                    ), //for fname
+                                    Row(
+                                      children: [
+                                        SizedBox(
+                                            child: Text(
+                                              "Mother Name",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.w900),
+                                            ),
+                                            width: screenwidth * 0.22),
+                                        SizedBox(
+                                          width: 10,
+                                        ),
+                                        Expanded(
+                                            child: TextFormField(
+                                          validator: (value) {
+                                            return value!.isNotEmpty
+                                                ? null
+                                                : "*required";
+                                          },
+                                          textCapitalization:
+                                              TextCapitalization.characters,
+                                          controller: mnamecontroller[position],
+                                        ))
+                                      ],
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.fromLTRB(0,10,0,10),
+                                      child: Row(
+                                        children: [ SizedBox(
                                           child: Text(
-                                            'Name',
+                                            "Age",
                                             style: TextStyle(
                                                 fontWeight: FontWeight.w900),
                                           ),
-                                          width: screenwidth * 0.22),
-                                      SizedBox(
-                                        width: 10,
+                                            width:screenwidth * 0.22
+                                        ),
+                                          SizedBox(width: 10,),
+                                          Text(data[position].age,style: TextStyle(fontSize: 18),),
+                                        ],
                                       ),
-                                      Expanded(
-                                          child: TextFormField(
-                                        validator: (value) {
-                                          return value!.isNotEmpty
-                                              ? null
-                                              : "*required";
-                                        },
-                                        textCapitalization:
-                                            TextCapitalization.characters,
-                                        controller: snamecontroller[position],
-                                      ))
-                                    ],
-                                  ), // for name
-                                  Row(
-                                    children: [
-                                      SizedBox(
-                                          child: Text(
-                                            "Father Name",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w900),
-                                          ),
-                                          width: screenwidth * 0.22),
-                                      SizedBox(
-                                        width: 10,
-                                      ),
-                                      Expanded(
-                                          child: TextFormField(
-                                        validator: (value) {
-                                          return value!.isNotEmpty
-                                              ? null
-                                              : "*required";
-                                        },
-                                        textCapitalization:
-                                            TextCapitalization.characters,
-                                        controller: fnameController[position],
-                                      ))
-                                    ],
-                                  ), //for fname
-                                  Row(
-                                    children: [
-                                      SizedBox(
-                                          child: Text(
-                                            "Mother Name",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w900),
-                                          ),
-                                          width: screenwidth * 0.22),
-                                      SizedBox(
-                                        width: 10,
-                                      ),
-                                      Expanded(
-                                          child: TextFormField(
-                                        validator: (value) {
-                                          return value!.isNotEmpty
-                                              ? null
-                                              : "*required";
-                                        },
-                                        textCapitalization:
-                                            TextCapitalization.characters,
-                                        controller: mnamecontroller[position],
-                                      ))
-                                    ],
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.fromLTRB(0,10,0,10),
-                                    child: Row(
-                                      children: [ SizedBox(
-                                        child: Text(
-                                          "Age",
+                                    ),//for age
+                                    Row(
+                                      children: [
+                                        SizedBox(
+                                            child: Text(
+                                              "Adm no",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.w900),
+                                            ),
+                                            width: screenwidth * 0.22),
+                                        SizedBox(
+                                          width: 10,
+                                        ),
+                                        Expanded(
+                                            child: TextFormField(
+                                          readOnly: admnoChange ? false : true,
+                                          validator: (value) {
+                                            return value!.isNotEmpty
+                                                ? correctadmno
+                                                    ? null
+                                                    : "Admission number already Exists"
+                                                : "*required";
+                                          },
+                                              maxLines: null,
+                                          textCapitalization:
+                                              TextCapitalization.characters,
+                                          controller: admnocontroller[position],
+                                        )),
+                                        Text(
+                                          "Date of Adm",
                                           style: TextStyle(
                                               fontWeight: FontWeight.w900),
                                         ),
-                                          width:screenwidth * 0.22
-                                      ),
                                         SizedBox(width: 10,),
-                                        Text(data[position].age,style: TextStyle(fontSize: 18),),
+                                        SelectDateRow(data, position,'doa'),
                                       ],
-                                    ),
-                                  ),//for age
-                                  Row(
-                                    children: [
-                                      SizedBox(
-                                          child: Text(
-                                            "Admission no",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w900),
-                                          ),
-                                          width: screenwidth * 0.22),
-                                      SizedBox(
-                                        width: 10,
+                                    ), //for admno
+                                    // Row(
+                                    //   children: [ Text(
+                                    //     "Date of Adm",
+                                    //     style: TextStyle(
+                                    //         fontWeight: FontWeight.w900),
+                                    //   ),
+                                    //     SizedBox(width: 10,),
+                                    //     SelectDateRow(data, position,'doa'),],
+                                    // ),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          "Religion",
+                                          style: TextStyle(fontWeight: FontWeight.w900),
+                                        ),
+                                        SizedBox(
+                                          width: 10,
+                                        ),
+                                        Expanded(
+                                            child: TextFormField(
+                                          textCapitalization:
+                                              TextCapitalization.characters,
+                                          controller: castecontroller[position],
+                                        )),
+                                        SizedBox(
+                                          width: 10,
+                                        ),
+                                        Text(
+                                          "Mobile No",
+                                          style: TextStyle(fontWeight: FontWeight.w900),
+                                        ),
+                                        SizedBox(
+                                          width: 10,
+                                        ),
+                                        Expanded(
+                                            child: TextFormField(
+                                                validator: (value) {
+                                                  return value!.isNotEmpty
+                                                      ? (value
+                                                      .length==10?null:"invalid number")
+                                                      :"*required";
+                                                },
+                                                keyboardType: TextInputType.phone,
+                                                textCapitalization:
+                                                    TextCapitalization.characters,
+                                                controller: mobcontroller[position],
+                                                inputFormatters: <TextInputFormatter>[
+                                              FilteringTextInputFormatter.allow(
+                                                  RegExp('[0-9+]+'))
+                                            ]))
+                                      ],
+                                    ), //for phone,Caste
+                                    SingleChildScrollView(
+                                      scrollDirection: Axis.horizontal,
+                                      child: Container(
+                                        width: screenwidth,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              "DOB",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.w900),
+                                            ),
+                                            SelectDateRow(data, position,'dob'),
+                                            //calling row consist of datecontrol
+                                            Text(
+                                              'Gender',
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.w900),
+                                            ),
+                                            SizedBox(
+                                              width: 10,
+                                            ),
+                                            NominalDropDownMenu(
+                                                data,
+                                                position,
+                                                selectedRte,
+                                                selectedgen,
+                                                selectedcat,
+                                                selectedhouse,
+                                                "GEN",this.houses),
+                                            SizedBox(
+                                              width: 10,
+                                            )
+                                          ],
+                                        ),
                                       ),
-                                      Expanded(
-                                          child: TextFormField(
-                                        readOnly: admnoChange ? false : true,
-                                        validator: (value) {
-                                          return value!.isNotEmpty
-                                              ? correctadmno
-                                                  ? null
-                                                  : "Admission number already Exists"
-                                              : "*required";
-                                        },
-                                        textCapitalization:
-                                            TextCapitalization.characters,
-                                        controller: admnocontroller[position],
-                                      )),
-                                    ],
-                                  ), //for admno
-                                  Row(
-                                    children: [ Text(
-                                      "Date of Adm",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w900),
-                                    ),
-                                      SizedBox(width: 10,),
-                                      SelectDateRow(data, position,'doa'),],),
-                                  Row(
-                                    children: [
-                                      Text(
-                                        "Religion",
-                                        style: TextStyle(fontWeight: FontWeight.w900),
-                                      ),
-                                      SizedBox(
-                                        width: 10,
-                                      ),
-                                      Expanded(
-                                          child: TextFormField(
-                                        textCapitalization:
-                                            TextCapitalization.characters,
-                                        controller: castecontroller[position],
-                                      )),
-                                      SizedBox(
-                                        width: 10,
-                                      ),
-                                      Text(
-                                        "Mobile No",
-                                        style: TextStyle(fontWeight: FontWeight.w900),
-                                      ),
-                                      SizedBox(
-                                        width: 10,
-                                      ),
-                                      Expanded(
-                                          child: TextFormField(
-                                              validator: (value) {
-                                                return value!.isNotEmpty
-                                                    ? (value
-                                                    .length==10?null:"invalid number")
-                                                    :"*required";
-                                              },
-                                              keyboardType: TextInputType.phone,
-                                              textCapitalization:
-                                                  TextCapitalization.characters,
-                                              controller: mobcontroller[position],
-                                              inputFormatters: <TextInputFormatter>[
-                                            FilteringTextInputFormatter.allow(
-                                                RegExp('[0-9+]+'))
-                                          ]))
-                                    ],
-                                  ), //for phone,Caste
-                                  SizedBox(
-                                    height: 5,
-                                  ),
-                                  SingleChildScrollView(
-                                    scrollDirection: Axis.horizontal,
-                                    child: Container(
+                                    ), //for DOB,gender,
+                                    Container(
                                       width: screenwidth,
                                       child: Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
-                                            "DOB",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w900),
-                                          ),
-                                          SelectDateRow(data, position,'dob'),
-                                          //calling row consist of datecontrol
-                                          Text(
-                                            'Gender',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w900),
-                                          ),
-                                          SizedBox(
-                                            width: 10,
+                                            "Category",
+                                            style:
+                                                TextStyle(fontWeight: FontWeight.w900),
                                           ),
                                           NominalDropDownMenu(
                                               data,
@@ -434,201 +493,374 @@ class _NominalPanelState extends State<NominalPanel> {
                                               selectedRte,
                                               selectedgen,
                                               selectedcat,
-                                              "GEN"),
-                                          SizedBox(
-                                            width: 10,
-                                          )
+                                              selectedhouse,
+                                              "CAT",this.houses),
+                                          Text(
+                                            "RTE",
+                                            style:
+                                                TextStyle(fontWeight: FontWeight.w900),
+                                          ),
+                                          NominalDropDownMenu(
+                                              data,
+                                              position,
+                                              selectedRte,
+                                              selectedgen,
+                                              selectedcat,
+                                              selectedhouse,
+                                              "RTE",this.houses),
                                         ],
                                       ),
-                                    ),
-                                  ), //for DOB,gender,
-                                  SizedBox(
-                                    height: 5,
-                                  ),
-                                  Container(
-                                    width: screenwidth,
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
+                                    ), //rte,category
+                                    Row(
                                       children: [
-                                        Text(
-                                          "Category",
-                                          style:
-                                              TextStyle(fontWeight: FontWeight.w900),
+                                        SizedBox(
+                                            child: Text(
+                                              "Aadhar No",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.w900),
+                                            ),
+                                            width: screenwidth * 0.22),
+                                        SizedBox(
+                                          width: 10,
                                         ),
-                                        NominalDropDownMenu(
-                                            data,
-                                            position,
-                                            selectedRte,
-                                            selectedgen,
-                                            selectedcat,
-                                            "CAT"),
-                                        Text(
-                                          "RTE",
-                                          style:
-                                              TextStyle(fontWeight: FontWeight.w900),
-                                        ),
-                                        NominalDropDownMenu(
-                                            data,
-                                            position,
-                                            selectedRte,
-                                            selectedgen,
-                                            selectedcat,
-                                            "RTE"),
+                                        Expanded(
+                                            child: TextFormField(
+                                              validator: (value) {
+                                                return value!.isNotEmpty
+                                                    ? (value!
+                                                    .length==12?null:"invalid aadhar "
+                                                    "no")
+                                                    : "invalid aadhar no";
+                                              },
+                                                keyboardType: TextInputType.number,
+                                              controller: aadharcontroller[position],
+                                                inputFormatters: <TextInputFormatter>[
+                                                  FilteringTextInputFormatter.allow(
+                                                      RegExp('[0-9+]+'))],
+                                              decoration: InputDecoration(
+                                                suffixIcon: Container(
+                                                  width: 0,
+                                                  height: 0,
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.rectangle,
+                                                    border: Border.all(color: Colors.red,width: 1.5),
+                                                    borderRadius: BorderRadius.circular(8.0),
+                                                  ),
+                                                  child: IconButton(
+                                                    icon: Icon(Icons.save_sharp,color: Colors.green,), // Use any icon you prefer
+                                                    onPressed: () async{
+                                                      if(gk[position].currentState!.validate())
+                                                        {
+                                                          await updateInfo("addhar",
+                                                              aadharcontroller[position].text,
+                                                              position);
+                                                          data[position].addhar=aadharcontroller[position].text;
+                                                        }
+
+                                                    },
+                                                  ),
+                                                ),
+                                              ),
+                                            ))
                                       ],
+                                    ),//adharno
+                                    Row(
+                                      children: [Text("House", style: TextStyle(
+                                        fontWeight: FontWeight.w900),
                                     ),
-                                  ), //rte,category
-                                  SizedBox(
-                                    height: 5,
-                                  ),
-                                  Row(
-                                    children: [
-                                      SizedBox(
-                                          child: Text(
-                                            "Aadhar No",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w900),
-                                          ),
-                                          width: screenwidth * 0.22),
-                                      SizedBox(
-                                        width: 10,
-                                      ),
-                                      Expanded(
-                                          child: TextFormField(
-                                            validator: (value) {
-                                              return value!.isNotEmpty
-                                                  ? (value!
-                                                  .length==12?null:"invalid aadhar "
-                                                  "no")
-                                                  : null;
-                                            },
-                                              keyboardType: TextInputType.number,
-                                            controller: aadharcontroller[position],
-                                              inputFormatters: <TextInputFormatter>[
-                                                FilteringTextInputFormatter.allow(
-                                                    RegExp('[0-9+]+'))]
-                                          ))
-                                    ],
-                                  ),//adharno
-                                  SizedBox(
-                                    height: 5,
-                                  ),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      OutlinedButton(
-                                        style: OutlinedButton.styleFrom(
-                                          foregroundColor: Colors.green,
-                                          side: BorderSide(color: Colors.green),
-                                          shape: RoundedRectangleBorder(
+                                        SizedBox(width: screenwidth * 0.22),
+                                        NominalDropDownMenu(
+                                            data,
+                                            position,
+                                            selectedRte,
+                                            selectedgen,
+                                            selectedcat,
+                                            selectedhouse,
+                                            "HOUSE",this.houses),
+                                        Container(
+                                          margin: EdgeInsets.only(left: 2,top: 2),
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.rectangle,
+                                            border: Border.all(color: Colors.red,width: 1.5),
                                             borderRadius: BorderRadius.circular(8.0),
                                           ),
-                                        ),
-                                        onPressed: () async {
-                                                int i=await fetchDocument(position);
-                                                if(i==1)
-                                                  {
-                                                    await showDocsList(position);
-                                                  }
-                                        },
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            Icon(Icons.insert_drive_file), // Add the document icon here
-                                            SizedBox(width: 8), // Add some space between the icon and text
-                                            Row(
-                                              children: [
-                                               loading_docs?Text("View Documents"):CircularProgressIndicator(),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      )
-
-                                      /*Container(
-                                        decoration: BoxDecoration(
-                                            border: Border.all(
-                                                color: Colors.blueAccent, width: 2),
-                                            borderRadius: BorderRadius.circular(10)),
-                                        child: TextButton(
-                                            onPressed: () async {
-                                              vacineDetailWidget(position);
+                                          child: IconButton(
+                                            icon: Icon(Icons.save_sharp,color: Colors.green,), // Use any icon you prefer
+                                            onPressed: () async{
+                                              await updateInfo("house",
+                                                  data[position].house,
+                                                  position);
                                             },
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        SizedBox(
                                             child: Text(
-                                              'Vaccine Detail',
+                                              "PEN No",
                                               style: TextStyle(
-                                                  fontWeight: FontWeight.w900,
-                                                  fontSize: 20,
-                                                  color: Colors.green),
-                                            )), //for save data
+                                                  fontWeight: FontWeight.w900),
+                                            ),
+                                            width: screenwidth * 0.22),
+                                        SizedBox(
+                                          width: 10,
+                                        ),
+                                        Expanded(
+                                            child: TextFormField(
+                                              maxLines: null,
+                                                controller: pencontroller[position],
+                                              decoration: InputDecoration(
+                                                suffixIcon: Container(
+                                                  width: 0,
+                                                  height: 0,
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.rectangle,
+                                                    border: Border.all(color: Colors.red,width: 1.5),
+                                                    borderRadius: BorderRadius.circular(8.0),
+                                                  ),
+                                                  child: IconButton(
+                                                    icon: Icon(Icons.save_sharp,color: Colors.green,), // Use any icon you prefer
+                                                    onPressed: () async{
+                                                      await updateInfo("pen",
+                                                          pencontroller[position].text,
+                                                          position);
+                                                      data[position].pen=pencontroller[position].text;
+                                                    },
+                                                  ),
+                                                ),
+                                              ),
+                                            )),
+                                      ],
+                                    ), // for pen and house
+                                    Row(
+                                      children: [
+                                        SizedBox(
+                                            child: Text(
+                                              "Address",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.w900),
+                                            ),
+                                            width: screenwidth * 0.22),
+                                        SizedBox(
+                                          width: 10,
+                                        ),
+                                        Expanded(
+                                            child: TextFormField(
+                                              maxLines: null,
+                                              textCapitalization:
+                                              TextCapitalization.characters,
+                                              controller: addrcontroller[position],
+                                              decoration: InputDecoration(
+                                                suffixIcon: Container(
+                                                  width: 0,
+                                                  height: 0,
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.rectangle,
+                                                    border: Border.all(color: Colors.red,width: 1.5),
+                                                    borderRadius: BorderRadius.circular(8.0),
+                                                  ),
+                                                  child: IconButton(
+                                                    icon: Icon(Icons.save_sharp,color: Colors.green,), // Use any icon you prefer
+                                                    onPressed: () async{
+                                                      await updateInfo("addr",
+                                                          addrcontroller[position].text,
+                                                          position);
+                                                      data[position].addr=addrcontroller[position].text;
+                                                      },
+                                                  ),
+                                                ),
+                                              ),
+                                            ))
+                                      ],
+                                    ), //for addr
+                                    SizedBox(
+                                      height: 5,
+                                    ),
+                                    Container(
+                                      width: screenwidth,
+                                      child: Row(
+                                        mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          SizedBox(
+                                      width: screenwidth * 0.22,
+                                            child: Text(
+                                              "Bus Stop",
+                                              style:
+                                              TextStyle(fontWeight: FontWeight.w900),
+                                            ),
+                                          ),
+                                          Expanded(
+                                            child: Text(
+                                              data[position].busarea,
+                                              style: TextStyle(overflow:TextOverflow.fade),
+                                            ),
+                                          ),
+                                          Text(
+                                            "Bus No",
+                                            style:
+                                            TextStyle(fontWeight: FontWeight.w900),
+                                          ),
+                                          SizedBox(width: 5,),
+                                          Text(
+                                            data[position].busno,
+                                          ),
+                                          SizedBox(width: 5,)
+                                        ],
                                       ),
-                                      SizedBox(width: 10,),*/
-                                     /* Container(
-                                        decoration: BoxDecoration(
-                                            border: Border.all(
-                                                color: Colors.blueAccent, width: 2),
-                                            borderRadius: BorderRadius.circular(10)),
-                                        child: TextButton(
-                                            onPressed: () async {
-                                              await isUniqueAdmno(
-                                                  data[position].admno,
-                                                  admnocontroller[position].text);
-                                              if (gk[position]
-                                                  .currentState
-                                                  .validate()) {
-                                                setState(() {
-                                                  saveProgress = false;
-                                                  data[position].admno =
-                                                      admnocontroller[position].text;
-                                                  data[position].sname =
-                                                      snamecontroller[position].text;
-                                                  data[position].caste =
-                                                      castecontroller[position].text;
-                                                  data[position].fname =
-                                                      fnameController[position].text;
-                                                  data[position].mname =
-                                                      mnamecontroller[position].text;
-                                                  data[position].mobileno =
-                                                      mobcontroller[position].text;
-                                                  data[position].addhar=
-                                                  aadharcontroller[position].text;
-                                                  updateNominalData(position);
-                                                });
-                                              } else {
-                                                ToastWidget.showToast(
-                                                    "Something went wrong",
-                                                    Colors.red);
-                                              }
-                                            },
-                                            child: saveProgress
-                                                ? Text(
-                                                    'Save',
-                                                    style: TextStyle(
-                                                        fontWeight: FontWeight.w900,
-                                                        fontSize: 20,
-                                                        color: Colors.green),
-                                                  )
-                                                : CircularProgressIndicator(
-                                                    backgroundColor: Colors.red,
-                                                  )), //for save data
-                                      )*/
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    height: 2,
-                                  ),
-                                ],
+                                    ), //rte,category
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        OutlinedButton(
+                                          style: OutlinedButton.styleFrom(
+                                            foregroundColor: Colors.green,
+                                            side: BorderSide(color: Colors.green),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(8.0),
+                                            ),
+                                          ),
+                                          onPressed: () async {
+                                                  int i=await fetchDocument(position);
+                                                  if(i==1)
+                                                    {
+                                                      await showDocsList(position);
+                                                    }
+                                          },
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Icon(Icons.insert_drive_file), // Add the document icon here
+                                              SizedBox(width: 8), // Add some space between the icon and text
+                                              Row(
+                                                children: [
+                                                 loading_docs?Text("View Documents"):CircularProgressIndicator(),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        /*Container(
+                                          decoration: BoxDecoration(
+                                              border: Border.all(
+                                                  color: Colors.blueAccent, width: 2),
+                                              borderRadius: BorderRadius.circular(10)),
+                                          child: TextButton(
+                                              onPressed: () async {
+                                                vacineDetailWidget(position);
+                                              },
+                                              child: Text(
+                                                'Vaccine Detail',
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.w900,
+                                                    fontSize: 20,
+                                                    color: Colors.green),
+                                              )), //for save data
+                                        ),
+                                        SizedBox(width: 10,),*/
+                                       /* Container(
+                                          decoration: BoxDecoration(
+                                              border: Border.all(
+                                                  color: Colors.blueAccent, width: 2),
+                                              borderRadius: BorderRadius.circular(10)),
+                                          child: TextButton(
+                                              onPressed: () async {
+                                                await isUniqueAdmno(
+                                                    data[position].admno,
+                                                    admnocontroller[position].text);
+                                                if (gk[position]
+                                                    .currentState
+                                                    .validate()) {
+                                                  setState(() {
+                                                    saveProgress = false;
+                                                    data[position].admno =
+                                                        admnocontroller[position].text;
+                                                    data[position].sname =
+                                                        snamecontroller[position].text;
+                                                    data[position].caste =
+                                                        castecontroller[position].text;
+                                                    data[position].fname =
+                                                        fnameController[position].text;
+                                                    data[position].mname =
+                                                        mnamecontroller[position].text;
+                                                    data[position].mobileno =
+                                                        mobcontroller[position].text;
+                                                    data[position].addhar=
+                                                    aadharcontroller[position].text;
+                                                    updateNominalData(position);
+                                                  });
+                                                } else {
+                                                  ToastWidget.showToast(
+                                                      "Something went wrong",
+                                                      Colors.red);
+                                                }
+                                              },
+                                              child: saveProgress
+                                                  ? Text(
+                                                      'Save',
+                                                      style: TextStyle(
+                                                          fontWeight: FontWeight.w900,
+                                                          fontSize: 20,
+                                                          color: Colors.green),
+                                                    )
+                                                  : CircularProgressIndicator(
+                                                      backgroundColor: Colors.red,
+                                                    )), //for save data
+                                        )*/
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      height: 2,
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          )
-                        ],
-                      );
-                    }),
-              ),
-            ],
-          ),
+                            )
+                          ],
+                        );
+                      }),
+                ),
+              ],
+            ),
+      );}
     );
   }
+
+
+  /*Future<void> sendImageToServer(XFile image) async {
+    try {
+      print(image.path);
+      // Create a multipart request
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse('https://kpsinfosys.in/app/result/profilephotoupload.php'), // Replace with your PHP server endpoint
+      );
+
+      // Add the image file to the request
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'image',
+          image.path!,
+        ),
+      );
+
+      // Send the request
+      var response = await request.send();
+
+      // Check the response status
+      if (response.statusCode == 200) {
+        ToastWidget.showToast('Image uploaded successfully', Colors.green);
+        print(await response.stream.bytesToString());
+      } else {
+        print('Failed to upload image. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error sending image to server: $e');
+    }
+  }*/
+
   Widget dataBox({String data="",double borderWidth=1,double margin=0,double
   height=30,double ? width,double fsize=15, bool border=true,Color
   borderColor=Colors.black,Color textColor=Colors.black,Color
@@ -715,7 +947,84 @@ Future<void> showDocsList(int position) async
     super.initState();
     getNominalData();
   }
+  Future <void> _showDownloadingDialog(BuildContext context,String message) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return WillPopScope(
+          onWillPop: ()async=>false,
+          child: Container(
+            child: AlertDialog(
+              actionsAlignment: MainAxisAlignment.center,
+              actions: <Widget>[
+                Row(mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [CircularProgressIndicator(),Text(message,style: TextStyle(
+                      fontWeight: FontWeight.bold
+                  ),),SizedBox(height: 10,)],)
 
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+Future <void> updateInfo(String type,String value,int position) async
+{
+  try {
+    _showDownloadingDialog(context, "Saving");
+    var postData = {
+      "rowid": data[position].rowid,
+      "value": value,
+      "type": type,
+      "current_db": currentdb
+    };
+    var url = Uri.parse('http://117.247.90.209/app/result/updateinfo.php');
+    var response = await http.post(url, body: postData);
+    if (response.statusCode == 200) {
+      showTopSnackbar(context, response.body,Colors.white);
+    }
+    else {
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    }
+  }catch (e) {
+    // Exception occurred, handle accordingly
+    print('Exception occurred: $e');
+    showTopSnackbar(context, "Error $e",Colors.red);
+    Navigator.of(context).popUntil((route) => route.isFirst);
+  }
+  Navigator.pop(context);
+}
+  void showTopSnackbar(BuildContext context,String message,Color col) {
+    final snackBar = SnackBar(
+      content: Center(
+        child: Container(
+          alignment: Alignment.center,
+          width: 100,
+          decoration: BoxDecoration(
+            color: Color.fromRGBO(0, 255, 0, 0.5), // Set the desired background color
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(message,style:
+            TextStyle(color: col,fontWeight: FontWeight.w900),),
+          ),
+        ),
+      ),
+      duration: Duration(seconds: 1),
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(0),
+        side: BorderSide.none,
+      ),
+      elevation: 0,
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
   Future<void> uploadDocument(var image, int position, String doctype) async {
     final bytes = File(image).readAsBytesSync();
     String img64 = base64Encode(bytes);
@@ -1057,11 +1366,12 @@ Future<void> showDocsList(int position) async
       String query;
      List<NominalData> data=[];
       query = "select rowid,rollno,admno,sname,mname,fname,dob,cat,caste,gen,"
-          "mobileno,rte,doa,addhar,session_status from `$currentdb`.`nominal` "
+          "mobileno,rte,doa,addhar,session_status,busstop,busno,house,ifnull(pen,''),addr from `$currentdb`.`nominal` "
           "where "
           "cname='$cname' "
           "and section='$section' and branch='$branch'  and rollno "
-          "not in ('',' ') and rollno is not null order by rollno";
+          "not in ('',' ') and rollno  is not null and status=1 order by rollno";
+      //print(query);
       var results = await connection.query(query);
       for (var rows in results) {
         DateTime birthDate=new DateFormat("dd-MM-yyyy").parse(rows[6]==""?"29-01-2022":rows[6]);
@@ -1095,6 +1405,11 @@ Future<void> showDocsList(int position) async
             doa:rows[12],
             addhar:rows[13],
             session_status: rows[14],
+        busarea: rows[15],
+        busno: rows[16].toString(),
+        house: rows[17],
+        pen: rows[18].toString(),
+        addr: rows[19],
         age: "${years} years ${months} months ${days} days"));
         if(rows[14]=='After Term I')
           {
@@ -1103,7 +1418,7 @@ Future<void> showDocsList(int position) async
       }
       query="select gen,count(gen) from `$currentdb`.`nominal` where "
           "cname='$cname' and section='$section' and branch='$branch' and "
-          "rollno not in('',' ') and rollno is not null and session_status "
+          "rollno not in('',' ') and status=1 and rollno is not null and session_status "
           "not in('after term I') group "
           "by gen order by gen";
       results=await connection.query(query);
@@ -1122,9 +1437,15 @@ Future<void> showDocsList(int position) async
               gencount.add(['M',0]);
             }
         }
+      query="select name from kpsbspin_master."
+          "houses where branch=$branch "
+          "and session='$currentSession' order by name";
+      results=await connection.query(query);
+      for(var rows in results){
+        houses.add(rows[0]);
+      }
       this.data=data;
       dataChecked=true;
-      print(data.length);
       setState(() {});
     } catch (Exception) {
       if (Exception.runtimeType == StateError) {
@@ -1218,7 +1539,9 @@ class NominalData {
       mobileno,
       rte,
       doa,
-      addhar,session_status,age;
+      addhar,
+      session_status,
+      age,pen,house,busarea,busno,addr;
 
   NominalData(
       {
@@ -1237,7 +1560,11 @@ class NominalData {
         required this.doa,
         required this.addhar,
         required this.session_status,
-      required this.age});
+      required this.age,
+  required this.house,
+        required this.busarea,
+        required this.busno,
+        required this.pen,required this.addr});
 }
 
 class PhyDocData {

@@ -35,6 +35,7 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
   int maleCount=0,femaleCount=0,nonActiveCount=0,nonClearedCount=0;
   String? previousDB="",currentDB="",nextDB="",getdate="";
   List<bool> saving=[],savingTC=[],loadingSubject=[];
+  List<String> sectionList=[];
   DateTime selectedDate = DateTime.now();
   var myFormat = DateFormat('yyyy-MM-dd');
   mysql.MySqlConnection? connection;
@@ -136,33 +137,34 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
             child: Container(
               height: (screenHeight!/100)*7,
               margin: EdgeInsets.symmetric(vertical: screenHeight!/100),
-              child: TypeAheadFormField(
-                suggestionsCallback: (pattern)=> nameList.where((item) =>
-                item.toUpperCase().contains(pattern.toUpperCase())),
+              child: TypeAheadField<String>(
+                  suggestionsCallback: (pattern) {
+                    return nameList.where(
+                          (item) => item.toUpperCase().contains(pattern.toUpperCase()),
+                    ).toList();
+                  },
                 itemBuilder: (_,String item){return ListTile(leading:Text
                   ((nameList.indexOf(item)+1).toString()),
                 title: Text
                   (item),);},
-                onSuggestionSelected: (String val)async{
+                onSelected: (String val)async{
                   this._searchName.text=val;
                   ToastWidget.showToast("Student found at "+(nameList.indexOf
                     (val)+1).toString(),Colors.green);
                 },
-                getImmediateSuggestions: true,
-                hideSuggestionsOnKeyboardHide: false,
                 hideOnEmpty: false,
-                noItemsFoundBuilder: (context)=>Padding
-                  (padding: const EdgeInsets.all(8.0), child: Text("No "
-                    "student found"),),
-                textFieldConfiguration: TextFieldConfiguration(
-                  controller: _searchName,
-                  textCapitalization: TextCapitalization.characters,
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.search),
-                    hintText: "Type student name here...",
-                    border: OutlineInputBorder()
-                  )
-                ),
+                // noItemsFoundBuilder: (context)=>Padding
+                //   (padding: const EdgeInsets.all(8.0), child: Text("No "
+                //     "student found"),),
+                // textFieldConfiguration: TextFieldConfiguration(
+                //   controller: _searchName,
+                //   textCapitalization: TextCapitalization.characters,
+                //   decoration: InputDecoration(
+                //     prefixIcon: Icon(Icons.search),
+                //     hintText: "Type student name here...",
+                //     border: OutlineInputBorder()
+                //   )
+                // ),
               ),
             ),
           )
@@ -357,13 +359,25 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
     try
     {
       nameList.clear();
+      sectionList.clear();
       int cno;
+      String query = "select section from `$currentDB`.`sections` where "
+          "cname='$cname'"
+          " and branch like '%$branch%' order by section";
+      var results=await connection!.query(query);
+      for (var rows in results)
+        {
+          sectionList.add(rows[0]);
+        }
+      sectionList.add('N');
+      sectionList.add('TC');
+      sectionList.add('Not active');
       this.data=[];
       List<Data> data=[];
-      String query="select rowid,sname,rollno,section,admno,gen,session_status,cno"
+      query="select rowid,sname,rollno,section,admno,gen,session_status,cno"
           " from `$currentDB`.`nominal` where "
           "cname='$cname' and branch='$branch' and status=1 order by gen,sname";
-      var results=await connection!.query(query);
+      results=await connection!.query(query);
       for (var rows in results) {
         cno=rows[7];
         if (rows[6] == 'After Term I') {
@@ -692,12 +706,12 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
         cname=='KGI' || cname=='KGII'|| cname=='NUR')
     {
       url = Uri.parse(
-          'http://117.247.90.209/app/result/rollno_assign/nur_v.php');
+          'http://117.247.90.209/app/result/rollno_assign/${GlobalSetting.alias}nur_v.php');
     }
     else if(cname=='VI'||cname=='VII'||cname=='VIII')
     {
       url = Uri.parse(
-          'http://117.247.90.209/app/result/rollno_assign/vi_viii.php');
+          'http://117.247.90.209/app/result/rollno_assign/${GlobalSetting.alias}vi_viii.php');
     }
     else if(cname=='IX'||cname=='X')
     {
@@ -715,7 +729,7 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
         'subject6':data?[position].subject6
       });
       url = Uri.parse(
-          'http://117.247.90.209/app/result/rollno_assign/ix_x.php');
+          'http://117.247.90.209/app/result/rollno_assign/${GlobalSetting.alias}ix_x.php');
     }
     else if(cname=='XI'||cname=='XII')
     {
@@ -734,7 +748,7 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
         'subject6':data?[position].subject6
       });
       url = Uri.parse(
-          'http://117.247.90.209/app/result/rollno_assign/xi_xii.php');
+          'http://117.247.90.209/app/result/rollno_assign/${GlobalSetting.alias}xi_xii.php');
     }
     var response=await http.post(url,body: postData);
     if(response.statusCode==200)
@@ -762,6 +776,7 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
     });
     print(response.body);
   }
+  //not in use
   Future uploadTC(int position)async
   {
     setState(() {
@@ -818,21 +833,22 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
       savingTC[position]=false;
     });
   }
+
+  //for loading the database subject in list
   Future loadDBSubjects()async
   {
     String querysub5="";
     String querysub6="";
     List<String>subject5=[],subject6=[],mainSubject=[];
-
     if(cname=='IX'||cname=='X')
     {
-      querysub5="select distinct upper(subname) from `$currentDB`.`subjectList` where subno=5 and classflag like '%9to10%'";
+      querysub5="select distinct upper(subname) from `$currentDB`.`${GlobalSetting.alias}subjectList` where subno=5 and classflag like '%9to10%'";
       var sublist=await connection!.query(querysub5);
       for(var subrows in sublist)
       {
         subject5.add(subrows[0]);
       }
-      querysub6="select distinct upper(subname) from `$currentDB`.`subjectList` where subno in ('6','7') and classflag like '%9to10%'";
+      querysub6="select distinct upper(subname) from `$currentDB`.`${GlobalSetting.alias}subjectList` where subno in ('6','7') and classflag like '%9to10%'";
       sublist=await connection!.query(querysub6);
       for(var subrows in sublist)
         {
@@ -843,7 +859,7 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
     }
     else if(cname=='XI'||cname=='XII')
     {
-      querysub5="select distinct upper(subname) from `$currentDB`.`subjectList` where subno=5 and classflag like '%11to12%'";
+      querysub5="select distinct upper(subname) from `$currentDB`.`${GlobalSetting.alias}subjectList` where subno=5 and classflag like '%11to12%'";
       var sublist=await connection!.query(querysub5);
       for(var subrows in sublist)
       {
@@ -853,7 +869,7 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
       subject6.add("NA");
       _subject5=subject5;
       _subject6=subject6;
-      var mainsublist=await connection!.query("select distinct(subname) from `$currentDB`.`subjectList` where subno=2 and classflag like '%11to12%'");
+      var mainsublist=await connection!.query("select distinct(subname) from `$currentDB`.`${GlobalSetting.alias}subjectList` where subno=2 and classflag like '%11to12%'");
       for(var subrows in mainsublist)
       {
         mainSubject.add(subrows[0]);
@@ -905,8 +921,7 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
                 await subjectSelection(position);
               }
             },
-            items: <String>['A', 'B', 'C', 'D', 'E', 'F','N', 'TC', 'Not '
-                'active']
+            items: sectionList
                 .map<DropdownMenuItem<String>>((String value) {
               return DropdownMenuItem<String>(
                 value: value,
@@ -917,10 +932,9 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
   }
   Future<void> subjectSelection(int position) async
   {
-    _selectedSubject5=data?[position].subject5;
-    _selectedSubject6=data?[position].subject6;
-    _selectedMainSubject=data?[position].mainSubject;
-    print(_selectedSubject5);
+    _selectedSubject5=data?[position].subject5==""?null:data?[position].subject5;
+    _selectedSubject6=data?[position].subject6==""?null:data?[position].subject6;
+    _selectedMainSubject=data?[position].mainSubject==""?null:data?[position].mainSubject;
     return showDialog<void>(
         context: context,
         barrierDismissible: false, // user must tap button!
@@ -1021,12 +1035,12 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
     String sub5="",sub6="",mainSub="";
     if(cname=='IX' ||cname=='X')
     {
-      var subject=await connection!.query("Select distinct subname from `$currentDB`.`ix_x` where subno='5' and rowid='${data?[position].rowid}'");
+      var subject=await connection!.query("Select distinct subname from `$currentDB`.`${GlobalSetting.alias}ix_x` where subno='5' and rowid='${data?[position].rowid}'");
       for (var rows in subject)
       {
         sub5=rows[0];
       }
-      subject=await connection!.query("Select distinct subname from `$currentDB`.`ix_x` where subno='6' and rowid='${data?[position].rowid}'");
+      subject=await connection!.query("Select distinct subname from `$currentDB`.`${GlobalSetting.alias}ix_x` where subno='6' and rowid='${data?[position].rowid}'");
       for (var rows in subject)
       {
         sub6=rows[0];
@@ -1034,17 +1048,17 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
     }
     else if(cname=='XI' ||cname=='XII')
     {
-      var subject=await connection!.query("Select distinct subname from `$currentDB`.`xi_xii` where subno='2' and rowid='${data?[position].rowid}'");
+      var subject=await connection!.query("Select distinct subname from `$currentDB`.`${GlobalSetting.alias}xi_xii` where subno='2' and rowid='${data?[position].rowid}'");
       for (var rows in subject)
       {
         mainSub=rows[0];
       }
-      subject=await connection!.query("Select distinct subname from `$currentDB`.`xi_xii` where subno='5' and rowid='${data?[position].rowid}'");
+      subject=await connection!.query("Select distinct subname from `$currentDB`.`${GlobalSetting.alias}xi_xii` where subno='5' and rowid='${data?[position].rowid}'");
       for (var rows in subject)
       {
         sub5=rows[0];
       }
-      subject=await connection!.query("Select distinct subname from `$currentDB`.`xi_xii` where subno='6' and rowid='${data?[position].rowid}'");
+      subject=await connection!.query("Select distinct subname from `$currentDB`.`${GlobalSetting.alias}xi_xii` where subno='6' and rowid='${data?[position].rowid}'");
       for (var rows in subject)
       {
         sub6=rows[0];
@@ -1056,6 +1070,9 @@ class _AssignRollnoSection_TC_PanelState extends State<AssignRollnoSection_TC_Pa
       data?[position].subject6=sub6;
       loadingSubject[position]=false;
     });
+    print("Main subject $mainSub");
+    print("Subject 5 $sub5");
+    print("Subject 6 $sub6");
   }
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(

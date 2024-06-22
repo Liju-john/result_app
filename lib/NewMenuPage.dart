@@ -11,40 +11,41 @@ import 'package:result_app/AddNewStudentPage.dart';
 import 'package:result_app/AssignRollnoSectionTcPage.dart';
 import 'package:result_app/MarksEntryPage.dart';
 import 'package:result_app/Outstanding.dart';
-import 'package:result_app/PermissionPanel.dart';
+import 'package:result_app/ProfilePhoto.dart';
 import 'package:result_app/SchoolStatsPanel.dart';
 import 'package:result_app/SearchDeletePannel.dart';
 import 'package:result_app/StatsPanel.dart';
 import 'package:result_app/settings/InternetCheck.dart';
 import 'package:result_app/widgets/ToastWidget.dart';
 import 'MysqlHelper.dart';
+import 'NewPermissionPanel.dart';
 import 'NominalPanel.dart';
 import 'PromoteTC_Panel.dart';
 import 'VaccinePanel.dart';
 import 'settings/Settings.dart';
 
-class MenuPage extends StatefulWidget {
+class NewMenuPage extends StatefulWidget {
   mysql.MySqlConnection? connection;
-  String? uid = "", uname = "";
+  String? uid = "", uname = "",loginbranch="";
 
-  MenuPage({this.connection, this.uid, this.uname});
+  NewMenuPage({this.connection, this.uid, this.uname,this.loginbranch});
 
   @override
-  _MenuPageState createState() =>
-      _MenuPageState(this.connection, this.uid, this.uname);
+  _NewMenuPageState createState() =>
+      _NewMenuPageState(this.connection, this.uid, this.uname,this.loginbranch);
 }
 
-class _MenuPageState extends State<MenuPage> {
+class _NewMenuPageState extends State<NewMenuPage> {
   mysql.MySqlConnection? connection;
   String? currentdb = "",
       nextdb = "",
       previousDB = "",
       currentSession = "",
       next_Session="",
-      uname;
+      uname,term1,term2,loginbranch;
   double? screenwidth, screenheight;
   int? connectionType;
-  String? uid = '121';
+  String? uid = '';
   GlobalKey<FormState> _formKey = GlobalKey();
   TextEditingController? tname, tpwd;
   //String uid='9584935413';
@@ -64,7 +65,7 @@ class _MenuPageState extends State<MenuPage> {
   String? branch, branchno;
   String? section;
 
-  _MenuPageState(this.connection, this.uid, this.uname);
+  _NewMenuPageState(this.connection, this.uid, this.uname,this.loginbranch);
 
   @override
   void initState() {
@@ -331,6 +332,7 @@ class _MenuPageState extends State<MenuPage> {
         setState(() {
           currentSession = newValue;
         });
+        tasklist.clear();
         await nextSession();
         await getBranch();
       },
@@ -409,6 +411,7 @@ class _MenuPageState extends State<MenuPage> {
       var result = await connection!.query(
           "Select id,db,session from `kpsbspin_master`.`db_names` where remark=1"); // to set the default database
       for (var rows in result) {
+        GlobalSetting.CURRENT_DB_ID=rows[0];
         currentSession = rows[2];
         currentdb = rows[1];
         rowID = rows[0];
@@ -467,65 +470,22 @@ class _MenuPageState extends State<MenuPage> {
       String query="", checkSearch="";
       if (user == 'admin') {
         query =
-            "select marks,nominal,rollnumber,promote,newstudent,admno_change,"
-                "class_sum, school_sum,vd,outstanding"
-                " from `$currentdb`.`permission` where id='$uid' and branch='$branchno'";
-        checkSearch =
-            "Select search_delete from `kpsbspin_master`.`login` where id='$uid'";
+            "select  permission,e1,e2 from `$currentdb`.`teacher_app_perm` "
+                "where id='$uid' and branch='$branchno'";
       } else {
         query =
-            "select marks,nominal,rollnumber,promote,newstudent,admno_change,"
-                " class_sum,school_sum,vd,outstanding"
-                " from `$currentdb`.`permission` where id='$uid' and branch='$branchno' and class='$selectedclass' and section='$selectedsection'";
-      }
-      var addTeacher = await connection!.query(
-          "Select add_teacher from `kpsbspin_master`.`login` where id='$uid'");
-      var r = addTeacher.first;
-      if (r[0] == 1) {
-        tasklist.add("Permission Manager");
+            "select  permission,e1,e2 from `$currentdb`.`teacher_app_perm`"
+                " where id='$uid' and branch='$branchno' "
+                "and cname='$selectedclass' and section='$selectedsection'";
       }
       var result = await connection!.query(query);
       for (var row in result) {
-        if (row[4] == 1) {
-          tasklist.add("Add New Student");
-        }
-        if (row[0] == 1) {
-          tasklist.add("Result Entry");
-        }
-        if (row[1] == 1) {
-          tasklist.add("Nominal");
-        }
-        if (row[2] == 1) {
-          tasklist.add("Assign new rollno and section");
-        }
-        if (row[3] == 1) {
-          tasklist.add("Promote");
-        }
-        if (row[5] == 1) {
-          admnoChange = true;
-        }
-        if (row[6] == 1) {
-          tasklist.add("View Class Summary");
-        }
-        if (row[7] == 1) {
-          tasklist.add("View School Summary");
-        }
-        if(row[8]==1)
-          {
-            tasklist.add("Vaccine Detail");
-          }
-        if(row[9]==1)
-        {
-          tasklist.add("Fees Detail");
-        }
-        if (user == 'admin') {
-          var res = await connection!.query(checkSearch);
-          for (row in res) {
-            if (row[0] == 1) {
-              tasklist.add("Search/Delete");
-            }
-          }
-        }
+       tasklist.add(row[0]);
+       if(row[0]=='Marks Entry')
+         {
+           term1=row[1].toString();
+           term2=row[2].toString();
+         }
       }
       setState(() {
         this.tasklist = tasklist;
@@ -556,25 +516,20 @@ class _MenuPageState extends State<MenuPage> {
     try {
       branchlist = [];
       List<String> br = [];
-      var result = await connection!.query(
-          "Select DISTINCT t1.branch,t2.branch from `$currentdb`.`permission`"
+      List<String>? keyValuePairs = loginbranch?.split('-');
+      for(String pair in keyValuePairs!)
+        {
+          List<String> parts = pair.split('_');
+          branches[parts[1]]=parts[0];
+          br.add(parts[1]);
+        }
+      /*var result = await connection!.query(
+          "Select DISTINCT t1.branch,t2.branch from `$currentdb`.`teacher_app_perm`"
               " t1,kpsbspin_master.branchinfo t2 where t1.branch=t2.branchno and id='$uid'");
       for (var row in result) {
         branches[row[1].toString()]=row[0].toString();
         br.add(row[1]);
-    /*    if (row[0] == 1) {
-          br.add('Koni');
-        }
-        if (row[0] == 2) {
-          br.add('Narmada Nagar');
-        }
-        if (row[0] == 3) {
-          br.add('Sakri');
-        }
-        if (row[0] == 4) {
-          br.add('KV');
-        }*/
-      }
+      }*/
       setState(() {
         branchlist = br;
         branch = branchlist[0];
@@ -602,6 +557,7 @@ class _MenuPageState extends State<MenuPage> {
   }
 
   Future getClasses() async {
+    //print("Called getClasses");
     try {
       String query="";
       branchno=branches[branch];
@@ -611,7 +567,7 @@ class _MenuPageState extends State<MenuPage> {
       });
       List<String> clist = [];
       var result = await connection!.query(
-          "Select distinct class from `$currentdb`.`permission` where id='$uid' and branch='$branchno'");
+          "Select distinct cname from `$currentdb`.`teacher_app_perm` where id='$uid' and branch='$branchno'");
       for (var row in result) {
         if (row[0] == 'ALL') {
           query =
@@ -619,7 +575,7 @@ class _MenuPageState extends State<MenuPage> {
           user = 'admin';
         } else {
           query =
-              "Select distinct class from `$currentdb`.`permission` where branch='$branchno' and id='$uid'";
+              "Select distinct cname from `$currentdb`.`teacher_app_perm` where branch='$branchno' and id='$uid'";
           user = 'teacher';
         }
       }
@@ -631,6 +587,16 @@ class _MenuPageState extends State<MenuPage> {
         this.clist = clist;
         selectedclass = this.clist[0];
       });
+      //get the alias which works from session id 6
+      if (GlobalSetting.CURRENT_DB_ID>=6)
+        {
+          query="select * from kpsbspin_master.branchinfo where branchno="+branchno!;
+          result1=await connection!.query(query);
+          for(var r in result1)
+            {
+              GlobalSetting.alias=r['alias'];
+            }
+        }
       getSection();
     } catch (Exception) {
       if (Exception.runtimeType == StateError) {
@@ -665,13 +631,16 @@ class _MenuPageState extends State<MenuPage> {
       List<String> seclist = [];
       if (user == 'admin') {
         seclist.add("ALL");
-        query =
-            "select distinct section from `$currentdb`.`nominal` where "
-                "cname='$selectedclass' and section not in ('') and section "
-                "is not null and branch='$branchno' order by section";
+        // query =
+        //     "select distinct section from `$currentdb`.`nominal` where "
+        //         "cname='$selectedclass' and section not in ('') and section "
+        //         "is not null and branch='$branchno' order by section";
+        query = "select section from `$currentdb`.`sections` where "
+            "cname='${selectedclass}'"
+            " and branch like '%${branchno}%' order by section";
       } else {
         query =
-            "select distinct section from `$currentdb`.`permission` where id='$uid' and class='$selectedclass' and branch='$branchno' order by section";
+            "select distinct section from `$currentdb`.`teacher_app_perm` where id='$uid' and cname='$selectedclass' and branch='$branchno' order by section";
       }
       var results = await connection!.query(query);
       for (var sec in results) {
@@ -717,6 +686,7 @@ class _MenuPageState extends State<MenuPage> {
           "select id,db from `kpsbspin_master`.`db_names` where session='$currentSession'");
       for (var rows in results) {
         id = rows[0];
+        GlobalSetting.CURRENT_DB_ID=id;
         currentdb = rows[1];
         results = await connection!.query(
             "select db,session from `kpsbspin_master`.`db_names` where id='${id + 1}'");
@@ -838,7 +808,7 @@ class _MenuPageState extends State<MenuPage> {
   }
 
   Future<void> navigateMenu(String tasklist) async {
-    if (tasklist == 'Result Entry') {
+    if (tasklist == 'Marks Entry') {
       Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => MarksEntryPannel(
                 connection: connection,
@@ -849,8 +819,9 @@ class _MenuPageState extends State<MenuPage> {
                 screenwidth: screenwidth!,
                 currentdb: currentdb,
                 nextdb: nextdb,branchno: branches[branch],
+            uid: this.uid,uname: this.uname,term1: term1,term2: term2,
               )));
-    } else if (tasklist == 'Assign new rollno and section') {
+    } else if (tasklist == 'Rollno and Sections') {
       Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => AssignRollnoSection_TC_Panel(
                 currentDB: currentdb,
@@ -877,6 +848,23 @@ class _MenuPageState extends State<MenuPage> {
                 screenheight: screenheight!,
                 screenwidth: screenwidth!,
                 admnoChange: admnoChange,
+                tid: uid!,currentSession:currentSession!)));
+      }
+    }
+    else if (tasklist == 'Profile Photo') {
+      if (nextdb == "") {
+        ToastWidget.showToast("No sections available", Colors.red);
+      } else {
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => ProfilePhoto(
+                currentdb: currentdb!,
+                nextdb: nextdb!,
+                connection: connection!,
+                section: selectedsection!,
+                cname: selectedclass!,
+                branch: branchno!,
+                screenheight: screenheight!,
+                screenwidth: screenwidth!,
                 tid: uid!)));
       }
     }
@@ -898,7 +886,7 @@ class _MenuPageState extends State<MenuPage> {
         //         tid: uid!)));
       }
     }
-    else if (tasklist == 'View Class Summary') {
+    else if (tasklist == 'Class Summary') {
       if (nextdb == "") {
         ToastWidget.showToast("No sections available", Colors.red);
       } else {
@@ -916,7 +904,7 @@ class _MenuPageState extends State<MenuPage> {
                 tid: uid!,user: user!,)));
       }
     }
-    else if (tasklist == 'View School Summary') {
+    else if (tasklist == 'School Summary') {
       if (nextdb == "") {
         ToastWidget.showToast("No sections available", Colors.red);
       } else {
@@ -961,7 +949,7 @@ class _MenuPageState extends State<MenuPage> {
                 screenwidth: screenwidth!,
             previousDB: previousDB,
               )));
-    } else if (tasklist == "Search/Delete") {
+    } else if (tasklist == "Search") {
       Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => SearchDeletePanel(
                 currentdb: currentdb!,
@@ -972,15 +960,16 @@ class _MenuPageState extends State<MenuPage> {
               )));
     } else if (tasklist == "Permission Manager") {
       Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => PermissionPanel(
+          builder: (context) => NewPermissionPanel(
                 screenwidth: screenwidth!,
                 screenheight: screenheight!,
                 currentdb: currentdb!,
                 branch: branch!,
                 uid: uid!,
+            loginbranch: loginbranch,
               )));
     }
-    else if(tasklist=="Fees Detail")
+    else if(tasklist=="Fees Details")
       {
         Navigator.of(context).push(MaterialPageRoute(
             builder: (context)=>OutstandingPanel(

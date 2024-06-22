@@ -13,13 +13,19 @@ class NominalDropDownMenu extends StatefulWidget {
   String selectedGender;
   String selectedcategory;
   String type;
-  NominalDropDownMenu(this.data,this.position,this.selectedRte,this.selectedGender,this.selectedcategory,this.type);
+  String selectedHouse="";
+  List<String> houses=[];
+  NominalDropDownMenu(this.data,this.position,this.selectedRte,
+      this.selectedGender,this.selectedcategory,this.selectedHouse,this.type,
+      this.houses);
   @override
-  _NominalDropDownMenuState createState() => _NominalDropDownMenuState(this.data,this.position,this.selectedRte,this.selectedGender,this.selectedcategory,this.type);
+  _NominalDropDownMenuState createState() => _NominalDropDownMenuState(this.data,this.position,
+      this.selectedRte,this.selectedGender,this.selectedcategory,this.selectedHouse,this.type,this.houses);
 }
 
 class _NominalDropDownMenuState extends State<NominalDropDownMenu> {
   List<NominalData> data;
+  List<String> houses=[];
   String type;
   DateTime selectedDate = DateTime.now();
   var myFormat = DateFormat('dd-MM-yyyy');
@@ -28,7 +34,9 @@ class _NominalDropDownMenuState extends State<NominalDropDownMenu> {
   String selectedRte="";
   String selectedGender="";
   String selectedcategory="";
-  _NominalDropDownMenuState(this.data,this.position,this.selectedRte,this.selectedGender,this.selectedcategory,this.type);
+  String selectedHouse="";
+  _NominalDropDownMenuState(this.data,this.position,this.selectedRte,
+      this.selectedGender,this.selectedcategory,this.selectedHouse,this.type,this.houses);
   @override
   Widget build(BuildContext context) {
     FocusScope.of(context).requestFocus(FocusNode());
@@ -101,6 +109,28 @@ class _NominalDropDownMenuState extends State<NominalDropDownMenu> {
           }).toList(),
         );
       }
+    else if(type=='HOUSE')
+    {
+      return DropdownButton<String>(
+        value:selectedHouse,
+        icon: const Icon(Icons.arrow_downward,color: Colors.blue,),
+        iconSize: 24,
+        elevation: 16,
+        onChanged: (String? newValue) async {
+          setState(() {
+            selectedHouse = newValue!;
+            data[position].house=newValue;
+          });
+        },
+        items: houses
+            .map<DropdownMenuItem<String>>((String value) {
+          return DropdownMenuItem<String>(
+            value: value,
+            child: Text(value),
+          );
+        }).toList(),
+      );
+    }
     else if(type=='CALE')
       {
         print("else");

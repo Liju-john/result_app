@@ -1,15 +1,19 @@
 import 'dart:ui';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:result_app/MenuPage.dart';
+import 'package:install_plugin/install_plugin.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:progress_dialog_null_safe/progress_dialog_null_safe.dart';
 import 'package:result_app/settings/InternetCheck.dart';
 import 'package:result_app/settings/Settings.dart';
 import 'package:mysql1/mysql1.dart' as mysql;
 import 'package:result_app/widgets/ToastWidget.dart';
 
 import 'MysqlHelper.dart';
+import 'NewMenuPage.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -22,12 +26,14 @@ class _LoginPageState extends State<LoginPage> {
   String id="", password="";
   mysql.MySqlConnection? connection;
   MysqlHelper mysqlHelper = MysqlHelper();
-
+ double _progressValue=0;
+  late ProgressDialog progressDialog;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     NetworkStatus.checkStatus();
+    progressDialog = ProgressDialog(context,isDismissible: false);
   }
 
   Widget _buildLogo() {
@@ -243,7 +249,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                         Text(
-                          "Version:- 2.8",
+                          "Version:- 3.6",
                           style: TextStyle(fontWeight: FontWeight.bold),
                         )
                       ],
@@ -286,16 +292,106 @@ class _LoginPageState extends State<LoginPage> {
       },
     );
   }
+  showDownloadDialog(BuildContext context) {
+    AlertDialog alert = AlertDialog(
+      title: Text('Update Available'),
+      content: Text('Click download to continue..'),
+      actions: [
+        // Download Button
+        TextButton(
+          onPressed: () {
+            _progressValue=0.0;
+            Navigator.of(context).pop();
+            _networkInstallApk();
+             // Close the dialog
+          },
+          child: Text('Download'),
+        ),
+      ],
+    );
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+  _networkInstallApk() async {
+    progressDialog.show();
+    if (_progressValue != 0 && _progressValue < 1) {
+      progressDialog.update(
+        progress: _progressValue,
+        message: "Waiting for server",
+      );
+      return;
+    }
 
+    _progressValue = 0.0;
+    try {
+      var appDocDir = await getTemporaryDirectory();
+      String savePath = appDocDir.path + "/res.apk";
+      String fileUrl =
+              "https://kpsinfosys.in/app/res.apk";
+      await Dio().download(fileUrl, savePath, onReceiveProgress: (count, total) {
+            final value = count / total;
+            if (_progressValue != value) {
+              setState(() {
+                if (_progressValue < 1.0) {
+                  _progressValue = count / total;
+                  progressDialog.update(
+                    progress: _progressValue,
+                    message: "Downloading...${(_progressValue*100).toStringAsFixed(0)}%",
+                  );
+                } else {
+                  _progressValue = 0.0;
+                  progressDialog.update(
+                    progress: _progressValue,
+                    message: "Downloading...${(_progressValue*100).toStringAsFixed(0)}%",
+                  );
+                }
+              });
+              progressDialog.update(
+                progress: _progressValue,
+                message: "Downloading...${(_progressValue*100).toStringAsFixed(0)}%",
+              );
+            }
+          });
+      progressDialog.update(
+        progress:0.0,
+        message: "",
+      );
+      progressDialog.hide();
+      await InstallPlugin.install(savePath);
+    } catch (e) {
+      progressDialog.hide();
+      _progressValue = 0.0;
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Download Failed'),
+          content: Text('Failed to download the file due to Error: $e'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Okay'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
   Future checkLogin() async {
     try {
       showLoaderDialog(context);
       await getConnection();
-      String check = "select status from appinfo where version='2.8'";
+      String check = "select status from appinfo where version='3.6'";
       var res = await connection!.query(check);
       var r1 = res.first;
       if (r1[0] == 1) {
-        String sql = "select count(*),name from login where id='$id'"
+        String sql = "select count(*),name,branch from login where id='$id'"
             " and pwd='$password'";
         var result = await connection!.query(sql);
         //print(sql);
@@ -303,17 +399,19 @@ class _LoginPageState extends State<LoginPage> {
         Navigator.pop(context);
         if (row[0] == 1) {
           Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => MenuPage(
+              builder: (context) => NewMenuPage(
                     connection: connection!,
                     uid: id,
+                    loginbranch: row[2],
                     uname: row[1],
                   )));
         } else {
           ToastWidget.showToast("Incorrect user ID or password", Colors.red);
         }
       } else if (r1[0] == 0) {
-        ToastWidget.showToast("Update app to latest version", Colors.red);
+        //ToastWidget.showToast("Update app to latest version", Colors.red);
         Navigator.pop(context);
+        showDownloadDialog(context);
       } else {
         ToastWidget.showToast(
             "Something went wrong. please try after some time", Colors.red);

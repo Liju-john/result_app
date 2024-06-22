@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mysql1/mysql1.dart' as mysql;
 import 'package:result_app/settings/Settings.dart';
-import "package:collection/collection.dart" as mycolle;
 class SchoolStatsPanel extends StatefulWidget {
   String currentdb = "", nextdb = "";
   double screenheight, screenwidth;
@@ -217,7 +216,7 @@ class _SchoolStatsPanelState extends State<SchoolStatsPanel> {
     List data=[],genderData=[],section=[],cname=[];
     String sql="select cname,section,gen,rte,cat,count(cat) from "+currentdb+""
         ".nominal where branch="+branch+" and rollno is not null and rollno "
-        "not in('',' ') group by cname,section,gen,rte,cat order by cno,"
+        "not in('',' ') and status=1 group by cname,section,gen,rte,cat order by cno,"
         "section,gen,rte,cat";
     var results = await connection.query(sql);
     for (var rows in results){
@@ -231,14 +230,14 @@ class _SchoolStatsPanelState extends State<SchoolStatsPanel> {
        genderData.add([rows[0],rows[1],rows[2],rows[3]]);
       }*/
     sql="select distinct cname from "+currentdb+".nominal where "
-        "branch='"+branch+"' order by cno";
+        "branch='"+branch+"' and cname <>'TC' order by cno";
     results=await connection.query(sql);
     List genCount=[];
     for (var cname in results)
       {
         sql="select distinct section from "+currentdb+".nominal where "
-            "branch='"+branch+"' and cname ='"+cname[0]+"' and section not in "
-            "('',' ') order by section";
+            "branch='"+branch+"' and cname ='"+cname[0]+"' "
+            " and status=1 order by section";
         var res=await connection.query(sql);
         for (var section in res)
           {
@@ -246,7 +245,7 @@ class _SchoolStatsPanelState extends State<SchoolStatsPanel> {
             sql="select gen,count(*) from "+currentdb+".nominal "
                 "where branch='"+branch+"' and cname ='"+cname[0]+"' "
                 "and section='"+section[0]+"' and "
-                "session_status not in ('after term I') group by gen";
+                "session_status not in ('after term I') and status=1 group by gen";
             var r2=await connection.query(sql);
             for(var count in r2)
               {

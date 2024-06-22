@@ -327,7 +327,7 @@ class _PermissionPanelState extends State<PermissionPanel> {
   }
   Future<void> deleteTeacherAlert(int position) async
   {
-    FocusScope.of(context).unfocus();
+
     return showDialog<void>(
         context: context,
         barrierDismissible: false, // user must tap button!

@@ -117,7 +117,7 @@ class _CCGateWayWebViewState extends State<CCGateWayWebView> {
                     loadingTimeoutTimer?.cancel();
                   },
                   initialUrlRequest: URLRequest(
-                      url: Uri.parse(this.paymentURL)
+                      url: WebUri(this.paymentURL)
                   ),
                   onReceivedServerTrustAuthRequest: (controller, challenge) async {
                     print(challenge);
