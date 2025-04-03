@@ -980,7 +980,7 @@ Future <void> updateInfo(String type,String value,int position) async
       "type": type,
       "current_db": currentdb
     };
-    var url = Uri.parse('http://117.247.90.209/app/result/updateinfo.php');
+    var url = Uri.parse('$serverAdd/result/updateinfo.php');
     var response = await http.post(url, body: postData);
     if (response.statusCode == 200) {
       showTopSnackbar(context, response.body,Colors.white);
@@ -1034,7 +1034,7 @@ Future <void> updateInfo(String type,String value,int position) async
       "photo": img64,
       "doctype": doctype
     };
-    var url = Uri.parse('http://117.247.90.209/app/result/docupload.php');
+    var url = Uri.parse('$serverAdd/result/docupload.php');
     var response = await http.post(url, body: postData);
     if (response.statusCode == 200) {
       ToastWidget.showToast(response.body, Colors.green);
@@ -1050,7 +1050,7 @@ Future <void> updateInfo(String type,String value,int position) async
     this.phyData.clear();
     List<PhyDocData> phyData=[];
    var postData={"rowid":data[position].rowid};
-   var url = Uri.parse('http://117.247.90.209/app/result/viewDocument.php');
+   var url = Uri.parse('$serverAdd/result/viewDocument.php');
    var response=await http.post(url,body: postData);
    if (response.statusCode == 200) {
          var contentType = response.headers['content-type'];
@@ -1349,7 +1349,7 @@ Future <void> updateInfo(String type,String value,int position) async
       "doa":'${data[position].doa}',
       "aadhar":'${data[position].addhar}'
     };
-    var url = Uri.parse('http://117.247.90.209/app/result/updateNominal.php');
+    var url = Uri.parse('$serverAdd/result/updateNominal.php');
     var response = await http.post(url, body: postData);
     if (response.statusCode == 200) {
       ToastWidget.showToast(response.body, Colors.green);

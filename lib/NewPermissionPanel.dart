@@ -1012,7 +1012,7 @@ class _NewPermissionPanelState extends State<NewPermissionPanel> {
       "tpwd": tpwd!.text,
     "branch":branch};
     print(postData);
-    var url = Uri.parse('http://117.247.90.209/app/result/addTeacher.php');
+    var url = Uri.parse('$serverAdd/result/addTeacher.php');
     var response = await http.post(url, body: postData);
     if (response.statusCode == 200) {
       ToastWidget.showToast(response.body, Colors.red);
@@ -1024,7 +1024,7 @@ class _NewPermissionPanelState extends State<NewPermissionPanel> {
     var postData = {"tname": nameData[selectedPosition].name,
       "tid": nameData[selectedPosition].id,
       "current_db":currentdb};
-    var url = Uri.parse('http://117.247.90.209/app/result/deleteTeacher.php');
+    var url = Uri.parse('$serverAdd/result/deleteTeacher.php');
     var response = await http.post(url, body: postData);
     if (response.statusCode == 200) {
       ToastWidget.showToast(response.body, Colors.red);

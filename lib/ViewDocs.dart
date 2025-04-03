@@ -64,7 +64,7 @@ class _ViewDocsState extends State<ViewDocs> {
     final localPath = '${directory.path}/$fileName';
     var postData={"rowid":this.rowid,"doc_name":this.doc_name};
     print(postData);
-    var url = Uri.parse('http://117.247.90.209/app/result/viewDocumentPDF.php');
+    var url = Uri.parse('$serverAdd/result/viewDocumentPDF.php');
     var response = await http.post(url, body: postData);
     if (response.statusCode == 200) {
       final file = File(localPath);

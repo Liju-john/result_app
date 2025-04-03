@@ -10,7 +10,7 @@
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
 
     <application
-        android:label="Result v3.6"
+        android:label="Result v3.14"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
